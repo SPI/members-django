@@ -21,7 +21,6 @@ from membersdjango.app import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-#    url(r'^$', include('app.urls')),
     path('', views.index, name='index'),
-
 ]
+#    url(r'^$', include('app.urls')),

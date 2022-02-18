@@ -1,5 +1,6 @@
 from django.db import models
 
+
 class Members(models.model):
     memid = models.AutoField(null=False, primary_key=True)
     name = models.CharField(max_length=50, null=False)
@@ -12,7 +13,7 @@ class Members(models.model):
     ismember = models.BooleanField(null=False, blank=False, default=False)
     iscontrib = models.BooleanField(null=False, blank=False, default=False)
     ismanager = models.BooleanField(null=False, blank=False, default=False)
-    sub_private = models.BooleanField( default=False)
+    sub_private = models.BooleanField(default=False)
     lastactive = models.DateTimeField()
     createvote = models.BooleanField(null=False, blank=False, default=False)
 
@@ -72,7 +73,7 @@ class VoteVote(models.model):
     voter_ref = models.ForeignKey(Members, null=False, blank=False, db_column='voter_ref', on_delete=models.RESTRICT)
     election_ref = models.ForeignKey(VoteElection, null=False, blank=False, db_column='election_ref', on_delete=models.RESTRICT)
     private_secret = models.CharField(max_length=32)
-    last_updated = models.DateTimeField(auto_now=True) # missing: with time zone
+    last_updated = models.DateTimeField(auto_now=True)  # missing: with time zone
     send_notify = models.BooleanField(null=False, default=False)
 
     class Meta:
@@ -92,30 +93,29 @@ class VoteVoteOption(models.model):
 
 # These tables do not seem to be used, even though they exist in production
 
-#class VoteLog(models.model):
-#    ref = models.AutoField(null=False, primary_key=True)
-#    time = models.DateTimeField(auto_add_now=True, null=False)
-#    source_ip = models.CharField(max_length=255)
-#    vote_caset = models.CharField(max_length=255)
-#    vote_ref = models.ForeignKey(VoteVote, null=False, blank=False, db_column='vote_ref', on_delete=models.RESTRICT)
-#    who = models.ForeignKey(VoteVoter, null=False, blank=False, db_column='who', on_delete=models.RESTRICT)
+# class VoteLog(models.model):
+#     ref = models.AutoField(null=False, primary_key=True)
+#     time = models.DateTimeField(auto_add_now=True, null=False)
+#     source_ip = models.CharField(max_length=255)
+#     vote_caset = models.CharField(max_length=255)
+#     vote_ref = models.ForeignKey(VoteVote, null=False, blank=False, db_column='vote_ref', on_delete=models.RESTRICT)
+#     who = models.ForeignKey(VoteVoter, null=False, blank=False, db_column='who', on_delete=models.RESTRICT)
 
-#    class Meta:
-#        db_table = 'vote_log'
+#     class Meta:
+#         db_table = 'vote_log'
 
-#class VoteSession(models.model):
-#    ref = models.AutoField(null=False, primary_key=True)
-#    vote_session_id = models.CharField(max_length=256, null=False, unique=True, db_column='id')  # todo: merge with ref?
-#    data = models.BinaryField()
-#    last_seen = models.DateTimeField(auto_now=True)
+# class VoteSession(models.model):
+#     ref = models.AutoField(null=False, primary_key=True)
+#     vote_session_id = models.CharField(max_length=256, null=False, unique=True, db_column='id')  # todo: merge with ref?
+#     data = models.BinaryField()
+#     last_seen = models.DateTimeField(auto_now=True)
 
-#    class Meta:
-#        db_table = 'vote_session'
+#     class Meta:
+#         db_table = 'vote_session'
 
-#class VoteVoter(models.model):
-#    ref = models.ForeignKey(Members, null=False, blank=False, db_column='ref', on_delete=models.RESTRICT)
-#    session_ref = models.IntegerField()
+# class VoteVoter(models.model):
+#     ref = models.ForeignKey(Members, null=False, blank=False, db_column='ref', on_delete=models.RESTRICT)
+#     session_ref = models.IntegerField()
 
-#    class Meta:
-#        db_table = 'vote_voter'
-    
+#     class Meta:
+#         db_table = 'vote_voter'
