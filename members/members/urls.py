@@ -1,4 +1,4 @@
-"""membersdjango URL Configuration
+"""members URL Configuration
 
 The `urlpatterns` list routes URLs to views. For more information please see:
     https://docs.djangoproject.com/en/3.2/topics/http/urls/
@@ -17,7 +17,7 @@ from django.contrib import admin
 from django.conf.urls import url, include
 from django.urls import path
 
-from membersdjango.app import views
+from members.app import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),

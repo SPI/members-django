@@ -25,7 +25,7 @@ pip install psycopg2-binary
 
 Create database:
 ```bash
-sudo -u postgres psql -c 'create role <username>; create database membersdjango'
+sudo -u postgres psql -c 'create role <username>; create database members'
 ```
 
 You can also use the ansible script to deploy the application in a testing or production environment.
