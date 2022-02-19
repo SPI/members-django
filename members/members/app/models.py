@@ -32,7 +32,7 @@ class Applications(models.Model):
     contrib = models.TextField()
     comment = models.TextField()
     lastchange = models.DateTimeField()
-    manager = models.ForeignKey(Members, null=False, blank=False, db_column='mamager', on_delete=models.RESTRICT)
+    manager = models.ForeignKey(Members, null=False, blank=False, db_column='manager', on_delete=models.RESTRICT)
     manager_date = models.DateTimeField()
     approve = models.BooleanField()
     approve_date = models.DateTimeField()
