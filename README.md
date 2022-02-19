@@ -20,7 +20,7 @@ virtualenv -p ~/.pyenv/versions/3.7.3/bin/python3 venv
 source ./venv/bin/activate
 pip install django==3.2
 python -m django --version  # Should be 3.2
-pip install psycopg2-binary
+pip install psycopg2-binary requests pycryptodomex
 ```
 
 Create database:
