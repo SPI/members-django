@@ -17,6 +17,9 @@ class Members(models.Model):
     lastactive = models.DateTimeField()
     createvote = models.BooleanField(null=False, blank=False, default=False)
 
+    def __str__(self):
+        return self.name
+
     class Meta:
         db_table = 'members'
 
@@ -38,6 +41,9 @@ class Applications(models.Model):
     approve_date = models.DateTimeField()
     contribapp = models.BooleanField(default=False)
 
+    def __str__(self):
+        return "{0} ({1})".format(self.member, self.appdate)
+
     class Meta:
         db_table = 'applications'
 
@@ -52,6 +58,9 @@ class VoteElection(models.Model):
     winners = models.IntegerField(null=False, default=1)
     system = models.IntegerField(null=False)
 
+    def __str__(self):
+        return self.title
+
     class Meta:
         db_table = 'vote_election'
 
@@ -62,6 +71,9 @@ class VoteOption(models.Model):
     description = models.TextField()
     sort = models.IntegerField(null=False)
     option_character = models.CharField(max_length=1, null=False)
+
+    def __str__(self):
+        return self.description
 
     class Meta:
         unique_together = (('election_ref', 'sort'), ('election_ref', 'option_character'))
