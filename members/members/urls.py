@@ -18,9 +18,17 @@ from django.conf.urls import url, include
 from django.urls import path
 
 from members.app import views
+import members.auth
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', views.index, name='index'),
+
+    # Auth system integration
+    url(r'^(?:accounts/)?login/?$', members.auth.login),
+    url(r'^(?:accounts/)?logout/?$', members.auth.logout),
+    url(r'^auth_receive/$', members.auth.auth_receive),
+    url(r'^auth_api/$', members.auth.auth_api),
+
 ]
 #    url(r'^$', include('app.urls')),
