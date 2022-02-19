@@ -1,7 +1,7 @@
 from django.db import models
 
 
-class Members(models.model):
+class Members(models.Model):
     memid = models.AutoField(null=False, primary_key=True)
     name = models.CharField(max_length=50, null=False)
     email = models.CharField(max_length=50, null=False)
@@ -21,7 +21,7 @@ class Members(models.model):
         db_table = 'members'
 
 
-class Applications(models.model):
+class Applications(models.Model):
     appid = models.AutoField(null=False, primary_key=True)
     appdate = models.DateTimeField()
     member = models.ForeignKey(Members, null=False, blank=False, db_column='member', on_delete=models.RESTRICT)
@@ -42,11 +42,11 @@ class Applications(models.model):
         db_table = 'applications'
 
 
-class VoteElection(models.model):
+class VoteElection(models.Model):
     ref = models.AutoField(null=False, primary_key=True)
     title = models.CharField(max_length=256, null=False)
     description = models.TextField()
-    period_start = models.DateTimeField(auto_add_now=True)
+    period_start = models.DateTimeField(auto_now_add=True)
     period_stop = models.DateTimeField()
     owner = models.ForeignKey(Members, null=False, blank=False, db_column='owner', on_delete=models.RESTRICT)
     winners = models.IntegerField(null=False, default=1)
@@ -56,7 +56,7 @@ class VoteElection(models.model):
         db_table = 'vote_election'
 
 
-class VoteOption(models.model):
+class VoteOption(models.Model):
     ref = models.AutoField(null=False, primary_key=True)
     election_ref = models.ForeignKey(VoteElection, null=False, blank=False, db_column='election_ref', on_delete=models.RESTRICT)
     description = models.TextField()
@@ -68,7 +68,7 @@ class VoteOption(models.model):
         db_table = 'vote_option'
 
 
-class VoteVote(models.model):
+class VoteVote(models.Model):
     ref = models.AutoField(null=False, primary_key=True)
     voter_ref = models.ForeignKey(Members, null=False, blank=False, db_column='voter_ref', on_delete=models.RESTRICT)
     election_ref = models.ForeignKey(VoteElection, null=False, blank=False, db_column='election_ref', on_delete=models.RESTRICT)
@@ -81,7 +81,7 @@ class VoteVote(models.model):
         db_table = 'vote_vote'
 
 
-class VoteVoteOption(models.model):
+class VoteVoteOption(models.Model):
     vote_ref = models.ForeignKey(VoteVote, null=False, blank=False, db_column='vote_ref', on_delete=models.RESTRICT)
     option_ref = models.ForeignKey(VoteOption, null=False, blank=False, db_column='option_ref', on_delete=models.RESTRICT)
     preference = models.IntegerField()
@@ -93,9 +93,9 @@ class VoteVoteOption(models.model):
 
 # These tables do not seem to be used, even though they exist in production
 
-# class VoteLog(models.model):
+# class VoteLog(models.Model):
 #     ref = models.AutoField(null=False, primary_key=True)
-#     time = models.DateTimeField(auto_add_now=True, null=False)
+#     time = models.DateTimeField(auto_now_add=True, null=False)
 #     source_ip = models.CharField(max_length=255)
 #     vote_caset = models.CharField(max_length=255)
 #     vote_ref = models.ForeignKey(VoteVote, null=False, blank=False, db_column='vote_ref', on_delete=models.RESTRICT)
@@ -104,7 +104,7 @@ class VoteVoteOption(models.model):
 #     class Meta:
 #         db_table = 'vote_log'
 
-# class VoteSession(models.model):
+# class VoteSession(models.Model):
 #     ref = models.AutoField(null=False, primary_key=True)
 #     vote_session_id = models.CharField(max_length=256, null=False, unique=True, db_column='id')  # todo: merge with ref?
 #     data = models.BinaryField()
@@ -113,7 +113,7 @@ class VoteVoteOption(models.model):
 #     class Meta:
 #         db_table = 'vote_session'
 
-# class VoteVoter(models.model):
+# class VoteVoter(models.Model):
 #     ref = models.ForeignKey(Members, null=False, blank=False, db_column='ref', on_delete=models.RESTRICT)
 #     session_ref = models.IntegerField()
 
