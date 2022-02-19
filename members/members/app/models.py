@@ -24,7 +24,7 @@ class Members(models.Model):
 class Applications(models.Model):
     appid = models.AutoField(null=False, primary_key=True)
     appdate = models.DateTimeField()
-    member = models.ForeignKey(Members, null=False, blank=False, db_column='member', on_delete=models.RESTRICT)
+    member = models.ForeignKey(Members, null=False, blank=False, db_column='member', on_delete=models.RESTRICT, related_name='app2member')
     emailkey = models.CharField(max_length=50)
     emailkey_date = models.DateTimeField()
     validemail = models.BooleanField()
@@ -32,7 +32,7 @@ class Applications(models.Model):
     contrib = models.TextField()
     comment = models.TextField()
     lastchange = models.DateTimeField()
-    manager = models.ForeignKey(Members, null=False, blank=False, db_column='manager', on_delete=models.RESTRICT)
+    manager = models.ForeignKey(Members, null=False, blank=False, db_column='manager', on_delete=models.RESTRICT, related_name='app2manager')
     manager_date = models.DateTimeField()
     approve = models.BooleanField()
     approve_date = models.DateTimeField()
