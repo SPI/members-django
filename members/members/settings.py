@@ -129,6 +129,7 @@ USE_PG_COMMUNITY_AUTH = True  # Right now we *always* do, but this is used to tu
 PGAUTH_REDIRECT = "http://localhost:8000/account/auth/1/"
 PGAUTH_KEY = "encryption_key"
 LOGIN_URL = "/accounts/login/"
+PGAUTH_REDIRECT_SUCCESS = "http://localhost:8000/"
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
