@@ -2,7 +2,7 @@ from django.db import models
 from django.contrib.auth.models import User
 
 class Members(models.Model):
-    memid = models.OneToOneField(User, null=False, blank=False, primary_key=True, on_delete=models.RESTRICT, db_column='memid')
+    memid = models.OneToOneField(User, null=False, blank=False, primary_key=True, on_delete=models.RESTRICT, db_column='memid', db_constraint=False)
     name = models.CharField(max_length=50, null=False)
     email = models.CharField(max_length=50, null=False)
     phone = models.CharField(max_length=20, null=True)
@@ -27,7 +27,7 @@ class Members(models.Model):
 class Applications(models.Model):
     appid = models.AutoField(null=False, primary_key=True)
     appdate = models.DateTimeField(null=True)
-    member = models.ForeignKey(Members, null=False, blank=False, db_column='member', on_delete=models.DO_NOTHING, related_name='app2member')
+    member = models.ForeignKey(Members, null=False, blank=False, db_column='member', on_delete=models.DO_NOTHING, related_name='app2member', db_constraint=False)
     emailkey = models.CharField(max_length=50, null=True)
     emailkey_date = models.DateTimeField(null=True)
     validemail = models.BooleanField(null=True)
