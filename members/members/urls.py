@@ -23,6 +23,7 @@ import members.auth
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', views.index, name='index'),
+    path('stats/', views.showstats, name='stats'),
 
     # Auth system integration
     url(r'^(?:accounts/)?login/?$', members.auth.login),
