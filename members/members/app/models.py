@@ -5,16 +5,16 @@ class Members(models.Model):
     memid = models.OneToOneField(User, null=False, blank=False, primary_key=True, on_delete=models.RESTRICT, db_column='memid')
     name = models.CharField(max_length=50, null=False)
     email = models.CharField(max_length=50, null=False)
-    phone = models.CharField(max_length=20)
+    phone = models.CharField(max_length=20, null=True)
     password = models.CharField(max_length=15, null=False)
-    pgpkey = models.CharField(max_length=50)
-    firstdate = models.DateTimeField()
-    expirydate = models.DateTimeField()
+    pgpkey = models.CharField(max_length=50, null=True)
+    firstdate = models.DateTimeField(null=True)
+    expirydate = models.DateTimeField(null=True)
     ismember = models.BooleanField(null=False, blank=False, default=False)
     iscontrib = models.BooleanField(null=False, blank=False, default=False)
     ismanager = models.BooleanField(null=False, blank=False, default=False)
-    sub_private = models.BooleanField(default=False)
-    lastactive = models.DateTimeField()
+    sub_private = models.BooleanField(default=False, null=True)
+    lastactive = models.DateTimeField(null=True)
     createvote = models.BooleanField(null=False, blank=False, default=False)
 
     def __str__(self):
@@ -26,20 +26,20 @@ class Members(models.Model):
 
 class Applications(models.Model):
     appid = models.AutoField(null=False, primary_key=True)
-    appdate = models.DateTimeField()
-    member = models.ForeignKey(Members, null=False, blank=False, db_column='member', on_delete=models.RESTRICT, related_name='app2member')
-    emailkey = models.CharField(max_length=50)
-    emailkey_date = models.DateTimeField()
-    validemail = models.BooleanField()
-    validemail_date = models.DateTimeField()
-    contrib = models.TextField()
-    comment = models.TextField()
-    lastchange = models.DateTimeField()
-    manager = models.ForeignKey(Members, null=False, blank=False, db_column='manager', on_delete=models.RESTRICT, related_name='app2manager')
-    manager_date = models.DateTimeField()
-    approve = models.BooleanField()
-    approve_date = models.DateTimeField()
-    contribapp = models.BooleanField(default=False)
+    appdate = models.DateTimeField(null=True)
+    member = models.ForeignKey(Members, null=False, blank=False, db_column='member', on_delete=models.DO_NOTHING, related_name='app2member')
+    emailkey = models.CharField(max_length=50, null=True)
+    emailkey_date = models.DateTimeField(null=True)
+    validemail = models.BooleanField(null=True)
+    validemail_date = models.DateTimeField(null=True)
+    contrib = models.TextField(null=True)
+    comment = models.TextField(null=True)
+    lastchange = models.DateTimeField(null=True)
+    manager = models.ForeignKey(Members, null=True, blank=False, db_column='manager', on_delete=models.RESTRICT, related_name='app2manager')
+    manager_date = models.DateTimeField(null=True)
+    approve = models.BooleanField(null=True)
+    approve_date = models.DateTimeField(null=True)
+    contribapp = models.BooleanField(null=True, default=False)
 
     def __str__(self):
         return "{0} ({1})".format(self.member, self.appdate)
@@ -51,9 +51,9 @@ class Applications(models.Model):
 class VoteElection(models.Model):
     ref = models.AutoField(null=False, primary_key=True)
     title = models.CharField(max_length=256, null=False)
-    description = models.TextField()
-    period_start = models.DateTimeField(auto_now_add=True)
-    period_stop = models.DateTimeField()
+    description = models.TextField(null=True)
+    period_start = models.DateTimeField(auto_now_add=True, null=True)
+    period_stop = models.DateTimeField(null=True)
     owner = models.ForeignKey(Members, null=False, blank=False, db_column='owner', on_delete=models.RESTRICT)
     winners = models.IntegerField(null=False, default=1)
     system = models.IntegerField(null=False)
@@ -68,7 +68,7 @@ class VoteElection(models.Model):
 class VoteOption(models.Model):
     ref = models.AutoField(null=False, primary_key=True)
     election_ref = models.ForeignKey(VoteElection, null=False, blank=False, db_column='election_ref', on_delete=models.RESTRICT)
-    description = models.TextField()
+    description = models.TextField(null=True)
     sort = models.IntegerField(null=False)
     option_character = models.CharField(max_length=1, null=False)
 
@@ -82,11 +82,11 @@ class VoteOption(models.Model):
 
 class VoteVote(models.Model):
     ref = models.AutoField(null=False, primary_key=True)
-    voter_ref = models.ForeignKey(Members, null=False, blank=False, db_column='voter_ref', on_delete=models.RESTRICT)
+    voter_ref = models.ForeignKey(Members, null=True, blank=False, db_column='voter_ref', on_delete=models.RESTRICT)
     election_ref = models.ForeignKey(VoteElection, null=False, blank=False, db_column='election_ref', on_delete=models.RESTRICT)
-    private_secret = models.CharField(max_length=32)
-    last_updated = models.DateTimeField(auto_now=True)  # missing: with time zone
-    send_notify = models.BooleanField(null=False, default=False)
+    private_secret = models.CharField(max_length=32, null=True)
+    late_updated = models.DateTimeField(auto_now=True, null=True)  # missing: with time zone
+    sent_notify = models.BooleanField(null=False, default=False)
 
     class Meta:
         unique_together = (('voter_ref', 'election_ref'), )
@@ -96,7 +96,7 @@ class VoteVote(models.Model):
 class VoteVoteOption(models.Model):
     vote_ref = models.ForeignKey(VoteVote, null=False, blank=False, db_column='vote_ref', on_delete=models.RESTRICT)
     option_ref = models.ForeignKey(VoteOption, null=False, blank=False, db_column='option_ref', on_delete=models.RESTRICT)
-    preference = models.IntegerField()
+    preference = models.IntegerField(null=True)
 
     class Meta:
         unique_together = (('vote_ref', 'option_ref'), )
@@ -108,8 +108,8 @@ class VoteVoteOption(models.Model):
 # class VoteLog(models.Model):
 #     ref = models.AutoField(null=False, primary_key=True)
 #     time = models.DateTimeField(auto_now_add=True, null=False)
-#     source_ip = models.CharField(max_length=255)
-#     vote_caset = models.CharField(max_length=255)
+#     source_ip = models.CharField(max_length=255, null=True)
+#     vote_caset = models.CharField(max_length=255, null=True)
 #     vote_ref = models.ForeignKey(VoteVote, null=False, blank=False, db_column='vote_ref', on_delete=models.RESTRICT)
 #     who = models.ForeignKey(VoteVoter, null=False, blank=False, db_column='who', on_delete=models.RESTRICT)
 
@@ -119,7 +119,7 @@ class VoteVoteOption(models.Model):
 # class VoteSession(models.Model):
 #     ref = models.AutoField(null=False, primary_key=True)
 #     vote_session_id = models.CharField(max_length=256, null=False, unique=True, db_column='id')  # todo: merge with ref?
-#     data = models.BinaryField()
+#     data = models.BinaryField(null=True)
 #     last_seen = models.DateTimeField(auto_now=True)
 
 #     class Meta:
@@ -127,7 +127,7 @@ class VoteVoteOption(models.Model):
 
 # class VoteVoter(models.Model):
 #     ref = models.ForeignKey(Members, null=False, blank=False, db_column='ref', on_delete=models.RESTRICT)
-#     session_ref = models.IntegerField()
+#     session_ref = models.IntegerField(null=True)
 
 #     class Meta:
 #         db_table = 'vote_voter'
