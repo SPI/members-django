@@ -8,9 +8,14 @@ from members.app.stats import get_stats
 
 
 def index(request):
-    template = loader.get_template('base.html')
-    context = {}
-    return HttpResponse(template.render(context, request))
+    if not request.user.is_authenticated:
+        template = loader.get_template('index.html')
+        context = {}
+        return HttpResponse(template.render(context, request))
+    else:
+        template = loader.get_template('status.html')
+        context = {}
+        return HttpResponse(template.render(context, request))
 
 
 def showstats(request):

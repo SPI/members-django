@@ -225,6 +225,10 @@ div.recentchanges {
 }
 
 
+.login_link {
+    text-align:center;
+}
+
 /* media-query for mobile */
 
 @media(max-width:640px) {
