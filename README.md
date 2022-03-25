@@ -8,6 +8,8 @@ Rewriting of the (Flask-based) Members app in Django
 - python3-django
 - postgresql
 - python-psycopg2
+- pyenv
+- python-virtualenv
 
 ## Install
 
@@ -25,7 +27,7 @@ pip install psycopg2-binary requests pycryptodomex
 
 Create database:
 ```bash
-sudo -u postgres psql -c 'create role <username>; create database members'
+sudo -u postgres psql -c 'create role <username>' ; sudo -u postgres psql -c 'create database members'
 ```
 
 You can also use the ansible script to deploy the application in a testing or production environment.
