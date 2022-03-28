@@ -2,7 +2,7 @@ from django.apps import AppConfig
 
 
 class AppAppConfig(AppConfig):
-    name = 'members.app'
+    name = 'membersapp.app'
     default_auto_field = 'django.db.models.BigAutoField'
 
 #    def ready(self):

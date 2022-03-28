@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.db.models.functions import Now
 
 
 class Members(models.Model):
@@ -17,6 +18,8 @@ class Members(models.Model):
     sub_private = models.BooleanField(default=False, null=True)
     lastactive = models.DateTimeField(null=True)
     createvote = models.BooleanField(null=False, blank=False, default=False)
+
+    object = models.Manager()
 
     def __str__(self):
         return self.name
@@ -92,6 +95,19 @@ class VoteVote(models.Model):
     class Meta:
         unique_together = (('voter_ref', 'election_ref'), )
         db_table = 'vote_vote'
+
+    @property
+    def is_active(self):
+        """"Check if a vote is currently active"""
+        now = Now()
+        return self.start <= now <= self.end
+
+    @property
+    def is_over(self):
+        """"Check if a voting period is over"""
+        now = Now()
+        return now > self.end
+
 
 
 class VoteVoteOption(models.Model):

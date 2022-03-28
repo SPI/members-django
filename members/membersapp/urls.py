@@ -18,8 +18,8 @@ from django.conf.urls import url, include
 from django.urls import path
 from django.contrib.auth.decorators import login_required
 
-from members.app import views
-import members.auth
+from membersapp.app import views
+import membersapp.auth
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -27,10 +27,10 @@ urlpatterns = [
     path('stats/', views.showstats, name='stats'),
 
     # Auth system integration
-    url(r'^(?:accounts/)?login/?$', members.auth.login),
-    url(r'^(?:accounts/)?logout/?$', members.auth.logout),
-    url(r'^auth_receive/$', members.auth.auth_receive),
-    url(r'^auth_api/$', members.auth.auth_api),
+    url(r'^(?:accounts/)?login/?$', membersapp.auth.login),
+    url(r'^(?:accounts/)?logout/?$', membersapp.auth.logout),
+    url(r'^auth_receive/$', membersapp.auth.auth_receive),
+    url(r'^auth_api/$', membersapp.auth.auth_api),
 
 ]
 #    url(r'^$', include('app.urls')),
