@@ -1,13 +1,13 @@
 {% extends "base.html" %}
 {% block title %}Membership Status{% endblock %}
 {% block content %}
-    <h1>Membership status for {{ request.user.name }} &lt;{{ current_user.email }}&gt;</h1>
+    <h1>Membership status for {{ request.user.username }} &lt;{{ request.user.email }}&gt;</h1>
     <form method="post" action="/member/edit">
     {% csrf_token %}
     <table>
-        <tr><td>Name</td><td>{{ form.name }}</td></tr>
-        <tr><td>Email address</td><td>{{ current_user.email }}</td></tr>
-        <tr><td>Member Since</td><td>{{ current_user.firstdate }}</td></tr>
+        <tr><td>Name</td><td>{{ request.user.username }}</td></tr>
+        <tr><td>Email address</td><td>{{ request.user.email }}</td></tr>
+        <tr><td>Member Since</td><td>{{ request.user.firstdate }}</td></tr>
         <tr><td>Current Member</td><td>
             {% if request.user.ismember %} Yes {% else %} No {% endif %}
         </td></tr>
@@ -21,7 +21,7 @@
         <tr><td>spi-private subscription</td><td>
             {{ form.sub_private }}
         </td></tr>
-        <tr><td>Last active</td><td>{{ current_user.lastactive }} (<a href="/updateactive">Update</a>)</td></tr>
+        <tr><td>Last active</td><td>{{ request.user.lastactive }} (<a href="/updateactive">Update</a>)</td></tr>
 {% endif %}
         <tr><td colspan="2"><input type="submit" value="Update Details" /></td></tr>
     </table>
