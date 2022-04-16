@@ -51,6 +51,18 @@ class Applications(models.Model):
     class Meta:
         db_table = 'applications'
 
+    @property
+    def get_status(self):
+        """Return the member status for this application"""
+        if self.contrib is not None:
+            return 'CM'
+        elif self.contribapp:
+            return 'CA'
+        elif self.approve:
+            return 'NCM'
+        else:
+            return 'NCA'
+
 
 class VoteElection(models.Model):
     ref = models.AutoField(null=False, primary_key=True)
