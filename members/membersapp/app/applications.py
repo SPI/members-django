@@ -11,12 +11,12 @@ def get_applications(self, manager=None):
     if manager:
         cur.execute('SELECT a.*, m.* from applications a, members m ' +
                     'WHERE m.memid = a.member AND a.manager = %s ' +
-                    'ORDER BY a.appdate', (manager.memid, ))
+                    'ORDER BY a.appdate', (manager.memid_id, ))
     else:
         cur.execute('SELECT a.*, m.* from applications a, members m ' +
                     'WHERE m.memid = a.member ORDER BY a.appdate')
     for row in dictfetchall(cur):
-        if not manager or manager.memid != row['manager']:
+        if not manager or manager.memid_id != row['manager']:
             manager = get_member_by_id(row['manager'])
         applications.append(application_from_db(row))
     return applications
