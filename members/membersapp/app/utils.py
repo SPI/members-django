@@ -17,10 +17,3 @@ def dictfetchall(cursor):
         for row in cursor.fetchall()
     ]
 
-
-def member_from_db(row):
-    """Given a row dict from the members table, return a Member object"""
-    return Members(row['memid'], row['email'], row['name'], row['password'],
-                   row['firstdate'], row['iscontrib'], row['ismanager'],
-                   row['ismember'], row['sub_private'], row['createvote'],
-                   row['lastactive'])
