@@ -6,7 +6,7 @@ from django.contrib.auth.decorators import login_required
 
 from membersapp.app.stats import get_stats
 from membersapp.app.votes import get_votes
-from membersapp.app.applications import get_applications
+from membersapp.app.applications import *
 from .models import Members
 
 def index(request):
@@ -20,7 +20,7 @@ def index(request):
         context = {
             'votes': get_votes(request.user, active=True),
             'votes2': get_votes(request.user, owner=request.user),
-            'applications': get_applications(request.user),
+            'applications': get_applications_by_user(user),
             'user': user
         }
         return HttpResponse(template.render(context, request))

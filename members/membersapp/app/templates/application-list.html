@@ -6,6 +6,7 @@
                 <td>{{ application.get_status }}</td>
                 <td>{{ application.user.name }} &lt;<a href="/member/{{ application.user.memid }}">{{ application.user.email }}</a>&gt;</td>
                 <td><a href="/application/{{ application.appid }}">{{ application.appid }}</a></td>
+                <td>{{ application.manager.name }}</td>
             </tr>
         {% endfor %}
         </table>

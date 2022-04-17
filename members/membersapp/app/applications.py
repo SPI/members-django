@@ -4,7 +4,7 @@ from .models import Members, Applications
 from .utils import *
 
 
-def get_applications(self, manager=None):
+def get_applications(manager=None):
     """Get all applications, optionally only for a given manager."""
     applications = []
     cur = connection.cursor()
@@ -20,3 +20,9 @@ def get_applications(self, manager=None):
             manager = get_member_by_id(row['manager'])
         applications.append(application_from_db(row))
     return applications
+
+
+def get_applications_by_user(user):
+        """Retrieve all applications for the supplied user."""
+        applications = Applications.objects.filter(member=user.memid_id)
+        return applications
