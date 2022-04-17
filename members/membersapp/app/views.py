@@ -1,13 +1,13 @@
 from django.http import HttpResponse
 from django.template import loader
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from django.views import generic
 from django.contrib.auth.decorators import login_required
 
 from membersapp.app.stats import get_stats
 from membersapp.app.votes import get_votes
 from membersapp.app.applications import *
-from .models import Members
+from .models import Members, Applications
 
 
 def index(request):
@@ -24,6 +24,22 @@ def index(request):
             'applications': get_applications_by_user(user),
             'applicants': get_applications(user),
             'user': user
+        }
+        return HttpResponse(template.render(context, request))
+
+
+def application(request, appid):
+    if not request.user.is_authenticated:
+        context = {}
+        template = loader.get_template('index.html')
+        return HttpResponse(template.render(context, request))
+    else:
+        template = loader.get_template('application.html')
+        application = get_object_or_404(Applications, appid=appid)
+        member = Members.object.get(memid=application.member_id)
+        context = {
+            'application': application,
+            'member': member
         }
         return HttpResponse(template.render(context, request))
 

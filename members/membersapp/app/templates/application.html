@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}Application Status{% endblock %}
+{% block content %}
+    <h1>Application #{{ application.appid }} status</h1>
+    <table>
+        <tr><td>Member Name</td><td>{{ member.name }}</td></tr>
+        <tr><td>Email address</td><td>{{ member.email }}</td></tr>
+        <tr><td>Application #</td><td>{{ application.appid }}</td></tr>
+        <tr><td>Application Date</td><td>{{ application.appdate }}</td></tr>
+        <tr><td>Email Check Sent on</td><td>{{ application.emailkey_date }}</td></tr>
+        <tr><td>Valid Email?</td><td>{%if application.validemail %}Yes{% else %}No{% endif %}</td></tr>
+        <tr><td>Email Confirmed on</td><td>{{ application.validemail_date }}</td></tr>
+        <tr><td>Last Changed</td><td>{{ application.lastchange }}</td></tr>
+    </table>
+{% if application.contribapp %}
+    <input type="submit" value="Update">
+    </form>
+{% endif %}
+{% endblock %}
