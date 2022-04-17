@@ -10,6 +10,7 @@ def vote_from_db(row):
                 row['period_start'], row['period_stop'], owner,
                 row['winners'], row['system'])
 
+
 def get_votes(user, active=None, owner=None):
     """Return all / only active votes from the database."""
     votes = []

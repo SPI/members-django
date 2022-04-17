@@ -121,7 +121,6 @@ class VoteVote(models.Model):
         return now > self.end
 
 
-
 class VoteVoteOption(models.Model):
     vote_ref = models.ForeignKey(VoteVote, null=False, blank=False, db_column='vote_ref', on_delete=models.RESTRICT)
     option_ref = models.ForeignKey(VoteOption, null=False, blank=False, db_column='option_ref', on_delete=models.RESTRICT)

@@ -14,6 +14,6 @@ def get_applications(manager=None):
 
 
 def get_applications_by_user(user):
-        """Retrieve all applications for the supplied user."""
-        applications = Applications.objects.filter(member=user.memid_id)
-        return applications
+    """Retrieve all applications for the supplied user."""
+    applications = Applications.objects.filter(member=user.memid_id)
+    return applications

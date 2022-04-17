@@ -9,6 +9,7 @@ from membersapp.app.votes import get_votes
 from membersapp.app.applications import *
 from .models import Members
 
+
 def index(request):
     if not request.user.is_authenticated:
         template = loader.get_template('index.html')
