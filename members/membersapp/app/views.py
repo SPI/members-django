@@ -19,7 +19,7 @@ def index(request):
         return HttpResponse(template.render(context, request))
     else:
         template = loader.get_template('status.html')
-        user, _ = Members.object.get_or_create(name=request.user)
+        user = get_current_user(request)
         context = {
             'votes': get_votes(request.user, active=True),
             'votes2': get_votes(request.user, owner=request.user),
