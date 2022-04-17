@@ -30,20 +30,16 @@ def index(request):
         return HttpResponse(template.render(context, request))
 
 
+@login_required
 def application(request, appid):
-    if not request.user.is_authenticated:
-        context = {}
-        template = loader.get_template('index.html')
-        return HttpResponse(template.render(context, request))
-    else:
-        template = loader.get_template('application.html')
-        application = get_object_or_404(Applications, appid=appid)
-        member = Members.object.get(memid=application.member_id)
-        context = {
-            'application': application,
-            'member': member
-        }
-        return HttpResponse(template.render(context, request))
+    template = loader.get_template('application.html')
+    application = get_object_or_404(Applications, appid=appid)
+    member = Members.object.get(memid=application.member_id)
+    context = {
+        'application': application,
+        'member': member
+    }
+    return HttpResponse(template.render(context, request))
 
 
 def updateactive(request):
