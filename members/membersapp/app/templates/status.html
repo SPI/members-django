@@ -81,9 +81,7 @@ only if you belong to one of these groups:
 </ul>
 {% endif %}
 {% if user.ismanager %}
-    {% if applicants %}
-        <h1>Your Applicants</h1>
-        {% include "application-list.html" %}
-    {% endif %}
+  <h1>Your Applicants</h1>
+  {% include "application-list.html" %}
 {% endif %}
 {% endblock %}
