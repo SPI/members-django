@@ -6,19 +6,10 @@ from .utils import *
 
 def get_applications(manager=None):
     """Get all applications, optionally only for a given manager."""
-    applications = []
-    cur = connection.cursor()
     if manager:
-        cur.execute('SELECT a.*, m.* from applications a, members m ' +
-                    'WHERE m.memid = a.member AND a.manager = %s ' +
-                    'ORDER BY a.appdate', (manager.memid_id, ))
+        applications = Applications.objects.filter(manager=manager.memid_id)
     else:
-        cur.execute('SELECT a.*, m.* from applications a, members m ' +
-                    'WHERE m.memid = a.member ORDER BY a.appdate')
-    for row in dictfetchall(cur):
-        if not manager or manager.memid_id != row['manager']:
-            manager = get_member_by_id(row['manager'])
-        applications.append(application_from_db(row))
+        applications = Applications.objects.all()
     return applications
 
 

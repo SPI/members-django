@@ -21,6 +21,7 @@ def index(request):
             'votes': get_votes(request.user, active=True),
             'votes2': get_votes(request.user, owner=request.user),
             'applications': get_applications_by_user(user),
+            'applicants': get_applications(user),
             'user': user
         }
         return HttpResponse(template.render(context, request))
