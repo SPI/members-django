@@ -1,4 +1,6 @@
-from django.http import HttpResponse
+import datetime
+
+from django.http import HttpResponse, HttpResponseRedirect
 from django.template import loader
 from django.shortcuts import render, get_object_or_404
 from django.views import generic
@@ -42,6 +44,14 @@ def application(request, appid):
             'member': member
         }
         return HttpResponse(template.render(context, request))
+
+
+def updateactive(request):
+    """Update a users most recently active date and redirect to main page"""
+    user = get_current_user(request)
+    user.lastactive = datetime.date.today()
+    user.save()
+    return HttpResponseRedirect("/")
 
 
 def showstats(request):

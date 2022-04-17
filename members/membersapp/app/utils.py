@@ -16,3 +16,7 @@ def dictfetchall(cursor):
         dict(zip(columns, row))
         for row in cursor.fetchall()
     ]
+
+
+def get_current_user(request):
+    return Members.object.get(name=request.user)
