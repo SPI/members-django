@@ -15,7 +15,7 @@ class Members(models.Model):
     ismember = models.BooleanField(null=False, blank=False, default=False)
     iscontrib = models.BooleanField(null=False, blank=False, default=False)
     ismanager = models.BooleanField(null=False, blank=False, default=False)
-    sub_private = models.BooleanField(default=False, null=True)
+    sub_private = models.BooleanField(default=False, null=False)
     lastactive = models.DateTimeField(null=True)
     createvote = models.BooleanField(null=False, blank=False, default=False)
 
