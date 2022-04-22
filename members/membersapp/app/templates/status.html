@@ -2,7 +2,7 @@
 {% block title %}Membership Status{% endblock %}
 {% block content %}
     <h1>Membership status for {{ user.name }} &lt;{{ user.email }}&gt;</h1>
-    <form method="post" action="/member/edit">
+    <form method="post" action="{% url 'memberedit' %}">
     {% csrf_token %}
     <table>
         <tr><td>Name</td><td>{{ user.name }}</td></tr>
@@ -26,6 +26,10 @@
         <tr><td colspan="2"><input type="submit" value="Update Details" /></td></tr>
     </table>
     </form>
+    <div class="error">
+        {{ form.errors }}
+        {{ form.non_field_errors }}
+    </div>
 <br />
 {% if user.iscontrib %}
     {% if votes %}

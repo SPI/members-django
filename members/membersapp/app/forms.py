@@ -1,6 +1,8 @@
-# from wtforms.validators import DataRequired
+from django.forms import ModelForm
+from .models import Members
 
 
-# class EmailChangeForm(FlaskForm):
-#     """Form for handling email changes"""
-#     newemail = StringField('New Email Address', validators=[DataRequired()])
+class MemberForm(ModelForm):
+    class Meta:
+        model = Members
+        fields = ['sub_private']

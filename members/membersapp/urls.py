@@ -27,6 +27,7 @@ urlpatterns = [
     path('stats/', views.showstats, name='stats'),
     path('application/<int:appid>', views.application, name='application'),
     path('updateactive', views.updateactive, name='updateactive'),
+    path('member/edit', views.memberedit, name='memberedit'),
 
     # Auth system integration
     url(r'^(?:accounts/)?login/?$', membersapp.auth.login),
