@@ -28,7 +28,7 @@
 <li><a href="https://www.spi-inc.org/">Main SPI Website</a></li>
 {% if request.user.is_authenticated %}
 <li><a href="/">Membership Info</a></li>
-{% if request.user.contrib %}
+{% if user.iscontrib %}
 <li><a href="/votes">Votes</a></li>
 {% endif %}
 {% if request.user.can_createvote %}
@@ -36,7 +36,7 @@
 {% endif %}
 <li><a href="https://pgweb.spi-inc.org">Handle account</a></li>
 <li><a href="/logout">Logout</a></li>
-    {% if request.user.manager %}
+    {% if user.ismanager %}
         <hr />
         <li><a href="/applications/all">All Applications</a></li>
         <li><a href="/applications/nca">Non-Contributing Applications</a></li>
