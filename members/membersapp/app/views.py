@@ -42,9 +42,11 @@ def application(request, appid):
     template = loader.get_template('application.html')
     application = get_object_or_404(Applications, appid=appid)
     member = Members.object.get(memid=application.member_id)
+    user = get_current_user(request)
     context = {
         'application': application,
-        'member': member
+        'member': member,
+        'user': user
     }
     return HttpResponse(template.render(context, request))
 
