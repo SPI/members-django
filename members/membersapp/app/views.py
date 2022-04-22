@@ -59,9 +59,8 @@ def updateactive(request):
 def showstats(request):
     """Handler for showing membership statistics"""
     stats = get_stats()
-    print(stats)
-
-    return render(request, 'stats.html', {'stats': stats})
+    user = get_current_user(request)
+    return render(request, 'stats.html', {'stats': stats, 'user': user})
 
 
 @login_required
