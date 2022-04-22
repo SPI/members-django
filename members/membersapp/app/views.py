@@ -8,6 +8,7 @@ from django.views.generic.edit import UpdateView
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.urls import reverse
+from django.db.models import Q
 
 from membersapp.app.stats import get_stats
 from membersapp.app.votes import get_votes
@@ -61,6 +62,30 @@ def showstats(request):
     stats = get_stats()
     user = get_current_user(request)
     return render(request, 'stats.html', {'stats': stats, 'user': user})
+
+
+def showapplications(request, listtype):
+    template = loader.get_template('applications.html')
+    if listtype == 'nca':
+        applications = Applications.objects.filter(Q(member__ismember=False) | Q(member__ismember__isnull=True))
+    elif listtype == 'ncm':
+        applications = Applications.objects.filter(Q(member__ismember=True) & Q(member__iscontrib=False) & (Q(contribapp=False) | Q(contribapp__isnull=True)))
+    elif listtype == 'ca':
+        applications = Applications.objects.filter(Q(member__ismember=True) & Q(approve__isnull=True) & Q(contribapp=True))
+    elif listtype == 'cm':
+        applications = Applications.objects.filter(Q(member__ismember=True) & Q(member__iscontrib=True) & Q(contribapp=True))
+    elif listtype == 'mgr':
+        applications = Applications.objects.filter(Q(member__ismember=True) & Q(member__ismanager=True) & Q(contribapp=True))
+    else:
+        applications = Applications.objects.all()
+    sorted_applications = applications.order_by('appid')
+    user = get_current_user(request)
+    context = {
+        'applicants': sorted_applications,
+        'listtype': listtype,
+        'user': user
+    }
+    return HttpResponse(template.render(context, request))
 
 
 @login_required

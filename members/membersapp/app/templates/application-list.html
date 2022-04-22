@@ -2,9 +2,9 @@
             <tr><th>Appl Date</th><th>Status</th><th>Applicant</th><th>App#</th><th>Manager</th></tr>
         {% for application in applicants %}
             <tr>
-                <td>{{ application.appdate }}</td>
+                <td>{{ application.appdate|date:"Y-m-d" }}</td>
                 <td>{{ application.get_status }}</td>
-                <td>{{ application.user.name }} &lt;<a href="/member/{{ application.user.memid }}">{{ application.user.email }}</a>&gt;</td>
+                <td>{{ application.member.name }} &lt;<a href="/member/{{ application.member.memid }}">{{ application.member.email }}</a>&gt;</td>
                 <td><a href="/application/{{ application.appid }}">{{ application.appid }}</a></td>
                 <td>{{ application.manager.name }}</td>
             </tr>
