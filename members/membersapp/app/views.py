@@ -43,10 +43,14 @@ def application(request, appid):
     application = get_object_or_404(Applications, appid=appid)
     member = Members.object.get(memid=application.member_id)
     user = get_current_user(request)
+    memberform = MemberForm(instance=member)
+    applicationform = ApplicationForm(instance=application)
     context = {
         'application': application,
         'member': member,
-        'user': user
+        'user': user,
+        'memberform': memberform,
+        'applicationform': applicationform
     }
     return HttpResponse(template.render(context, request))
 
@@ -98,6 +102,19 @@ def memberedit(request):
         if form.is_valid():
             form.save()
     return HttpResponseRedirect(reverse('index'))
+
+
+@login_required
+def applicationedit(request, appid):
+    # todo: check edit privileges
+    if request.method == 'POST':
+        application = Applications.objects.get(pk=appid)
+        memberform = MemberForm(request.POST, instance=application.member)
+        applicationform = ApplicationForm(request.POST, instance=application)
+        if memberform.is_valid() and applicationform.is_valid():
+            memberform.save()
+            applicationform.save()
+    return HttpResponseRedirect(reverse('application', args=[appid]))
 
 
 class MemberEditView(LoginRequiredMixin, UpdateView):

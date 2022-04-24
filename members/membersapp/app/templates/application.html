@@ -3,14 +3,34 @@
 {% block content %}
     <h1>Application #{{ application.appid }} status</h1>
     <table>
+
         <tr><td>Member Name</td><td>{{ member.name }}</td></tr>
         <tr><td>Email address</td><td>{{ member.email }}</td></tr>
         <tr><td>Application #</td><td>{{ application.appid }}</td></tr>
         <tr><td>Application Date</td><td>{{ application.appdate|date:"Y-m-d" }}</td></tr>
-        <tr><td>Email Check Sent on</td><td>{{ application.emailkey_date|date:"Y-m-d" }}</td></tr>
-        <tr><td>Valid Email?</td><td>{%if application.validemail %}Yes{% else %}No{% endif %}</td></tr>
-        <tr><td>Email Confirmed on</td><td>{{ application.validemail_date|date:"Y-m-d" }}</td></tr>
-        <tr><td>Last Changed</td><td>{{ application.lastchange|date:"Y-m-d" }}</td></tr>
+        {% if application.contribapp %}
+            </table>
+            <hr/>
+            <h1>Contributing Membership Application Details</h1>
+            <form method="post" action="{% url 'applicationedit' application.appid %}">
+            {% csrf_token %}
+{% if user.ismanager %}
+            {{ applicationform.as_p }}
+            {{ memberform.as_p }}
+{% else %}
+            <table>
+            <tr><td>Manager</td><td>{{ application.manager.name }}</td></tr>
+            <tr><td>Date Assigned</td><td>{{ application.manager_date }}</td></tr>
+            <tr><td>Mgr Comments</td><td>{{ application.comment }}</td></tr>
+            <tr><td>Approved</td><td>{{ application.approve }}</td></tr>
+            <tr><td>Date Approved</td><td>{{ application.approve_date }}</td></tr>
+{% endif %}
+        {% else %}
+            <tr><td>Email Check Sent on</td><td>{{ application.emailkey_date|date:"Y-m-d" }}</td></tr>
+            <tr><td>Valid Email?</td><td>{%if application.validemail %}Yes{% else %}No{% endif %}</td></tr>
+            <tr><td>Email Confirmed on</td><td>{{ application.validemail_date|date:"Y-m-d" }}</td></tr>
+        {% endif %}
+            <tr><td>Last Changed</td><td>{{ application.lastchange|date:"Y-m-d" }}</td></tr>
     </table>
 {% if application.contribapp %}
     <input type="submit" value="Update">
