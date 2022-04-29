@@ -15,8 +15,10 @@
             <form method="post" action="{% url 'applicationedit' application.appid %}">
             {% csrf_token %}
 {% if user.ismanager %}
-            {{ applicationform.as_p }}
-            {{ memberform.as_p }}
+            <table>
+            {{ applicationform.as_table }}
+            {{ memberform.as_table }}
+            </table>
 {% else %}
             <table>
             <tr><td>Manager</td><td>{{ application.manager.name }}</td></tr>
