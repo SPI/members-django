@@ -39,3 +39,10 @@ sudo -u postgres pg_dump --data-only --no-owner --no-privileges --serializable-d
 sudo chown $USER:postgres /tmp/spimembers.sql
 sudo -u postgres psql --single-transaction members < /tmp/spimembers.sql
 ```
+
+## Tests
+
+To run tests, the current user must have the rights to create a database. In postgres, run:
+```
+alter user <USERNAME> CREATEDB;
+```
