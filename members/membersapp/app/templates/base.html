@@ -34,7 +34,7 @@
 {% if request.user.can_createvote %}
 <li><a href="/vote/create">Create Vote</a></li>
 {% endif %}
-<li><a href="https://pgweb.spi-inc.org">Handle account</a></li>
+<li><a href="{{ PGAUTH_ROOT }}">Handle account</a></li>
 <li><a href="/logout">Logout</a></li>
     {% if user.ismanager %}
         <hr />
@@ -47,8 +47,8 @@
     {% endif %}
 {% else %}
 <li><a href="/login">Login</a></li>
-<li><a href="https://beta.pgweb.spi-inc.org/account/signup/">New Member Application</a></li>
-<li><a href="https://beta.pgweb.spi-inc.org/account/changepwd/">Password Reset</a></li>
+<li><a href="{{ PGAUTH_SIGNUP }}">New Member Application</a></li>
+<li><a href="{{ PGAUTH_CHANGEPASSWD }}">Password Reset</a></li>
 {% endif %}
 <li><a href="/stats">Statistics</a></li>
 </ul>
