@@ -137,6 +137,9 @@ PGAUTH_REDIRECT = "http://localhost:8000/account/auth/1/"
 PGAUTH_KEY = "encryption_key"
 LOGIN_URL = "/accounts/login/"
 PGAUTH_REDIRECT_SUCCESS = "http://localhost:8000/"
+PGAUTH_SIGNUP = "https://pgweb.spi-inc.org/account/signup/"
+PGAUTH_ROOT = "https://pgweb.spi-inc.org/"
+PGAUTH_CHANGEPASSWD = "https://pgweb.spi-inc.org/account/changepwd"
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
