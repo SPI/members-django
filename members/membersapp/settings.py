@@ -83,7 +83,7 @@ WSGI_APPLICATION = 'membersapp.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'members',
+        'NAME': 'membersdjango',
     }
 }
 
