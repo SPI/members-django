@@ -11,4 +11,4 @@ def handle_user_data(sender, user, userdata, **kwargs):
         return
 
     # Make sure this user has a subscriber record
-    subscriber, _ = Members.object.get_or_create(name=user)
+    subscriber, _ = Members.object.get_or_create(email=user.email)
