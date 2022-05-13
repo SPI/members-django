@@ -1,8 +1,9 @@
 #
 # Django module to support postgresql.org community authentication 2.0
 #
-# The main location for this module is the pgweb git repository hosted
-# on git.postgresql.org - look there for updates.
+# The main location of the original version of this module is the pgweb
+# git repository hosted on git.postgresql.org - look there for updates.
+# This version links user on emails instead of usernames.
 #
 # To integrate with django, you need the following:
 # * Make sure the view "login" from this module is used for login
@@ -43,6 +44,7 @@ from Cryptodome.Hash import SHA
 from Cryptodome import Random
 import time
 
+from .app.models import Members
 
 # This signal fires whenever new user data has been received. Note that this
 # happens *after* first_name, last_name and email has been updated on the user
@@ -121,7 +123,7 @@ def auth_receive(request):
 
     # Update the user record (if any)
     try:
-        user = User.objects.get(username=data['u'][0])
+        user = User.objects.get(email=data['e'][0])
         # User found, let's see if any important fields have changed
         changed = []
         if user.first_name != data['f'][0]:
@@ -130,9 +132,9 @@ def auth_receive(request):
         if user.last_name != data['l'][0]:
             user.last_name = data['l'][0]
             changed.append('last_name')
-        if user.email != data['e'][0]:
-            user.email = data['e'][0]
-            changed.append('email')
+        if user.username != data['u'][0]:
+            user.username = data['u'][0]
+            changed.append('username')
         if changed:
             user.save(update_fields=changed)
     except User.DoesNotExist:
@@ -173,6 +175,12 @@ We apologize for the inconvenience.
                     password='setbypluginnotasha1',
                     )
         user.save()
+        # Also create the equivalent Members row
+        member = Members(pk=user.pk,
+                         name=data['u'][0],
+                         email=data['e'][0],
+                         )
+        member.save()
 
     # Ok, we have a proper user record. Now tell django that
     # we're authenticated so it persists it in the session. Before
