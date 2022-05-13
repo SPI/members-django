@@ -177,7 +177,7 @@ We apologize for the inconvenience.
         user.save()
         # Also create the equivalent Members row
         member = Members(pk=user.pk,
-                         name=data['u'][0],
+                         name=data['f'][0] + ' ' + data['l'][0],
                          email=data['e'][0],
                          )
         member.save()
