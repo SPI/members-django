@@ -27,6 +27,7 @@ pip install psycopg2-binary requests pycryptodomex
 
 Create database:
 ```bash
+python manage.py migrate
 sudo -u postgres psql -c 'create role <username>' ; sudo -u postgres psql -c 'create database membersdjango'
 ```
 
