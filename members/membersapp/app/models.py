@@ -12,7 +12,6 @@ class Members(models.Model):
     pgpkey = models.CharField(max_length=50, null=True)
     firstdate = models.DateTimeField(null=True)
     expirydate = models.DateTimeField(null=True)
-    ismember = models.BooleanField(null=False, blank=False, default=False)
     iscontrib = models.BooleanField(null=False, blank=False, default=False)
     ismanager = models.BooleanField(null=False, blank=False, default=False)
     sub_private = models.BooleanField(default=False, null=False, verbose_name='Subscribe to spi-private?')

@@ -8,8 +8,6 @@
         <tr><td>Name</td><td>{{ user.name }}</td></tr>
         <tr><td>Email address</td><td>{{ user.email }}</td></tr>
         <tr><td>Member Since</td><td>{{ user.firstdate }}</td></tr>
-        <tr><td>Current Member</td><td>
-            {% if user.ismember %} Yes {% else %} No {% endif %}
         </td></tr>
         <tr><td>Application Manager</td><td>
             {% if user.ismanager %} Yes {% else %} No {% endif %}
@@ -71,11 +69,7 @@
         <br />
     {% endfor %}
 {% endif %}
-{% if not user.ismember %}
-<p>You have not yet verified your email address and are thus not yet a member of
-SPI. Once you have received the welcome email please use the code to
-<a href="/verifyemail">verify</a> it.</p>
-{% elif not user.iscontrib and not contribapp %}
+{% if not user.iscontrib and not contribapp %}
 <a href="/apply/contrib">Apply</a> for contributing membership. Please apply
 only if you belong to one of these groups:
 <ul>

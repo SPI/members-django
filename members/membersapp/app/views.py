@@ -72,16 +72,14 @@ def showstats(request):
 
 def showapplications(request, listtype):
     template = loader.get_template('applications.html')
-    if listtype == 'nca':
-        applications = Applications.objects.filter(Q(member__ismember=False) | Q(member__ismember__isnull=True))
-    elif listtype == 'ncm':
-        applications = Applications.objects.filter(Q(member__ismember=True) & Q(member__iscontrib=False) & (Q(contribapp=False) | Q(contribapp__isnull=True)))
+    if listtype == 'ncm':
+        applications = Applications.objects.filter(Q(member__iscontrib=False) & (Q(contribapp=False) | Q(contribapp__isnull=True)))
     elif listtype == 'ca':
-        applications = Applications.objects.filter(Q(member__ismember=True) & Q(approve__isnull=True) & Q(contribapp=True))
+        applications = Applications.objects.filter(Q(approve__isnull=True) & Q(contribapp=True))
     elif listtype == 'cm':
-        applications = Applications.objects.filter(Q(member__ismember=True) & Q(member__iscontrib=True) & Q(contribapp=True))
+        applications = Applications.objects.filter(Q(member__iscontrib=True) & Q(contribapp=True))
     elif listtype == 'mgr':
-        applications = Applications.objects.filter(Q(member__ismember=True) & Q(member__ismanager=True) & Q(contribapp=True))
+        applications = Applications.objects.filter(Q(member__ismanager=True) & Q(contribapp=True))
     else:
         applications = Applications.objects.all()
     sorted_applications = applications.order_by('appid')
