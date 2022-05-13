@@ -19,4 +19,4 @@ def dictfetchall(cursor):
 
 
 def get_current_user(request):
-    return Members.object.get(email=request.user.email)
+    return Members.object.get(pk=request.user.id)
