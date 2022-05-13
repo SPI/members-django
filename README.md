@@ -38,6 +38,7 @@ You can also use the ansible script to deploy the application in a testing or pr
 sudo -u postgres pg_dump --data-only --no-owner --no-privileges --serializable-deferrable -T vote_log -T vote_session -T vote_voter -T members_memid_seq spimembers > spimembers.sql
 sudo chown $USER:postgres /tmp/spimembers.sql
 sudo -u postgres psql --single-transaction membersdjango < /tmp/spimembers.sql
+sudo -u postgres psql -f import_from_members.sql membersdjango
 ```
 
 ## Tests
