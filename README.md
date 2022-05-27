@@ -36,10 +36,16 @@ You can also use the ansible script to deploy the application in a testing or pr
 ## Import database content from the old members app
 
 ```
-sudo -u postgres pg_dump --data-only --no-owner --no-privileges --serializable-deferrable -T vote_log -T vote_session -T vote_voter -T members_memid_seq spimembers > spimembers.sql
-sudo chown $USER:postgres /tmp/spimembers.sql
+sudo -u postgres pg_dump --data-only --no-owner --no-privileges --serializable-deferrable -T vote_log -T vote_session -T vote_voter -T members_memid_seq -T members -T temp spimembers > spimembers.sql
+sudo -u postgres psql spimembers -c 'create table temp as select memid, email, name, phone, pgpkey, firstdate, expirydate, iscontrib, ismanager, sub_private, lastactive, createvote from members where memid IN (SELECT member from applications where validemail is not null or validemail_date is not null);'
+sudo -u postgres pg_dump --no-owner --no-privileges --serializable-deferrable -t temp spimembers > temp_table.sql
+sudo -u postgres psql spimembers -c 'drop table temp';
+
+sudo chown $USER:postgres /tmp/spimembers.sql /tmp/temp_table.sql
+
+sudo -u postgres psql membersdjango < /tmp/temp_table.sql
+sudo -u postgres psql membersdjango < import_from_members_additional_fixes.sql
 sudo -u postgres psql --single-transaction membersdjango < /tmp/spimembers.sql
-sudo -u postgres psql -f import_from_members.sql membersdjango
 ```
 
 ## Tests
