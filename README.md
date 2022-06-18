@@ -55,7 +55,7 @@ sudo -u postgres psql spimembers -c "update applications set validemail_date=nul
 sudo -u postgres psql spimembers -c "delete from members where memid = 1641;"  # twice in db with same email address
 sudo -u postgres psql spimembers -c "delete from applications where member = 1641;"
 
-sudo -u postgres psql spimembers -c "\copy (select memid,left(replace(name,',',' '),30),lower(email),password,ismanager,emailkey_date from members, applications where applications.member = members.memid and (validemail ='t' or validemail_date is not null)  order by memid) to /tmp/members.csv with csv delimiter ',';"
+sudo -u postgres psql spimembers -c "\copy (select memid,left(COALESCE(substring(replace(name,',',' ') from '(.*?) '),replace(name,',',' ')),30),COALESCE(left(substring(replace(name,',',' ') from ' (.*)'),30),'.'),lower(email),password,ismanager,emailkey_date from members, applications where applications.member = members.memid and (validemail ='t' or validemail_date is not null)  order by memid) to /tmp/members.csv with csv delimiter ',';"
 
 utils/convert_members.sh /tmp/members.csv > members.sql
 sudo -u postgres psql spi_pgweb < members.sql
