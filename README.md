@@ -27,8 +27,8 @@ pip install psycopg2-binary requests pycryptodomex
 
 Create database:
 ```bash
-python manage.py migrate
 sudo -u postgres psql -c 'create role <username>' ; sudo -u postgres psql -c 'create database membersdjango'
+python manage.py migrate
 ```
 
 You can also use the ansible script to deploy the application in a testing or production environment.
