@@ -51,6 +51,8 @@ sudo -u postgres psql --single-transaction membersdjango < /tmp/spimembers.sql
 
 Import users in pgweb:
 ```
+# sudo -u postgres pg_dump --no-owner --no-privileges --serializable-deferrable -t account_communityauthsite -t account_communityauthorg spi_pgweb > communityauth.sql
+
 sudo -u postgres psql spimembers -c "update applications set validemail_date=null where appid = 2067;"  # fix illogical corner case
 sudo -u postgres psql spimembers -c "delete from members where memid = 1641;"  # twice in db with same email address
 sudo -u postgres psql spimembers -c "delete from applications where member = 1641;"
