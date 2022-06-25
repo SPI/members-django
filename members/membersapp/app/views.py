@@ -94,10 +94,11 @@ def showapplications(request, listtype):
 
 @login_required
 def showmember(request, memid):
-    # todo: check manager privileges
+    user = get_current_user(request)
+    if not user.ismanager:
+        return render(request, 'manager-only.html')
     template = loader.get_template('member.html')
     member = Members.object.get(pk=memid)
-    user = get_current_user(request)
     context = {
         'user': user,
         'member': member,
