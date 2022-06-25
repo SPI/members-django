@@ -17,6 +17,15 @@ from .models import Members, Applications
 from .forms import *
 
 
+def handler404(request, exception):
+    user = get_current_user(request)
+    template = loader.get_template('404.html')
+    context = {
+        'user': user
+    }
+    return HttpResponse(template.render(context, request))
+
+
 def index(request):
     if not request.user.is_authenticated:
         template = loader.get_template('index.html')

@@ -39,4 +39,7 @@ urlpatterns = [
     url(r'^auth_api/$', membersapp.auth.auth_api),
 
 ]
+
+handler404 = 'membersapp.app.views.handler404'
+
 #    url(r'^$', include('app.urls')),
