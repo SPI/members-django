@@ -229,6 +229,11 @@ div.recentchanges {
     text-align:center;
 }
 
+#id_contrib, #id_comment {
+    width: 40em;
+    height: 15em;
+}
+
 /* media-query for mobile */
 
 @media(max-width:640px) {
