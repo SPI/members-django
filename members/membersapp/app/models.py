@@ -8,7 +8,6 @@ class Members(models.Model):
     email = models.CharField(max_length=50, null=False, unique=True)  # for linking with pgweb
     name = models.CharField(max_length=50, null=False)
     phone = models.CharField(max_length=20, null=True)
-    password = models.CharField(max_length=15, null=False)
     pgpkey = models.CharField(max_length=50, null=True)
     firstdate = models.DateTimeField(null=True)
     expirydate = models.DateTimeField(null=True)
