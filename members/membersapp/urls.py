@@ -27,6 +27,7 @@ urlpatterns = [
     path('stats/', views.showstats, name='stats'),
     path('application/<int:appid>', views.application, name='application'),
     path('updateactive', views.updateactive, name='updateactive'),
+    path('member/<int:memid>', views.showmember, name='member'),
     path('member/edit', views.memberedit, name='memberedit'),
     path('applications/<str:listtype>', views.showapplications, name='applications'),
     path('application/<int:appid>/edit', views.applicationedit, name='applicationedit'),

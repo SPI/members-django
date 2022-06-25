@@ -93,6 +93,20 @@ def showapplications(request, listtype):
 
 
 @login_required
+def showmember(request, memid):
+    # todo: check manager privileges
+    template = loader.get_template('member.html')
+    member = Members.object.get(pk=memid)
+    user = get_current_user(request)
+    context = {
+        'user': user,
+        'member': member,
+        'applications': get_applications_by_user(member)
+    }
+    return HttpResponse(template.render(context, request))
+
+
+@login_required
 def memberedit(request):
     if request.method == 'POST':
         user = get_current_user(request)
