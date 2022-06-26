@@ -7,6 +7,7 @@ from django.views import generic
 from django.views.generic.edit import UpdateView
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib import messages
 from django.urls import reverse
 from django.db.models import Q
 
@@ -136,28 +137,22 @@ def applicationedit(request, appid):
         if memberform.is_valid() and applicationform.is_valid():
             memberform.save()
             applicationform.save()
+        process_contrib_application(applicationform, application)
     return HttpResponseRedirect(reverse('application', args=[appid]))
-
-
-def contrib_app_ok(request):
-    user = get_current_user(request)
-    if user.iscontrib:
-        # todo: add flash message "You are already an SPI contributing member"
-        return False
-    applications = Applications.objects.filter(member=user)
-    for apps in applications:
-        if apps.contribapp and apps.approve is None:
-            # todo
-            # flash('You already have an outstanding SPI contributing ' +
-            #       'membership application.')
-            return False
-    return True
 
 
 @login_required
 def contribapplication(request):
-    if not contrib_app_ok(request):
+    user = get_current_user(request)
+    if user.iscontrib:
+        messages.error(request, 'You are already an SPI contributing member')
         return HttpResponseRedirect("/")
+    applications = Applications.objects.filter(member=user)
+    for apps in applications:
+        if apps.contribapp and apps.approve is None:
+            messages.warning(request, 'You already have an outstanding SPI contributing ' +
+                             'membership application.')
+            return HttpResponseRedirect("/")
     if request.method == 'POST':
         user = get_current_user(request)
         memberform = MemberForm(request.POST, instance=user)
