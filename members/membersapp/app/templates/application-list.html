@@ -4,7 +4,7 @@
             <tr>
                 <td>{{ application.appdate|date:"Y-m-d" }}</td>
                 <td>{{ application.get_status }}</td>
-                <td>{{ application.member.name }} &lt;<a href="/member/{{ application.member.memid }}">{{ application.member.email }}</a>&gt;</td>
+                <td>{{ application.member.name }} &lt;<a href="/member/{{ application.member.memid_id }}">{{ application.member.email }}</a>&gt;</td>
                 <td><a href="/application/{{ application.appid }}">{{ application.appid }}</a></td>
                 <td>{{ application.manager.name }}</td>
             </tr>
