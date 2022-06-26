@@ -139,6 +139,54 @@ def applicationedit(request, appid):
     return HttpResponseRedirect(reverse('application', args=[appid]))
 
 
+def contrib_app_ok(request):
+    user = get_current_user(request)
+    if user.iscontrib:
+        # todo: add flash message "You are already an SPI contributing member"
+        return False
+    applications = Applications.objects.filter(member=user)
+    for apps in applications:
+        if apps.contribapp and apps.approve is None:
+            # todo
+            # flash('You already have an outstanding SPI contributing ' +
+            #       'membership application.')
+            return False
+    return True
+
+
+@login_required
+def contribapplication(request):
+    if not contrib_app_ok(request):
+        return HttpResponseRedirect("/")
+    if request.method == 'POST':
+        user = get_current_user(request)
+        memberform = MemberForm(request.POST, instance=user)
+        contribappform = ContribApplicationForm(request.POST)
+        if memberform.is_valid() and contribappform.is_valid():
+            memberform.save()
+            contribapp = Applications(member=user,
+                                      appdate=datetime.date.today(),
+                                      lastchange=datetime.date.today(),
+                                      contribapp=True,
+                                      contrib=contribappform["contrib"].data)
+            contribapp.save()
+            user.last_active = datetime.date.today()
+            user.save()
+        else:
+            print(memberform.errors.as_data(), contribappform.errors.as_data())
+        return HttpResponseRedirect(reverse('index'))
+    template = loader.get_template('contrib-application.html')
+    user = get_current_user(request)
+    memberform = MemberForm(instance=user)
+    contribappform = ContribApplicationForm()
+    context = {
+        'user': user,
+        'memberform': memberform,
+        'contribappform': contribappform
+    }
+    return HttpResponse(template.render(context, request))
+
+
 class MemberEditView(LoginRequiredMixin, UpdateView):
     model = Members
     fields = ['sub_private']

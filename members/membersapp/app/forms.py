@@ -12,3 +12,9 @@ class ApplicationForm(ModelForm):
     class Meta:
         model = Applications
         fields = ['contrib', 'manager', 'manager_date', 'comment', 'approve', 'approve_date']
+
+
+class ContribApplicationForm(ModelForm):
+    class Meta:
+        model = Applications
+        fields = ['contrib']
