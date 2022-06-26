@@ -6,7 +6,7 @@
 
     <ul>
         {% for vote in votes %}
-            <li><a href="/vote/{{ vote.voteid }}">{{ vote.title }}</a> (ends {{ vote.period_stop|date:"Y-m-d H:i:s" }})</li>
+            <li><a href="/vote/{{ vote.ref }}">{{ vote.title }}</a> (ends {{ vote.period_stop|date:"Y-m-d H:i:s" }})</li>
         {% endfor %}
     </ul>
 
