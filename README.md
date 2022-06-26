@@ -47,6 +47,7 @@ sudo chown $USER:postgres /tmp/spimembers.sql /tmp/temp_table.sql
 sudo -u postgres psql membersdjango < /tmp/temp_table.sql
 sudo -u postgres psql membersdjango < import_from_members_additional_fixes.sql
 sudo -u postgres psql --single-transaction membersdjango < /tmp/spimembers.sql
+sudo -u postgres psql -c 'delete from applications where member NOT in (select memid from members);' membersdjango
 ```
 
 Import users in pgweb:
