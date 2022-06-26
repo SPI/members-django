@@ -31,7 +31,7 @@
 
     <h1>Vote</h1>
     {% if vote.is_over %}
-        <p>The voting period ended {{ vote.end }}. You can no longer change
+        <p>The voting period ended {{ vote.period_stop|date:"Y-m-d H:i:s" }}. You can no longer change
         your vote.</p>
     {% endif %}
     {% if membervote %}
