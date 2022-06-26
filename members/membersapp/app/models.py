@@ -1,4 +1,5 @@
 from django.utils import timezone
+import hashlib
 
 from django.db import models
 from django.contrib.auth.models import User
@@ -127,6 +128,26 @@ class VoteVote(models.Model):
     class Meta:
         unique_together = (('voter_ref', 'election_ref'), )
         db_table = 'vote_vote'
+
+    @property
+    def resultcookie(self):
+        """Returns the user's secret cookie for voting verification."""
+        md5 = hashlib.md5()
+        md5.update(self.private_secret + " " + self.voter_ref.email + "\n")
+        return md5.hexdigest()
+
+    @property
+    def set_vote(self, votestr):
+        """Update the user's voting preference based on the voting string."""
+        newvotes = []
+        for char in votestr:
+            option = self.vote.option_by_char(char)
+            if option is None:
+                return "Invalid vote option " + char
+            if option in newvotes:
+                return "Can't vote for " + char + " more than once."
+            newvotes.append(option)
+        self.votes = newvotes
 
 
 class VoteVoteOption(models.Model):
