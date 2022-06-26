@@ -1,3 +1,5 @@
+from django.utils import timezone
+
 from django.db import models
 from django.contrib.auth.models import User
 from django.db.models.functions import Now
@@ -80,6 +82,24 @@ class VoteElection(models.Model):
     class Meta:
         db_table = 'vote_election'
 
+    @property
+    def is_active(self):
+        """"Check if a vote is currently active"""
+        now = timezone.now()
+        return self.period_start <= now <= self.period_stop
+
+    @property
+    def is_over(self):
+        """"Check if a voting period is over"""
+        now = timezone.now()
+        return now > self.period_stop
+
+    @property
+    def is_pending(self):
+        """"Check if a vote is still waiting to be active"""
+        now = timezone.now()
+        return now < self.period_stop
+
 
 class VoteOption(models.Model):
     ref = models.AutoField(null=False, primary_key=True)
@@ -107,24 +127,6 @@ class VoteVote(models.Model):
     class Meta:
         unique_together = (('voter_ref', 'election_ref'), )
         db_table = 'vote_vote'
-
-    @property
-    def is_active(self):
-        """"Check if a vote is currently active"""
-        now = Now()
-        return self.start <= now <= self.end
-
-    @property
-    def is_over(self):
-        """"Check if a voting period is over"""
-        now = Now()
-        return now > self.end
-
-    @property
-    def is_pending(self):
-        """"Check if a vote is still waiting to be active"""
-        now = datetime.datetime.utcnow()
-        return now < self.start
 
 
 class VoteVoteOption(models.Model):
