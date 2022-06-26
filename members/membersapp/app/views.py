@@ -14,7 +14,7 @@ from django.db.models import Q
 from membersapp.app.stats import get_stats
 from membersapp.app.votes import get_votes
 from membersapp.app.applications import *
-from .models import Members, Applications, VoteElection
+from .models import Members, Applications, VoteElection, VoteOption
 from .forms import *
 
 
@@ -117,15 +117,17 @@ def showvotes(request):
 
 
 @login_required
-def showvote(request, voteid):
+def showvote(request, ref):
     user = get_current_user(request)
     if not user.ismanager:
         return render(request, 'manager-only.html')
     template = loader.get_template('vote.html')
-    vote = VoteElection.object.get(ref=voteid)
+    vote = VoteElection.object.get(pk=ref)
+    options = VoteOption.objects.filter(election_ref=ref)
     context = {
         'user': user,
-        'vote': vote
+        'vote': vote,
+        'options': options
     }
     return HttpResponse(template.render(context, request))
 

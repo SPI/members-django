@@ -24,7 +24,7 @@
                     <input type="radio" name="vote1" value="abstain"> Abstain;
         </form>
     {% else %}
-        {% for option in vote.options %}
+        {% for option in options %}
             (<b>{{ option.char }}</b>) {{ option.description }}<br />
         {% endfor %}
     {% endif %}
