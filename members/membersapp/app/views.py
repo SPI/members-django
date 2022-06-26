@@ -117,6 +117,20 @@ def showvotes(request):
 
 
 @login_required
+def showvote(request, voteid):
+    user = get_current_user(request)
+    if not user.ismanager:
+        return render(request, 'manager-only.html')
+    template = loader.get_template('vote.html')
+    vote = VoteElection.object.get(ref=voteid)
+    context = {
+        'user': user,
+        'vote': vote
+    }
+    return HttpResponse(template.render(context, request))
+
+
+@login_required
 def showmember(request, memid):
     user = get_current_user(request)
     if not user.ismanager:

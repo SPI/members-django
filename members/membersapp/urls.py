@@ -33,6 +33,7 @@ urlpatterns = [
     path('application/<int:appid>/edit', views.applicationedit, name='applicationedit'),
     path('apply/contrib', views.contribapplication, name='contribapplication'),
     path('votes', views.showvotes, name='votes'),
+    path('vote/<int:voteid>', views.showvote, name='vote'),
 
     # Auth system integration
     url(r'^(?:accounts/)?login/?$', membersapp.auth.login),

@@ -72,6 +72,8 @@ class VoteElection(models.Model):
     winners = models.IntegerField(null=False, default=1)
     system = models.IntegerField(null=False)
 
+    object = models.Manager()
+
     def __str__(self):
         return self.title
 
@@ -117,6 +119,12 @@ class VoteVote(models.Model):
         """"Check if a voting period is over"""
         now = Now()
         return now > self.end
+
+    @property
+    def is_pending(self):
+        """"Check if a vote is still waiting to be active"""
+        now = datetime.datetime.utcnow()
+        return now < self.start
 
 
 class VoteVoteOption(models.Model):
