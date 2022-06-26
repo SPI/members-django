@@ -20,8 +20,8 @@
             {{ form.sub_private }}
         </td></tr>
         <tr><td>Last active</td><td>{{ user.lastactive|date:"Y-m-d" }} (<a href="/updateactive">Update</a>)</td></tr>
-{% endif %}
         <tr><td colspan="2"><input type="submit" value="Update Details" /></td></tr>
+{% endif %}
     </table>
     </form>
     <div class="error">
