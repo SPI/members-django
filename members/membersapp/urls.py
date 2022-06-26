@@ -32,6 +32,7 @@ urlpatterns = [
     path('applications/<str:listtype>', views.showapplications, name='applications'),
     path('application/<int:appid>/edit', views.applicationedit, name='applicationedit'),
     path('apply/contrib', views.contribapplication, name='contribapplication'),
+    path('votes', views.showvotes, name='votes'),
 
     # Auth system integration
     url(r'^(?:accounts/)?login/?$', membersapp.auth.login),

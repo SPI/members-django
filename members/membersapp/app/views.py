@@ -14,7 +14,7 @@ from django.db.models import Q
 from membersapp.app.stats import get_stats
 from membersapp.app.votes import get_votes
 from membersapp.app.applications import *
-from .models import Members, Applications
+from .models import Members, Applications, VoteElection
 from .forms import *
 
 
@@ -98,6 +98,20 @@ def showapplications(request, listtype):
         'applicants': sorted_applications,
         'listtype': listtype,
         'user': user
+    }
+    return HttpResponse(template.render(context, request))
+
+
+@login_required
+def showvotes(request):
+    user = get_current_user(request)
+    if not user.ismanager:
+        return render(request, 'manager-only.html')
+    template = loader.get_template('votes.html')
+    votes = VoteElection.objects.order_by('-period_start')
+    context = {
+        'user': user,
+        'votes': votes,
     }
     return HttpResponse(template.render(context, request))
 
