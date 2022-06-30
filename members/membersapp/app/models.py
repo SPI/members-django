@@ -76,6 +76,7 @@ class VoteElection(models.Model):
     system = models.IntegerField(null=False)
 
     object = models.Manager()
+    objects = models.Manager()
 
     def __str__(self):
         return self.title
