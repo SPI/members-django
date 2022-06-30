@@ -28,7 +28,7 @@ class LoggedInViewsTest(TestCase):
         create_member()
 
     def test_index_loggedin(self):
-        self.client.force_login(member)
+        self.client.force_login(member.memid)
         response = self.client.get('/')
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Welcome to the membership pages")
