@@ -80,7 +80,11 @@ def showstats(request):
     return render(request, 'stats.html', {'stats': stats, 'user': user})
 
 
+@login_required
 def showapplications(request, listtype):
+    user = get_current_user(request)
+    if not user.ismanager:
+        return render(request, 'manager-only.html')
     template = loader.get_template('applications.html')
     if listtype == 'ncm':
         applications = Applications.objects.filter(Q(member__iscontrib=False) & (Q(contribapp=False) | Q(contribapp__isnull=True)))
@@ -93,7 +97,6 @@ def showapplications(request, listtype):
     else:
         applications = Applications.objects.all()
     sorted_applications = applications.order_by('appid')
-    user = get_current_user(request)
     context = {
         'applicants': sorted_applications,
         'listtype': listtype,
