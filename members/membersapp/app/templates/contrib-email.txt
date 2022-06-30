@@ -1,11 +1,11 @@
-Dear {{ application.user.name }},
+Dear {{ user.name }},
 
 I'm happy to announce that your SPI Contributing Membership application
 has been accepted. You can check and update your application information
 by logging into the membership pages located at:
 
 https://members.spi-inc.org/
-{% if application.user.sub_private %}
+{% if user.sub_private %}
 You will be subscribed to the spi-private mailing list in the next few
 days. This list is intended for internal SPI discussions. Please do not
 forward or distribute mails from this list.

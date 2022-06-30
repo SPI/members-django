@@ -40,7 +40,10 @@ def process_contrib_application(request, form, application, approve_pre_value):
                          'emailing them.')
         # Send the welcome confirmation email
         template = loader.get_template('contrib-email.txt')
-        msg = MIMEText(template.render({application: application}, request),
+        context = {
+            'user': user
+        }
+        msg = MIMEText(template.render(context, request),
                        'plain', 'utf-8')
         msg['Subject'] = email.header.Header('SPI Contributing Member ' +
                                              'application for ' +
