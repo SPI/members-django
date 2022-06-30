@@ -5,12 +5,13 @@ from membersapp.app.models import Members
 
 
 member = None
+default_name = 'testuser'
 
 
 def create_member(manager=False):
     global member
     user = User()
-    member = Members(memid=user, name='testuser', email='test@spi-inc.org', ismanager=manager)
+    member = Members(memid=user, name=default_name, email='test@spi-inc.org', ismanager=manager)
     user.save()
     member.save()
 
@@ -31,4 +32,4 @@ class LoggedInViewsTest(TestCase):
         self.client.force_login(member.memid)
         response = self.client.get('/')
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "Welcome to the membership pages")
+        self.assertContains(response, "Membership status for %s" % default_name)
