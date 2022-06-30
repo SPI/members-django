@@ -1,13 +1,18 @@
 from django.test import Client, TestCase
 
+from django.contrib.auth.models import User
 from membersapp.app.models import Members
 
 
-user = None
+member = None
 
 
-def create_user(manager=False):
-    user = Members.objects.create(name='testuser', email='test@spi-inc.org')
+def create_member(manager=False):
+    global member
+    user = User()
+    member = Members(memid=user, name='testuser', email='test@spi-inc.org', ismanager=manager)
+    user.save()
+    member.save()
 
 
 class ViewsTests(TestCase):
@@ -20,10 +25,10 @@ class ViewsTests(TestCase):
 
 class LoggedInViewsTest(TestCase):
     def setUp(self):
-        create_user()
+        create_member()
 
     def test_index_loggedin(self):
-        self.client.force_login(user)
+        self.client.force_login(member)
         response = self.client.get('/')
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Welcome to the membership pages")
