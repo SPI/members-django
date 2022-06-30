@@ -39,9 +39,15 @@ class NonManagerTest(TestCase):
     def setUp(self):
         create_member(manager=False)
 
-    def test_index_loggedin(self):
+    def test_votes(self):
         self.client.force_login(member.memid)
         response = self.client.get('/votes')
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "This page is only accessible to application managers.")
+
+    def test_applications(self):
+        self.client.force_login(member.memid)
+        response = self.client.get('/applications/all')
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "This page is only accessible to application managers.")
 
@@ -50,8 +56,14 @@ class ManagerTest(TestCase):
     def setUp(self):
         create_member(manager=True)
 
-    def test_index_loggedin(self):
+    def test_votes(self):
         self.client.force_login(member.memid)
         response = self.client.get('/votes')
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Welcome to the election pages of Software in the Public Interest, Inc.")
+
+    def test_applications(self):
+        self.client.force_login(member.memid)
+        response = self.client.get('/applications/all')
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "This page contains a list of ALL membership records")
