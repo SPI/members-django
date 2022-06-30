@@ -25,8 +25,7 @@ class NonLoggedInViewsTests(TestCase):
 
     def test_applications(self):
         response = self.client.get('/applications/all')
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "Welcome to the membership pages")
+        self.assertEqual(response.status_code, 302)
 
 
 class LoggedInViewsTest(TestCase):
