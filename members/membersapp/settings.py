@@ -149,6 +149,9 @@ PGAUTH_CHANGEPASSWD = "https://pgweb.spi-inc.org/account/changepwd"
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 STATIC_ROOT = os.path.join(BASE_DIR, "./media/")
 
+SMTP_SERVER = 'localhost'
+SMTP_PORT = '25'
+
 try:
     from .local_settings import *
 except ImportError:

@@ -162,12 +162,14 @@ def applicationedit(request, appid):
     # todo: check edit privileges
     if request.method == 'POST':
         application = Applications.objects.get(pk=appid)
+        application_pre_value = application.approve
         memberform = MemberForm(request.POST, instance=application.member)
         applicationform = ApplicationForm(request.POST, instance=application)
+        # caution: is_valid() modifies objects
         if memberform.is_valid() and applicationform.is_valid():
+            process_contrib_application(request, applicationform, application, application_pre_value)
             memberform.save()
             applicationform.save()
-        process_contrib_application(applicationform, application)
     return HttpResponseRedirect(reverse('application', args=[appid]))
 
 
