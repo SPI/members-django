@@ -16,10 +16,15 @@ def create_member(manager=False):
     member.save()
 
 
-class ViewsTests(TestCase):
+class NonLoggedInViewsTests(TestCase):
 
     def test_index(self):
         response = self.client.get('/')
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Welcome to the membership pages")
+
+    def test_applications(self):
+        response = self.client.get('/applications/all')
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Welcome to the membership pages")
 
