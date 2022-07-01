@@ -44,5 +44,3 @@ urlpatterns = [
 ]
 
 handler404 = 'membersapp.app.views.handler404'
-
-#    url(r'^$', include('app.urls')),
