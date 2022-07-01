@@ -45,13 +45,13 @@
         {% for vote in user_votes %}
             <li>
             {% if vote.is_active %}
-                <a href="/vote/{{ vote.voteid }}">{{ vote.title }}</a>
+                <a href="/vote/{{ vote.ref }}">{{ vote.title }}</a>
                 (ends {{ vote.end }})
             {% elif vote.is_over %}
-                <a href="/vote/{{ vote.voteid }}/result">{{ vote.title }}</a>
+                <a href="/vote/{{ vote.ref }}/result">{{ vote.title }}</a>
                 (ended)
             {% else %}
-                <a href="/vote/{{ vote.voteid }}/edit">{{ vote.title }}</a>
+                <a href="/vote/{{ vote.ref }}/edit">{{ vote.title }}</a>
                 (starts {{ vote.start }})
             {% endif %}
             </li>
