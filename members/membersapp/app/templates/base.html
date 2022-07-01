@@ -31,7 +31,7 @@
 {% if user.iscontrib %}
 <li><a href="/votes">Votes</a></li>
 {% endif %}
-{% if request.user.can_createvote %}
+{% if user.createvote %}
 <li><a href="/vote/create">Create Vote</a></li>
 {% endif %}
 <li><a href="{{ PGAUTH_ROOT }}">Handle account</a></li>
