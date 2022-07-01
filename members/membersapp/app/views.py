@@ -67,11 +67,13 @@ def application(request, appid):
     return HttpResponse(template.render(context, request))
 
 
+@login_required
 def updateactive(request):
     """Update a users most recently active date and redirect to main page"""
-    user = get_current_user(request)
-    user.lastactive = datetime.date.today()
-    user.save()
+    if request.method == 'POST':
+        user = get_current_user(request)
+        user.lastactive = datetime.date.today()
+        user.save()
     return HttpResponseRedirect("/")
 
 
