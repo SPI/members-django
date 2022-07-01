@@ -51,8 +51,10 @@ def index(request):
 def application(request, appid):
     template = loader.get_template('application.html')
     application = get_object_or_404(Applications, appid=appid)
-    member = Members.object.get(memid=application.member_id)
     user = get_current_user(request)
+    if application.member != user:
+        return render(request, 'manager-only.html')
+    member = Members.object.get(memid=application.member_id)
     memberform = MemberForm(instance=member)
     applicationform = ApplicationForm(instance=application)
     context = {
