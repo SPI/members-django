@@ -3,6 +3,12 @@ from django.db import connection
 from .models import Members
 
 
+VOTE_SYSTEMS = [(0, "Condorcet (ignore unspecified)"),
+                (1, "Condorcet (unspecified ranked lowest)"),
+                (2, "Scottish STV"),
+                ]
+
+
 def vote_from_db(row):
     """"Given a row from the vote_election table, return a Vote object"""
     owner = Members.object.get(pk=row['owner'])
