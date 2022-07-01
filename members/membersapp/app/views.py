@@ -1,6 +1,6 @@
 import datetime
 
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect, HttpResponseNotFound
 from django.template import loader
 from django.shortcuts import render, get_object_or_404
 from django.views import generic
@@ -24,7 +24,7 @@ def handler404(request, exception):
     context = {
         'user': user
     }
-    return HttpResponse(template.render(context, request))
+    return HttpResponseNotFound(template.render(context, request))
 
 
 def index(request):
