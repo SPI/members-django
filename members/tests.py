@@ -125,6 +125,11 @@ class LoggedInViewsTest(TestCase):
         self.assertEqual(user.lastactive, datetime.date.today())
         self.assertEqual(response.status_code, 302)
 
+    def test_logout(self):
+        # We can't test pgweb from here
+        response = self.client.get('/logout')
+        self.assertEqual(response.status_code, 302)
+
 
 class NonManagerTest(TestCase):
     def setUp(self):
