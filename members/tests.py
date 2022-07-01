@@ -1,3 +1,5 @@
+import datetime
+
 from django.test import Client, TestCase
 from django.contrib.auth.models import User
 
@@ -121,6 +123,14 @@ class LoggedInViewsTest(TestCase):
         response = self.client.post("/member/edit", data=data)
         user = Members.object.get(pk=member)  # get updated user
         self.assertEqual(user.sub_private, True)
+        self.assertEqual(response.status_code, 302)
+
+    def test_updateactive(self):
+        data = {
+        }
+        response = self.client.post("/updateactive", data=data)
+        user = Members.object.get(pk=member)  # get updated user
+        self.assertEqual(user.lastactive, datetime.date.today())
         self.assertEqual(response.status_code, 302)
 
 
