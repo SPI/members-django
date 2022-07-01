@@ -1,6 +1,7 @@
-from django.forms import ModelForm, DateInput
+from django.forms import ModelForm, DateInput, ChoiceField
 
-from .models import Members, Applications
+from .models import Members, Applications, VoteElection
+from .votes import VOTE_SYSTEMS
 
 
 class DateInput(DateInput):
@@ -27,3 +28,18 @@ class ContribApplicationForm(ModelForm):
     class Meta:
         model = Applications
         fields = ['contrib']
+
+
+class CreateVoteForm(ModelForm):
+    class Meta:
+        model = VoteElection
+        fields = ['title', 'description', 'period_start', 'period_stop', 'system']
+        widgets = {
+            'period_start': DateInput(),
+            'period_stop': DateInput()
+        }
+
+    def __init__(self, *args, **kwargs):
+        super(CreateVoteForm, self).__init__(*args, **kwargs)
+        limited_choices = [(choice[0], choice[1]) for choice in VOTE_SYSTEMS]
+        self.fields['system'] = ChoiceField(choices=limited_choices)

@@ -34,6 +34,7 @@ urlpatterns = [
     path('apply/contrib', views.contribapplication, name='contribapplication'),
     path('votes', views.showvotes, name='votes'),
     path('vote/<int:ref>', views.showvote, name='vote'),
+    path('vote/create', views.votecreate, name='votecreate'),
 
     # Auth system integration
     url(r'^(?:accounts/)?login/?$', membersapp.auth.login),

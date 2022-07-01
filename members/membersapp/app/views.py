@@ -221,6 +221,21 @@ def contribapplication(request):
     return HttpResponse(template.render(context, request))
 
 
+@login_required
+def votecreate(request):
+    user = get_current_user(request)
+    if not user.createvote:
+        messages.error(request, 'You are not allowed to create new votes')
+        return HttpResponseRedirect("/")
+    template = loader.get_template('vote-create.html')
+    createvoteform = CreateVoteForm()
+    context = {
+        'user': user,
+        'createvoteform': createvoteform
+    }
+    return HttpResponse(template.render(context, request))
+
+
 class MemberEditView(LoginRequiredMixin, UpdateView):
     model = Members
     fields = ['sub_private']

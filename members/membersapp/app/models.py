@@ -67,13 +67,13 @@ class Applications(models.Model):
 
 class VoteElection(models.Model):
     ref = models.AutoField(null=False, primary_key=True)
-    title = models.CharField(max_length=256, null=False)
+    title = models.CharField(max_length=256, null=False, verbose_name='Vote title')
     description = models.TextField(null=True)
-    period_start = models.DateTimeField(auto_now_add=True, null=True)
-    period_stop = models.DateTimeField(null=True)
+    period_start = models.DateField(null=True, verbose_name='Start date')
+    period_stop = models.DateField(null=True, verbose_name='End date')
     owner = models.ForeignKey(Members, null=False, blank=False, db_column='owner', on_delete=models.RESTRICT)
     winners = models.IntegerField(null=False, default=1)
-    system = models.IntegerField(null=False)
+    system = models.IntegerField(null=False, verbose_name='Voting system')
 
     object = models.Manager()
     objects = models.Manager()
