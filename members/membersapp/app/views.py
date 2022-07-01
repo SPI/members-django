@@ -37,8 +37,8 @@ def index(request):
         user = get_current_user(request)
         form = MemberForm(instance=user)
         context = {
-            'votes': VoteElection.objects.filter(Q(period_start__lte=timezone.now()) & Q(period_stop__gte=timezone.now())),
-            'votes2': VoteElection.objects.filter(owner=user),
+            'active_votes': VoteElection.objects.filter(Q(period_start__lte=timezone.now()) & Q(period_stop__gte=timezone.now())),
+            'user_votes': VoteElection.objects.filter(owner=user),
             'applications': get_applications_by_user(user),
             'applicants': get_applications(user),
             'user': user,
