@@ -3,27 +3,35 @@ import datetime
 from django.test import Client, TestCase
 from django.contrib.auth.models import User
 
-from membersapp.app.models import Members, Applications
+from membersapp.app.models import Members, Applications, VoteElection
 
 
 member = None
 default_name = 'testuser'
-
+manager = None
 
 def create_member(manager=False):
     global member
     user = User()
-    member = Members(memid=user, name=default_name, email='test@spi-inc.org', ismanager=manager)
+    member = Members(memid=user, name=default_name, email='test@spi-inc.org', ismanager=manager, createvote=manager)
     user.save()
     member.save()
 
 
-def create_other_member():
+def create_other_member(manager=False):
     user = User(username='other member')
-    member = Members(memid=user, name='Other User', email='other_user@spi-inc.org')
+    member = Members(memid=user, name='Other User', email='other_user@spi-inc.org', ismanager=manager)
     user.save()
     member.save()
     return member
+
+
+def create_manager():
+    global manager
+    user = User(username='manager')
+    manager = Members(memid=user, name='manager', email='manager@spi-inc.org', ismanager=True, createvote=True)
+    user.save()
+    manager.save()
 
 
 def create_application_post(testcase):
@@ -33,6 +41,29 @@ def create_application_post(testcase):
     }
     response = testcase.client.post("/apply/contrib", data=data)
     return response
+
+
+def create_vote(testcase):
+    data = {
+        "title": "Test+vote",
+        "description": "Hello+world",
+        "period_start": "2022-07-01",
+        "period_stop": "2022-07-01",
+        "system": "2"
+    }
+    response = testcase.client.post("/vote/create", data=data)
+    return response
+
+
+def create_vote_with_manager(testcase):
+    testcase.client.logout()
+    testcase.client.force_login(manager.memid)
+    response = create_vote(testcase)
+    testcase.assertEqual(response.status_code, 302)
+    testcase.assertEqual(VoteElection.objects.count(), 1)
+    # relog as non-manager
+    testcase.client.logout()
+    testcase.client.force_login(member.memid)
 
 
 class NonLoggedInViewsTests(TestCase):
@@ -134,6 +165,7 @@ class LoggedInViewsTest(TestCase):
 class NonManagerTest(TestCase):
     def setUp(self):
         create_member(manager=False)
+        create_manager()
         self.client.force_login(member.memid)
 
     def test_votes(self):
@@ -161,6 +193,13 @@ class NonManagerTest(TestCase):
         other_application = Applications(member=other_member)
         other_application.save()
         response = self.client.get('/application/%d' % other_application.pk)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "This page is only accessible to application managers.")
+
+    def test_vote_view(self):
+        create_vote_with_manager(self)
+        vote = VoteElection.objects.all()[0]
+        response = self.client.get('/vote/%d' % vote.pk)
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "This page is only accessible to application managers.")
 
@@ -198,13 +237,6 @@ class ManagerTest(TestCase):
         self.assertContains(response, "Membership status for %s" % default_name)
 
     def test_votecreate(self):
-        data = {
-            "title": "Test+vote",
-            "description": "Hello+world",
-            "period_start": "2022-07-01",
-            "period_stop": "2022-07-01",
-            "system": "2"
-        }
-        response = self.client.post("/vote/create", data=data)
+        response = create_vote(self)
         self.assertEqual(response.status_code, 302)
         self.assertEqual(VoteElection.objects.count(), 1)
