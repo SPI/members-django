@@ -15,12 +15,14 @@ def create_member(manager=False):
     user.save()
     member.save()
 
+
 def create_other_member():
     user = User(username='other member')
     member = Members(memid=user, name='Other User', email='other_user@spi-inc.org')
     user.save()
     member.save()
     return member
+
 
 def create_application_post(testcase):
     data = {
@@ -66,6 +68,13 @@ class NonLoggedInViewsTests(TestCase):
         self.assertRedirects(response, '/accounts/login/?next=/apply/contrib', status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=False)
         self.assertEqual(Applications.objects.count(), 0)
 
+    def test_memberedit(self):
+        data = {
+            "sub_private": "on",
+        }
+        response = self.client.post("/member/edit", data=data)
+        self.assertEqual(response.status_code, 302)
+
 
 class LoggedInViewsTest(TestCase):
     def setUp(self):
@@ -89,7 +98,8 @@ class LoggedInViewsTest(TestCase):
         self.assertEqual(Applications.objects.count(), 1)
 
     def test_application_view(self):
-        create_application_post(self)
+        response = create_application_post(self)
+        self.assertEqual(response.status_code, 302)
         application = Applications.objects.filter(member=member)[0]
         response = self.client.get('/application/%d' % application.pk)
         self.assertEqual(response.status_code, 200)
@@ -103,6 +113,15 @@ class LoggedInViewsTest(TestCase):
         response = self.client.get('/application/%d' % other_application.pk)
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "This page is only accessible to application managers.")
+
+    def test_memberedit(self):
+        data = {
+            "sub_private": "on",
+        }
+        response = self.client.post("/member/edit", data=data)
+        user = Members.object.get(pk=member)  # get updated user
+        self.assertEqual(user.sub_private, True)
+        self.assertEqual(response.status_code, 302)
 
 
 class NonManagerTest(TestCase):
