@@ -19,4 +19,7 @@ def dictfetchall(cursor):
 
 
 def get_current_user(request):
-    return Members.object.get(pk=request.user.id)
+    try:
+        return Members.object.get(pk=request.user.id)
+    except Members.DoesNotExist:
+        return None
