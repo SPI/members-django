@@ -15,10 +15,11 @@ def create_member(manager=False):
     user.save()
     member.save()
 
+
 def create_application_post(testcase):
     data = {
-            "contrib": "Hello wold",
-            "sub_private": " on",
+        "contrib": "Hello wold",
+        "sub_private": " on",
     }
     response = testcase.client.post("/apply/contrib", data=data)
     return response
