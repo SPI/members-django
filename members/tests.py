@@ -27,47 +27,82 @@ class NonLoggedInViewsTests(TestCase):
         response = self.client.get('/applications/all')
         self.assertEqual(response.status_code, 302)
 
+    def test_stats(self):
+        response = self.client.get('/stats/')
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Contrib Membership Applications")
+
+    def test_404(self):
+        response = self.client.get('/nonenxistent_page/')
+        self.assertEqual(response.status_code, 404)
+
+    def test_admin(self):
+        response = self.client.get('/admin/', follow=True)
+        self.assertRedirects(response, '/admin/login/?next=/admin/', status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=True)
+        self.assertContains(response, "Django administration")
+        self.assertContains(response, "Username:")
+
 
 class LoggedInViewsTest(TestCase):
     def setUp(self):
         create_member()
+        self.client.force_login(member.memid)
 
     def test_index_loggedin(self):
-        self.client.force_login(member.memid)
         response = self.client.get('/')
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Membership status for %s" % default_name)
+
+    def test_stats(self):
+        response = self.client.get('/stats/')
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Contrib Membership Applications")
 
 
 class NonManagerTest(TestCase):
     def setUp(self):
         create_member(manager=False)
+        self.client.force_login(member.memid)
 
     def test_votes(self):
-        self.client.force_login(member.memid)
         response = self.client.get('/votes')
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "This page is only accessible to application managers.")
 
     def test_applications(self):
-        self.client.force_login(member.memid)
         response = self.client.get('/applications/all')
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "This page is only accessible to application managers.")
+
+    def test_stats(self):
+        response = self.client.get('/stats/')
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Contrib Membership Applications")
 
 
 class ManagerTest(TestCase):
     def setUp(self):
         create_member(manager=True)
+        self.client.force_login(member.memid)
 
     def test_votes(self):
-        self.client.force_login(member.memid)
         response = self.client.get('/votes')
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Welcome to the election pages of Software in the Public Interest, Inc.")
+        self.assertContains(response, "All Applications")
 
     def test_applications(self):
-        self.client.force_login(member.memid)
         response = self.client.get('/applications/all')
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "This page contains a list of ALL membership records")
+        self.assertContains(response, "All Applications")
+
+    def test_stats(self):
+        response = self.client.get('/stats/')
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Contrib Membership Applications")
+        self.assertContains(response, "All Applications")
+
+    def test_application_unknown(self):
+        response = self.client.get('/application/1337')
+        self.assertEqual(response.status_code, 404)
