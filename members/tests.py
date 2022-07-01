@@ -15,6 +15,12 @@ def create_member(manager=False):
     user.save()
     member.save()
 
+def create_other_member():
+    user = User(username='other member')
+    member = Members(memid=user, name='Other User', email='other_user@spi-inc.org')
+    user.save()
+    member.save()
+    return member
 
 def create_application_post(testcase):
     data = {
@@ -89,6 +95,14 @@ class LoggedInViewsTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Application #%d status" % application.pk)
         self.assertContains(response, "Member Name</td><td>%s" % default_name)
+
+    def test_application_view_not_own(self):
+        other_member = create_other_member()
+        other_application = Applications(member=other_member)
+        other_application.save()
+        response = self.client.get('/application/%d' % other_application.pk)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "This page is only accessible to application managers.")
 
 
 class NonManagerTest(TestCase):
