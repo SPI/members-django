@@ -82,6 +82,14 @@ class LoggedInViewsTest(TestCase):
         self.assertRedirects(response, '/', status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=False)
         self.assertEqual(Applications.objects.count(), 1)
 
+    def test_application_view(self):
+        create_application_post(self)
+        application = Applications.objects.filter(member=member)[0]
+        response = self.client.get('/application/%d' % application.pk)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Application #%d status" % application.pk)
+        self.assertContains(response, "Member Name</td><td>%s" % default_name)
+
 
 class NonManagerTest(TestCase):
     def setUp(self):
