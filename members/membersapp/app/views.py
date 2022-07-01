@@ -227,13 +227,31 @@ def votecreate(request):
     if not user.createvote:
         messages.error(request, 'You are not allowed to create new votes')
         return HttpResponseRedirect("/")
-    template = loader.get_template('vote-create.html')
-    createvoteform = CreateVoteForm()
-    context = {
-        'user': user,
-        'createvoteform': createvoteform
-    }
-    return HttpResponse(template.render(context, request))
+
+    if request.method == 'POST':
+        user = get_current_user(request)
+        form = CreateVoteForm(request.POST)
+        if form.is_valid():
+            form.instance.owner = user
+            new_vote = form.save()
+        return HttpResponseRedirect(reverse('voteedit', args=(new_vote.pk,)))
+    else:
+        template = loader.get_template('vote-create.html')
+        createvoteform = CreateVoteForm()
+        context = {
+            'user': user,
+            'createvoteform': createvoteform
+        }
+        return HttpResponse(template.render(context, request))
+
+
+@login_required
+def voteedit(request):
+    user = get_current_user(request)
+    # if not user.createvote:
+    #    messages.error(request, 'You are not allowed to create new votes')
+    #    return HttpResponseRedirect("/")
+    # todo
 
 
 class MemberEditView(LoginRequiredMixin, UpdateView):
