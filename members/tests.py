@@ -1,8 +1,7 @@
 from django.test import Client, TestCase
 from django.contrib.auth.models import User
 
-from membersapp.app.models import Members
-
+from membersapp.app.models import Members, Applications
 
 
 member = None
@@ -15,6 +14,15 @@ def create_member(manager=False):
     member = Members(memid=user, name=default_name, email='test@spi-inc.org', ismanager=manager)
     user.save()
     member.save()
+
+def create_application_post(testcase):
+    data = {
+            "contrib": "Hello wold",
+            "sub_private": " on",
+    }
+    response = testcase.client.post("/apply/contrib", data=data)
+    return response
+
 
 class NonLoggedInViewsTests(TestCase):
 
@@ -46,6 +54,11 @@ class NonLoggedInViewsTests(TestCase):
         response = self.client.get('/member/1')
         self.assertRedirects(response, '/accounts/login/?next=/member/1', status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=False)
 
+    def test_apply(self):
+        response = create_application_post(self)
+        self.assertRedirects(response, '/accounts/login/?next=/apply/contrib', status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=False)
+        self.assertEqual(Applications.objects.count(), 0)
+
 
 class LoggedInViewsTest(TestCase):
     def setUp(self):
@@ -56,11 +69,17 @@ class LoggedInViewsTest(TestCase):
         response = self.client.get('/')
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Membership status for %s" % default_name)
+        self.assertContains(response, "Apply</a> for contributing membership")
 
     def test_stats(self):
         response = self.client.get('/stats/')
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Contrib Membership Applications")
+
+    def test_apply(self):
+        response = create_application_post(self)
+        self.assertRedirects(response, '/', status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=False)
+        self.assertEqual(Applications.objects.count(), 1)
 
 
 class NonManagerTest(TestCase):
