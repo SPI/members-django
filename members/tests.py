@@ -1,7 +1,8 @@
 from django.test import Client, TestCase
-
 from django.contrib.auth.models import User
+
 from membersapp.app.models import Members
+
 
 
 member = None
@@ -14,7 +15,6 @@ def create_member(manager=False):
     member = Members(memid=user, name=default_name, email='test@spi-inc.org', ismanager=manager)
     user.save()
     member.save()
-
 
 class NonLoggedInViewsTests(TestCase):
 
@@ -41,6 +41,10 @@ class NonLoggedInViewsTests(TestCase):
         self.assertRedirects(response, '/admin/login/?next=/admin/', status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=True)
         self.assertContains(response, "Django administration")
         self.assertContains(response, "Username:")
+
+    def test_member(self):
+        response = self.client.get('/member/1')
+        self.assertRedirects(response, '/accounts/login/?next=/member/1', status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=False)
 
 
 class LoggedInViewsTest(TestCase):
@@ -79,6 +83,11 @@ class NonManagerTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Contrib Membership Applications")
 
+    def test_member(self):
+        response = self.client.get('/member/%d' % member.pk)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "This page is only accessible to application managers.")
+
 
 class ManagerTest(TestCase):
     def setUp(self):
@@ -106,3 +115,8 @@ class ManagerTest(TestCase):
     def test_application_unknown(self):
         response = self.client.get('/application/1337')
         self.assertEqual(response.status_code, 404)
+
+    def test_member(self):
+        response = self.client.get('/member/%d' % member.pk)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Membership status for %s" % default_name)
