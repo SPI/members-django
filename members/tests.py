@@ -196,3 +196,15 @@ class ManagerTest(TestCase):
         response = self.client.get('/member/%d' % member.pk)
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Membership status for %s" % default_name)
+
+    def test_votecreate(self):
+        data = {
+            "title": "Test+vote",
+            "description": "Hello+world",
+            "period_start": "2022-07-01",
+            "period_stop": "2022-07-01",
+            "system": "2"
+        }
+        response = self.client.post("/vote/create", data=data)
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(VoteElection.objects.count(), 1)
