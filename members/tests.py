@@ -10,6 +10,7 @@ member = None
 default_name = 'testuser'
 manager = None
 
+
 def create_member(manager=False):
     global member
     user = User()
@@ -45,8 +46,8 @@ def create_application_post(testcase):
 
 def create_vote(testcase):
     data = {
-        "title": "Test+vote",
-        "description": "Hello+world",
+        "title": "Test vote",
+        "description": "Hello world",
         "period_start": "2022-07-01",
         "period_stop": "2022-07-01",
         "system": "2"
@@ -240,3 +241,10 @@ class ManagerTest(TestCase):
         response = create_vote(self)
         self.assertEqual(response.status_code, 302)
         self.assertEqual(VoteElection.objects.count(), 1)
+
+    def test_viewvote(self):
+        create_vote(self)
+        vote = VoteElection.objects.all()[0]
+        response = self.client.get('/vote/%d' % vote.pk)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Test vote")
