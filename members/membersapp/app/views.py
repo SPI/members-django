@@ -10,9 +10,9 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib import messages
 from django.urls import reverse
 from django.db.models import Q
+from django.utils import timezone
 
 from membersapp.app.stats import get_stats
-from membersapp.app.votes import get_votes
 from membersapp.app.applications import *
 from .models import Members, Applications, VoteElection, VoteOption
 from .forms import *
@@ -37,8 +37,8 @@ def index(request):
         user = get_current_user(request)
         form = MemberForm(instance=user)
         context = {
-            'votes': get_votes(request.user, active=True),
-            'votes2': get_votes(request.user, owner=request.user),
+            'votes': VoteElection.objects.filter(Q(period_start__lte=timezone.now()) & Q(period_stop__gte=timezone.now())),
+            'votes2': VoteElection.objects.filter(owner=user),
             'applications': get_applications_by_user(user),
             'applicants': get_applications(user),
             'user': user,

@@ -30,19 +30,19 @@
     </div>
 <br />
 {% if user.iscontrib %}
-    {% if votes %}
+    {% if active_votes %}
         <h1>Active votes</h1>
         <ul>
-        {% for vote in votes %}
+        {% for vote in active_votes %}
             <li><a href="/vote/{{ vote.voteid }}">{{ vote.title }}</a>
                 (ends {{ vote.end }})</li>
         {% endfor %}
         </ul>
     {% endif %}
-    {% if votes2 %}
+    {% if user_votes %}
         <h1>Your votes</h1>
         <ul>
-        {% for vote in votes2 %}
+        {% for vote in user_votes %}
             <li>
             {% if vote.is_active %}
                 <a href="/vote/{{ vote.voteid }}">{{ vote.title }}</a>
