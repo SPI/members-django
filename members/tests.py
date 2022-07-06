@@ -48,8 +48,8 @@ def create_vote(testcase):
     data = {
         "title": "Test vote",
         "description": "Hello world",
-        "period_start": "2022-07-01",
-        "period_stop": "2022-07-01",
+        "period_start": (datetime.datetime.now() + datetime.timedelta(days=1)).strftime("%Y-%m-%d"),
+        "period_stop": (datetime.datetime.now() + datetime.timedelta(days=7)).strftime("%Y-%m-%d"),
         "system": "2"
     }
     response = testcase.client.post("/vote/create", data=data)
