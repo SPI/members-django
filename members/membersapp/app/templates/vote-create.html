@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}Create Vote{% endblock %}
+{% block content %}
+    <h1>Create Vote</h1>
+
+    <form method="post" action="{% url 'votecreate' %}">
+    {% csrf_token %}
+    <table>
+    {{ createvoteform.as_table }}
+    </table>
+    <input type="submit" value="Create" />
+    </form>
+
+{% endblock %}
