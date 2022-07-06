@@ -246,12 +246,20 @@ def votecreate(request):
 
 
 @login_required
-def voteedit(request):
+def voteedit(request, ref):
     user = get_current_user(request)
-    # if not user.createvote:
-    #    messages.error(request, 'You are not allowed to create new votes')
-    #    return HttpResponseRedirect("/")
-    # todo
+    vote = get_object_or_404(VoteElection, ref=ref)
+    if not user.createvote:
+        messages.error(request, 'You are not allowed to create new votes')
+        return HttpResponseRedirect("/")
+
+    if vote.owner.memid != current_user.memid:
+        messages.error(request, 'You can only edit your own votes.')
+        return HttpResponseRedirect("/")
+
+    if vote.is_active() or vote.is_over():
+        messages.error(request, 'Vote must not have run to be edited.')
+        return HttpResponseRedirect("/")
 
 
 class MemberEditView(LoginRequiredMixin, UpdateView):
