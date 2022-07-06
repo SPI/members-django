@@ -241,6 +241,9 @@ class ManagerTest(TestCase):
         response = create_vote(self)
         self.assertEqual(response.status_code, 302)
         self.assertEqual(VoteElection.objects.count(), 1)
+        response = self.client.get('/')
+        self.assertContains(response, "Your votes")
+        self.assertContains(response, "Test vote")
 
     def test_viewvote(self):
         create_vote(self)
