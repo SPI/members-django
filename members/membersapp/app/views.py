@@ -253,11 +253,11 @@ def voteedit(request, ref):
         messages.error(request, 'You are not allowed to create new votes')
         return HttpResponseRedirect("/")
 
-    if vote.owner.memid != current_user.memid:
+    if vote.owner != user:
         messages.error(request, 'You can only edit your own votes.')
         return HttpResponseRedirect("/")
 
-    if vote.is_active() or vote.is_over():
+    if vote.is_active or vote.is_over:
         messages.error(request, 'Vote must not have run to be edited.')
         return HttpResponseRedirect("/")
 
