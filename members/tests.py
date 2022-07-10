@@ -2,6 +2,7 @@ import datetime
 
 from django.test import Client, TestCase
 from django.contrib.auth.models import User
+from django.utils import timezone
 
 from membersapp.app.models import Members, Applications, VoteElection
 
@@ -44,16 +45,55 @@ def create_application_post(testcase):
     return response
 
 
-def create_vote(testcase):
-    data = {
-        "title": "Test vote",
-        "description": "Hello world",
-        "period_start": (datetime.datetime.now() + datetime.timedelta(days=1)).strftime("%Y-%m-%d"),
-        "period_stop": (datetime.datetime.now() + datetime.timedelta(days=7)).strftime("%Y-%m-%d"),
-        "system": "2"
-    }
+def create_vote(testcase, current=False, past=False):
+    if current:
+        data = {
+            "title": "Test vote",
+            "description": "Hello world",
+            "period_start": (timezone.now() + datetime.timedelta(days=-1)).strftime("%Y-%m-%d"),
+            "period_stop": (timezone.now() + datetime.timedelta(days=7)).strftime("%Y-%m-%d"),
+            "system": "2"
+        }
+    elif past:
+        data = {
+            "title": "Test vote",
+            "description": "Hello world",
+            "period_start": (timezone.now() + datetime.timedelta(days=-7)).strftime("%Y-%m-%d"),
+            "period_stop": (timezone.now() + datetime.timedelta(days=-1)).strftime("%Y-%m-%d"),
+            "system": "2"
+        }
+    else:
+        data = {
+            "title": "Test vote",
+            "description": "Hello world",
+            "period_start": (timezone.now() + datetime.timedelta(days=1)).strftime("%Y-%m-%d"),
+            "period_stop": (timezone.now() + datetime.timedelta(days=7)).strftime("%Y-%m-%d"),
+            "system": "2"
+        }
     response = testcase.client.post("/vote/create", data=data)
     return response
+
+
+def create_vote_manually(current=False, past=False):
+    if current:
+        vote = VoteElection(title="Test vote",
+                            description="Hello world",
+                            period_start=(timezone.now() + datetime.timedelta(days=-1)),
+                            period_stop=(timezone.now() + datetime.timedelta(days=7)),
+                            system=2,
+                            owner=member
+                            )
+        vote.save()
+    elif past:
+        vote = VoteElection(title="Test vote",
+                            description="Hello world",
+                            period_start=(timezone.now() + datetime.timedelta(days=-7)),
+                            period_stop=(timezone.now() + datetime.timedelta(days=-1)),
+                            system=2,
+                            owner=member
+                            )
+        vote.save()
+
 
 
 def create_vote_with_manager(testcase):
@@ -244,6 +284,20 @@ class ManagerTest(TestCase):
         response = self.client.get('/')
         self.assertContains(response, "Your votes")
         self.assertContains(response, "Test vote")
+
+    def test_viewcurrentvote(self):
+        create_vote_manually(current=True)
+        vote = VoteElection.objects.all()[0]
+        response = self.client.get('/vote/%d' % vote.pk)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Vote must not have run to be edited")
+
+    def test_viewpastvote(self):
+        create_vote_manually(past=True)
+        vote = VoteElection.objects.all()[0]
+        response = self.client.get('/vote/%d' % vote.pk)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Vote must not have run to be edited")
 
     def test_viewvote(self):
         create_vote(self)
