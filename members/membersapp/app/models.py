@@ -1,9 +1,10 @@
-from django.utils import timezone
 import hashlib
 
+from django.utils import timezone
 from django.db import models
 from django.contrib.auth.models import User
 from django.db.models.functions import Now
+from django.core.validators import MinValueValidator
 
 
 class Members(models.Model):
@@ -69,8 +70,8 @@ class VoteElection(models.Model):
     ref = models.AutoField(null=False, primary_key=True)
     title = models.CharField(max_length=256, null=False, verbose_name='Vote title')
     description = models.TextField(null=True)
-    period_start = models.DateTimeField(null=True, verbose_name='Start date')
-    period_stop = models.DateTimeField(null=True, verbose_name='End date')
+    period_start = models.DateTimeField(null=True, verbose_name='Start date', validators=[MinValueValidator(timezone.now)])
+    period_stop = models.DateTimeField(null=True, verbose_name='End date', validators=[MinValueValidator(timezone.now)])
     owner = models.ForeignKey(Members, null=False, blank=False, db_column='owner', on_delete=models.RESTRICT)
     winners = models.IntegerField(null=False, default=1)
     system = models.IntegerField(null=False, verbose_name='Voting system')
