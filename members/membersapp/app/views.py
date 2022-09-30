@@ -264,6 +264,32 @@ def voteedit(request, ref):
         messages.error(request, 'Vote must not have run to be edited.')
         return HttpResponseRedirect("/")
 
+    if request.method == 'POST':
+        form = VoteOptionForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return HttpResponseRedirect(reverse('voteedit', args=(ref,)))
+        else:
+            messages.error(request, "Unknown error when filling the form")
+
+
+    template = loader.get_template('vote-edit.html')
+    editvoteform = EditVoteForm(instance=vote)
+    voteoptionform = VoteOptionForm()
+    existingvoteoptions = []
+    voteoptions = VoteOption.objects.filter(election_ref=ref)
+    for voteoption in voteoptions:
+        existingvoteoptions.append(VoteOptionForm(instance=voteoption))
+    existingvoteoptions = VoteOptionForm(instance=vote)
+    context = {
+        'user': user,
+        'editvoteform': editvoteform,
+        'existingvoteoptions': existingvoteoptions,
+        'voteoptionform': voteoptionform
+    }
+    return HttpResponse(template.render(context, request))
+
+
 
 class MemberEditView(LoginRequiredMixin, UpdateView):
     model = Members

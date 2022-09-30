@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}Edit Vote{% endblock %}
+{% block content %}
+    <h1>Edit Vote</h1>
+
+    <form method="post">
+    {% csrf_token %}
+
+    <table>
+    {{ editvoteform.as_table }}
+    </table>
+
+    <input type="submit" name="vote-btn" value="Edit" />
+    <input type="submit" name="vote-btn" value="Delete" />
+    </form>
+
+    <form method="post">
+   {% csrf_token %}
+
+    <table>
+    <tr><th>Selection character</th><th>Option text</th><th></th></tr>
+    {{ voteoptionform.as_table }}
+    {# Last entry is for creating a new option #}
+
+    {% for of in existingvoteoptions %}
+    <table>
+    {{ of.as_table }}
+        <td>
+          <input type="submit" name="obtn{{ of.order.data }}" value="Edit" />
+          <input type="submit" name="obtn" value="Delete" />
+        </td></tr>
+    </table
+    {% endfor %}
+
+
+    </table>
+    <input type="submit" name="obtn" value="Add" />
+    </form>
+
+{% endblock %}
