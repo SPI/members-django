@@ -236,7 +236,8 @@ def votecreate(request):
             new_vote = form.save()
             return HttpResponseRedirect(reverse('voteedit', args=(new_vote.pk,)))
         else:
-            messages.error(request, "Unknown error when filling the form")
+            messages.error(request, "Error while filling the form:")
+            messages.error(request, form.errors)
             # Fall back to showing regular create page
 
     template = loader.get_template('vote-create.html')
@@ -270,8 +271,8 @@ def voteedit(request, ref):
             form.save()
             return HttpResponseRedirect(reverse('voteedit', args=(ref,)))
         else:
-            messages.error(request, "Unknown error when filling the form")
-
+            messages.error(request, "Error while filling the form:")
+            messages.error(request, form.errors)
 
     template = loader.get_template('vote-edit.html')
     editvoteform = EditVoteForm(instance=vote)
