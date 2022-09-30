@@ -34,8 +34,8 @@
         <h1>Active votes</h1>
         <ul>
         {% for vote in active_votes %}
-            <li><a href="/vote/{{ vote.voteid }}">{{ vote.title }}</a>
-                (ends {{ vote.end }})</li>
+            <li><a href="/vote/{{ vote.ref }}">{{ vote.title }}</a>
+                (ends {{ vote.period_stop }})</li>
         {% endfor %}
         </ul>
     {% endif %}
