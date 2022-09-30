@@ -234,15 +234,18 @@ def votecreate(request):
         if form.is_valid():
             form.instance.owner = user
             new_vote = form.save()
-        return HttpResponseRedirect(reverse('voteedit', args=(new_vote.pk,)))
-    else:
-        template = loader.get_template('vote-create.html')
-        createvoteform = CreateVoteForm()
-        context = {
-            'user': user,
-            'createvoteform': createvoteform
-        }
-        return HttpResponse(template.render(context, request))
+            return HttpResponseRedirect(reverse('voteedit', args=(new_vote.pk,)))
+        else:
+            messages.error(request, "Unknown error when filling the form")
+            # Fall back to showing regular create page
+
+    template = loader.get_template('vote-create.html')
+    createvoteform = CreateVoteForm()
+    context = {
+        'user': user,
+        'createvoteform': createvoteform
+    }
+    return HttpResponse(template.render(context, request))
 
 
 @login_required
