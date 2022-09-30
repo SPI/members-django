@@ -95,7 +95,6 @@ def create_vote_manually(current=False, past=False):
         vote.save()
 
 
-
 def create_vote_with_manager(testcase):
     testcase.client.logout()
     testcase.client.force_login(manager.memid)

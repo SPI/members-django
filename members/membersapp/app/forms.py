@@ -54,6 +54,7 @@ class EditVoteForm(CreateVoteForm):
             'period_stop': DateInput()
         }
 
+
 class VoteOptionForm(ModelForm):
     class Meta:
         model = VoteOption

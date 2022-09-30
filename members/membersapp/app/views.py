@@ -291,7 +291,6 @@ def voteedit(request, ref):
     return HttpResponse(template.render(context, request))
 
 
-
 class MemberEditView(LoginRequiredMixin, UpdateView):
     model = Members
     fields = ['sub_private']
