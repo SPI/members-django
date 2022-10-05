@@ -106,6 +106,16 @@ def create_vote_with_manager(testcase):
     testcase.client.force_login(member.memid)
 
 
+def create_vote_option(voteid):
+    data = {
+        "option": "A",
+        "description": "Hello world voteoption",
+        "sort": 1
+    }
+    response = testcase.client.post("/vote/%s/edit" % voteid, data=data)
+    return response
+
+
 class NonLoggedInViewsTests(TestCase):
 
     def test_index(self):
@@ -304,3 +314,10 @@ class ManagerTest(TestCase):
         response = self.client.get('/vote/%d' % vote.pk)
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Test vote")
+
+    def test_addoptionform(self):
+        create_vote(self)
+        vote = VoteElection.objects.all()[0]
+        create_vote_option(self, vote.pk)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Hello world voteoption")
