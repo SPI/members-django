@@ -123,6 +123,15 @@ def create_vote_option(testcase, voteid):
     return response
 
 
+def delete_vote_option(testcase, voteid):
+    data = {
+        "option_character": "A",
+        "obtn": "Delete"
+    }
+    response = testcase.client.post("/vote/%s/edit" % voteid, data=data)
+    return response
+
+
 class NonLoggedInViewsTests(TestCase):
 
     def test_index(self):
@@ -328,3 +337,12 @@ class ManagerTest(TestCase):
         response = create_vote_option(self, vote.pk)
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Hello world voteoption")
+
+    def test_deletevoteoptionform(self):
+        create_vote(self)
+        vote = VoteElection.objects.all()[0]
+        response = create_vote_option(self, vote.pk)
+        self.assertContains(response, "Hello world voteoption")
+        response = delete_vote_option(self, vote.pk)
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, "Hello world voteoption")
