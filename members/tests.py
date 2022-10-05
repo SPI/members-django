@@ -44,7 +44,7 @@ def create_manager():
 
 def create_application_post(testcase):
     data = {
-        "contrib": "Hello world",
+        "contrib": "Hello world create_application_post",
         "sub_private": " on",
     }
     response = testcase.client.post("/apply/contrib", data=data)
@@ -55,7 +55,7 @@ def create_vote(testcase, current=False, past=False):
     if current:
         data = {
             "title": "Test vote",
-            "description": "Hello world",
+            "description": "Hello world create_vote",
             "period_start": (timezone.now() + datetime.timedelta(days=-1)).strftime("%Y-%m-%d"),
             "period_stop": (timezone.now() + datetime.timedelta(days=7)).strftime("%Y-%m-%d"),
             "system": "2"
@@ -63,7 +63,7 @@ def create_vote(testcase, current=False, past=False):
     elif past:
         data = {
             "title": "Test vote",
-            "description": "Hello world",
+            "description": "Hello world create_vote",
             "period_start": (timezone.now() + datetime.timedelta(days=-7)).strftime("%Y-%m-%d"),
             "period_stop": (timezone.now() + datetime.timedelta(days=-1)).strftime("%Y-%m-%d"),
             "system": "2"
@@ -71,7 +71,7 @@ def create_vote(testcase, current=False, past=False):
     else:
         data = {
             "title": "Test vote",
-            "description": "Hello world",
+            "description": "Hello world create_vote",
             "period_start": (timezone.now() + datetime.timedelta(days=1)).strftime("%Y-%m-%d"),
             "period_stop": (timezone.now() + datetime.timedelta(days=7)).strftime("%Y-%m-%d"),
             "system": "2"
@@ -83,7 +83,7 @@ def create_vote(testcase, current=False, past=False):
 def create_vote_manually(current=False, past=False):
     if current:
         vote = VoteElection(title="Test vote",
-                            description="Hello world",
+                            description="Hello world voteelection",
                             period_start=(timezone.now() + datetime.timedelta(days=-1)),
                             period_stop=(timezone.now() + datetime.timedelta(days=7)),
                             system=2,
@@ -92,7 +92,7 @@ def create_vote_manually(current=False, past=False):
         vote.save()
     elif past:
         vote = VoteElection(title="Test vote",
-                            description="Hello world",
+                            description="Hello world voteelection",
                             period_start=(timezone.now() + datetime.timedelta(days=-7)),
                             period_stop=(timezone.now() + datetime.timedelta(days=-1)),
                             system=2,
