@@ -106,7 +106,7 @@ def create_vote_with_manager(testcase):
     testcase.client.force_login(member.memid)
 
 
-def create_vote_option(voteid):
+def create_vote_option(testcase, voteid):
     data = {
         "option": "A",
         "description": "Hello world voteoption",
@@ -318,6 +318,6 @@ class ManagerTest(TestCase):
     def test_addoptionform(self):
         create_vote(self)
         vote = VoteElection.objects.all()[0]
-        create_vote_option(self, vote.pk)
+        response = create_vote_option(self, vote.pk)
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Hello world voteoption")
