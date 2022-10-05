@@ -283,7 +283,7 @@ def voteedit(request, ref):
 
     template = loader.get_template('vote-edit.html')
     editvoteform = EditVoteForm(instance=vote)
-    existingvoteoptions = [VoteOptionForm(instance=vote)]
+    existingvoteoptions = []
     voteoptions = VoteOption.objects.filter(election_ref=ref)
     existingvoteorders = set()
     for voteoption in voteoptions:
