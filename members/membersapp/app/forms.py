@@ -58,4 +58,5 @@ class EditVoteForm(CreateVoteForm):
 class VoteOptionForm(ModelForm):
     class Meta:
         model = VoteOption
-        fields = ['option_character', 'description']
+        fields = ['option_character', 'description', 'sort']
+        exclude = ['election_ref']

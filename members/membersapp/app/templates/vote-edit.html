@@ -19,12 +19,15 @@
 
     <table>
     <tr><th>Selection character</th><th>Option text</th><th></th></tr>
-    {{ voteoptionform.as_table }}
+    <tr><th>{{ voteoptionform.option_character }}</td></tr>
+    <tr><th>{{ voteoptionform.description }}</td></tr>
+    <tr><th>{{ voteoptionform.sort.as_hidden }}</td></tr>
     {# Last entry is for creating a new option #}
 
     {% for of in existingvoteoptions %}
     <table>
-    {{ of.as_table }}
+    {{ of.option_character }}
+    {{ of.description }}
         <td>
           <input type="submit" name="obtn{{ of.order.data }}" value="Edit" />
           <input type="submit" name="obtn" value="Delete" />

@@ -264,10 +264,10 @@ def voteedit(request, ref):
     if vote.is_active or vote.is_over:
         messages.error(request, 'Vote must not have run to be edited.')
         return HttpResponseRedirect("/")
-
     if request.method == 'POST':
         form = VoteOptionForm(request.POST)
         if form.is_valid():
+            form.instance.election_ref = vote
             form.save()
             return HttpResponseRedirect(reverse('voteedit', args=(ref,)))
         else:
@@ -276,17 +276,24 @@ def voteedit(request, ref):
 
     template = loader.get_template('vote-edit.html')
     editvoteform = EditVoteForm(instance=vote)
-    voteoptionform = VoteOptionForm()
-    existingvoteoptions = []
+    existingvoteoptions = [VoteOptionForm(instance=vote)]
     voteoptions = VoteOption.objects.filter(election_ref=ref)
+    existingvoteorders = set()
     for voteoption in voteoptions:
-        existingvoteoptions.append(VoteOptionForm(instance=voteoption))
-    existingvoteoptions = VoteOptionForm(instance=vote)
+        voteoptionform = VoteOptionForm(instance=voteoption)
+        existingvoteoptions.append(voteoptionform)
+        existingvoteorders.add(voteoption.sort)
+    if len(existingvoteorders) == 0:
+        sort = 1
+    else:
+        sort = max(existingvoteorders) + 1
+    newvoteoptionform = VoteOptionForm(initial={'sort': sort, 'election_ref': ref})
+    # data={'election_ref': ref},
     context = {
         'user': user,
         'editvoteform': editvoteform,
         'existingvoteoptions': existingvoteoptions,
-        'voteoptionform': voteoptionform
+        'voteoptionform': newvoteoptionform
     }
     return HttpResponse(template.render(context, request))
 
