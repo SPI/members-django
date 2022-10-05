@@ -280,7 +280,6 @@ def voteedit(request, ref):
         elif request.POST['obtn'] == "Delete":
             form = VoteOptionForm(request.POST)
             voteoption.delete()
-        return HttpResponseRedirect(reverse('voteedit', args=(ref,)))
 #        elif request.POST['obtn'] == "Add":
 #            pass
 
