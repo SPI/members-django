@@ -18,10 +18,10 @@ def dump_page(page):
         print(page.decode('UTF-8'), file=f)
 
 
-def create_member(manager=False):
+def create_member(manager=False, contrib=False):
     global member
     user = User()
-    member = Members(memid=user, name=default_name, email='test@spi-inc.org', ismanager=manager, createvote=manager)
+    member = Members(memid=user, name=default_name, email='test@spi-inc.org', ismanager=manager, iscontrib=contrib, createvote=manager)
     user.save()
     member.save()
 
@@ -272,7 +272,7 @@ class NonManagerTest(TestCase):
 
 class ManagerTest(TestCase):
     def setUp(self):
-        create_member(manager=True)
+        create_member(manager=True, contrib=True)
         self.client.force_login(member.memid)
 
     def test_votes(self):
