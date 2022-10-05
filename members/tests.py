@@ -114,9 +114,10 @@ def create_vote_with_manager(testcase):
 
 def create_vote_option(testcase, voteid):
     data = {
-        "option": "A",
+        "option_character": "A",
         "description": "Hello world voteoption",
-        "sort": 1
+        "sort": 1,
+        "obtn": "Add"
     }
     response = testcase.client.post("/vote/%s/edit" % voteid, data=data)
     return response
