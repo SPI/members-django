@@ -123,6 +123,17 @@ def create_vote_option(testcase, voteid):
     return response
 
 
+def create_vote_option2(testcase, voteid):
+    data = {
+        "option_character": "B",
+        "description": "Hello world 2 voteoption",
+        "sort": 2,
+        "obtn": "Add"
+    }
+    response = testcase.client.post("/vote/%s/edit" % voteid, data=data)
+    return response
+
+
 def delete_vote_option(testcase, voteid):
     data = {
         "option_character": "A",
@@ -137,6 +148,17 @@ def edit_vote_option(testcase, voteid):
         "option_character": "A",
         "description": "Hello world voteoption edited",
         "sort": 1,
+        "obtn": "Edit"
+    }
+    response = testcase.client.post("/vote/%s/edit" % voteid, data=data)
+    return response
+
+
+def edit_vote_option2(testcase, voteid):
+    data = {
+        "option_character": "B",
+        "description": "Hello world 2 voteoption edited",
+        "sort": 2,
         "obtn": "Edit"
     }
     response = testcase.client.post("/vote/%s/edit" % voteid, data=data)
@@ -361,6 +383,32 @@ class ManagerTest(TestCase):
     def test_editoptionform(self):
         create_vote(self)
         vote = VoteElection.objects.all()[0]
+        create_vote_option(self, vote.pk)
         response = edit_vote_option(self, vote.pk)
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Hello world voteoption edited")
+
+    def test_addoptionform_multiple(self):
+        create_vote(self)
+        vote = VoteElection.objects.all()[0]
+        response = create_vote_option(self, vote.pk)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Hello world voteoption")
+        response = create_vote_option2(self, vote.pk)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Hello world voteoption")
+        self.assertContains(response, "Hello world 2 voteoption")
+
+    def test_editoptionform_multiple(self):
+        create_vote(self)
+        vote = VoteElection.objects.all()[0]
+        create_vote_option(self, vote.pk)
+        create_vote_option2(self, vote.pk)
+        response = edit_vote_option(self, vote.pk)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Hello world voteoption edited")
+        self.assertContains(response, "Hello world 2 voteoption")
+        response = edit_vote_option2(self, vote.pk)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Hello world voteoption edited")
+        self.assertContains(response, "Hello world 2 voteoption edited")
