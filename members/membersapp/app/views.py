@@ -302,7 +302,6 @@ def voteedit(request, ref):
     else:
         sort = max(existingvoteorders) + 1
     newvoteoptionform = VoteOptionForm(initial={'sort': sort, 'election_ref': ref})
-    # data={'election_ref': ref},
     context = {
         'user': user,
         'editvoteform': editvoteform,
