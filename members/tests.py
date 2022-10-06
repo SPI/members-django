@@ -358,6 +358,13 @@ class ManagerTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Vote must not have run to be edited")
 
+    def test_viewfuturevote(self):
+        create_vote_manually(self)
+        vote = VoteElection.objects.all()[0]
+        response = self.client.get('/vote/%d' % vote.pk)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Voting has not yet opened")
+
     def test_viewvote(self):
         create_vote(self)
         vote = VoteElection.objects.all()[0]
