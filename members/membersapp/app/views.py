@@ -287,8 +287,6 @@ def voteedit(request, ref):
         elif request.POST['obtn'] == "Delete":
             form = VoteOptionForm(request.POST)
             voteoption.delete()
-#        elif request.POST['obtn'] == "Add":
-#            pass
 
     template = loader.get_template('vote-edit.html')
     editvoteform = EditVoteForm(instance=vote)
