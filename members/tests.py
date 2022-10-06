@@ -356,6 +356,9 @@ class ManagerTest(TestCase):
         vote = VoteElection.objects.all()[0]
         response = self.client.get('/vote/%d' % vote.pk)
         self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "The voting period ended")
+        response = self.client.get('/vote/%d/edit' % vote.pk, follow=True)
+        self.assertRedirects(response, '/', status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=True)
         self.assertContains(response, "Vote must not have run to be edited")
 
     def test_viewfuturevote(self):
