@@ -265,7 +265,7 @@ def voteedit(request, ref):
         messages.error(request, 'Vote must not have run to be edited.')
         return HttpResponseRedirect("/")
     if request.method == 'POST':
-        voteoption = VoteOption.objects.filter(Q(option_character=request.POST['option_character']) & Q(election_ref=vote))
+        voteoption = VoteOption.objects.filter(Q(sort=request.POST['sort']) & Q(election_ref=vote))
         if request.POST['obtn'] == "Add":
             if voteoption:
                 messages.error(request, "Error: selection character already used")

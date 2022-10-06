@@ -137,6 +137,7 @@ def create_vote_option2(testcase, voteid):
 def delete_vote_option(testcase, voteid):
     data = {
         "option_character": "A",
+        "sort": 1,
         "obtn": "Delete"
     }
     response = testcase.client.post("/vote/%s/edit" % voteid, data=data)
