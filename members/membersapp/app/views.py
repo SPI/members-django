@@ -266,8 +266,8 @@ def voteedit(request, ref):
         return HttpResponseRedirect("/")
     if request.method == 'POST':
         voteoption = VoteOption.objects.filter(Q(option_character=request.POST['option_character']) & Q(election_ref=vote))
-        if request.POST['obtn'] == "Edit" or request.POST['obtn'] == "Add":
-            if request.POST['obtn'] == "Add" and voteoption:
+        if request.POST['obtn'] == "Add":
+            if voteoption:
                 messages.error(request, "Error: selection character already used")
             else:
                 form = VoteOptionForm(request.POST)
@@ -277,6 +277,13 @@ def voteedit(request, ref):
                 else:
                     messages.error(request, "Error while filling the form:")
                     messages.error(request, form.errors)
+        elif request.POST['obtn'] == "Edit":
+            form = VoteOptionForm(instance=voteoption[0], data=request.POST)
+            if form.is_valid():
+                form.save()
+            else:
+                messages.error(request, "Error while filling the form:")
+                messages.error(request, form.errors)
         elif request.POST['obtn'] == "Delete":
             form = VoteOptionForm(request.POST)
             voteoption.delete()
