@@ -303,6 +303,13 @@ class NonManagerTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "This page is only accessible to application managers.")
 
+    def test_viewvoteresult_noncontrib(self):
+        create_vote_manually(self)
+        vote = VoteElection.objects.all()[0]
+        response = self.client.get('/vote/%d/result' % vote.pk, follow=True)
+        self.assertRedirects(response, '/', status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=True)
+        self.assertContains(response, "This page is only accessible to contributing members.")
+
 
 class ManagerTest(TestCase):
     def setUp(self):
