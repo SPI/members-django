@@ -234,6 +234,16 @@ div.recentchanges {
     height: 15em;
 }
 
+.voteoptioncharacter input {
+    width: 20px;
+    height: 20px;
+}
+
+.voteoptiondescription textarea {
+    size: 60;
+    height: 20px;
+}
+
 /* media-query for mobile */
 
 @media(max-width:640px) {

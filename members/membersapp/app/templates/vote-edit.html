@@ -21,8 +21,8 @@
     <form method="post">
     {% csrf_token %}
     <tr>
-      <td>{{ of.option_character }}</td>
-      <td>{{ of.description }}</td>
+      <td><span class="voteoptioncharacter">{{ of.option_character }}</span></td>
+      <td><span class="voteoptiondescription">{{ of.description }}</span></td>
       <td>{{ of.sort.as_hidden }}</td>
       <td>
         <input type="submit" name="obtn" value="Edit" />
@@ -34,8 +34,8 @@
     <form method="post">
     {% csrf_token %}
     <tr>
-      <td>{{ voteoptionform.option_character }}</td>
-      <td>{{ voteoptionform.description }}</td>
+      <td><span class="voteoptioncharacter">{{ voteoptionform.option_character }}</span></td>
+      <td><span class="voteoptiondescription">{{ voteoptionform.description }}</span></td>
       <td>{{ voteoptionform.sort.as_hidden }}</td>
       <td><input type="submit" name="obtn" value="Add" /></td>
     {# Last entry is for creating a new option #}
