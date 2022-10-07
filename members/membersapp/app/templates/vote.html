@@ -53,7 +53,7 @@
         <p>
         <form method="post">
             {% csrf_token %}
-            <strong>{{ form.vote.label }}:</strong> {{ form.vote }}
+            <strong>Vote:</strong> {{ form.vote }}
             <input type="submit" value="Cast Vote" />
         </form>
         </p>
