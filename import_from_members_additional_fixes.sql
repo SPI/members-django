@@ -9,5 +9,7 @@ drop table temp;
 
 SELECT setval(pg_get_serial_sequence('"auth_user"','id'), coalesce(max("id"), 1), max("id") IS NOT null) FROM "auth_user";
 
+SELECT setval(pg_get_serial_sequence('"vote_vote"','ref'), coalesce(max("ref"), 1), max("ref") IS NOT null) FROM "vote_vote";
+
 COMMIT;
 
