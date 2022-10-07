@@ -132,12 +132,45 @@ def showvote(request, ref):
     template = loader.get_template('vote.html')
     vote = VoteElection.object.get(pk=ref)
     options = VoteOption.objects.filter(election_ref=ref)
+    form = VoteVoteForm()
     context = {
         'user': user,
         'vote': vote,
-        'options': options
+        'options': options,
+        'form': form
     }
     return HttpResponse(template.render(context, request))
+
+
+@login_required
+def votevote(request, ref):
+    user = get_current_user(request)
+    vote = VoteElection.object.get(pk=ref)
+    if not user.ismanager:
+        return render(request, 'manager-only.html')
+    if request.method == 'POST':
+        form = VoteVoteForm(request.POST)
+        membervote, created = VoteVote.object.get_or_create(voter_ref=user, election_ref=vote)
+        if created:
+            md5 = hashlib.md5()
+            md5.update(vote.title)
+            md5.update(user.email)
+            md5.update(uuid.uuid1().hex)
+            membervote.secret = md5.hexdigest()
+            membervote.save()
+        if form.is_valid():
+            if not vote.is_active:
+                messages.error(request, 'Vote is not currently running.')
+            if vote.is_active and membervote:
+                if request.POST['vote'] != membervote.votestr():
+                    res = membervote.set_vote(request.POST['vote'])
+                    if isinstance(res, basestring):
+                        messages.warning(request, res)
+                    else:
+                        res.save()
+            user.set_vote(votestr)
+            user.save()
+    return HttpResponseRedirect(reverse('vote', args=[ref]))
 
 
 @login_required

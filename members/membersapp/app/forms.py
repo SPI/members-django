@@ -1,4 +1,4 @@
-from django.forms import ModelForm, DateInput, ChoiceField
+from django.forms import Form, CharField, IntegerField, ModelForm, DateInput, ChoiceField
 
 from .models import Members, Applications, VoteElection, VoteOption
 from .votes import VOTE_SYSTEMS
@@ -60,3 +60,7 @@ class VoteOptionForm(ModelForm):
         model = VoteOption
         fields = ['option_character', 'description', 'sort']
         exclude = ['election_ref']
+
+
+class VoteVoteForm(Form):
+    vote = CharField(required=True)

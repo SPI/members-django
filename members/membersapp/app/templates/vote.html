@@ -51,7 +51,7 @@
     {% endif %}
     {% if vote.is_active %}
         <p>
-        <form method="post">
+        <form method="post" action="{% url 'votevote' vote.ref %}">
             {% csrf_token %}
             <strong>Vote:</strong> {{ form.vote }}
             <input type="submit" value="Cast Vote" />

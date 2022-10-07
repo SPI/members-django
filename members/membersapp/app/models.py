@@ -5,6 +5,7 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.db.models.functions import Now
 from django.core.validators import MinValueValidator
+from django.db.models import Q
 
 
 class Members(models.Model):
@@ -137,6 +138,13 @@ class VoteVote(models.Model):
         unique_together = (('voter_ref', 'election_ref'), )
         db_table = 'vote_vote'
 
+    def votestr(self):
+        """Returns a string representing the user's voting preference."""
+        res = ""
+        for vote in self.votes:
+            res += vote.char
+        return res
+
     @property
     def resultcookie(self):
         """Returns the user's secret cookie for voting verification."""
@@ -148,12 +156,12 @@ class VoteVote(models.Model):
         md5.update(str(self.private_secret).encode('utf-8') + b" " + str(email).encode('utf-8') + b"\n")
         return md5.hexdigest()
 
-    @property
     def set_vote(self, votestr):
         """Update the user's voting preference based on the voting string."""
+
         newvotes = []
         for char in votestr:
-            option = self.vote.option_by_char(char)
+            option = VoteOption.object.get(Q(option_character=char) & Q(election_ref=self.election_ref))
             if option is None:
                 return "Invalid vote option " + char
             if option in newvotes:
