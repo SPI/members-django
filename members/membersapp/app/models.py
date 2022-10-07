@@ -111,6 +111,9 @@ class VoteOption(models.Model):
     sort = models.IntegerField(null=False)
     option_character = models.CharField(max_length=1, null=False)
 
+    object = models.Manager()
+    objects = models.Manager()
+
     def __str__(self):
         return self.description
 
@@ -126,6 +129,9 @@ class VoteVote(models.Model):
     private_secret = models.CharField(max_length=32, null=True)
     late_updated = models.DateTimeField(auto_now=True, null=True)  # missing: with time zone
     sent_notify = models.BooleanField(null=False, default=False)
+    votes = []
+
+    object = models.Manager()
 
     class Meta:
         unique_together = (('voter_ref', 'election_ref'), )
