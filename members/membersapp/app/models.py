@@ -135,7 +135,11 @@ class VoteVote(models.Model):
     def resultcookie(self):
         """Returns the user's secret cookie for voting verification."""
         md5 = hashlib.md5()
-        md5.update(self.private_secret + " " + self.voter_ref.email + "\n")
+        if self.voter_ref is None:
+            email = None
+        else:
+            email = self.voter_ref.email
+        md5.update(str(self.private_secret).encode('utf-8') + b" " + str(email).encode('utf-8') + b"\n")
         return md5.hexdigest()
 
     @property
