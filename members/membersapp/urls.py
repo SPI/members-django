@@ -36,6 +36,7 @@ urlpatterns = [
     path('vote/<int:ref>', views.showvote, name='vote'),
     path('vote/create', views.votecreate, name='votecreate'),
     path('vote/<int:ref>/edit', views.voteedit, name='voteedit'),
+    path('vote/<int:ref>/result', views.voteresult, name='voteresult'),
 
     # Auth system integration
     url(r'^(?:accounts/)?login/?$', membersapp.auth.login),

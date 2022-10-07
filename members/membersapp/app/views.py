@@ -14,8 +14,9 @@ from django.utils import timezone
 
 from membersapp.app.stats import get_stats
 from membersapp.app.applications import *
-from .models import Members, Applications, VoteElection, VoteOption
+from .models import Members, Applications, VoteElection, VoteOption, VoteVote
 from .forms import *
+from .votes import *
 
 
 def handler404(request, exception):
@@ -307,6 +308,41 @@ def voteedit(request, ref):
         'editvoteform': editvoteform,
         'existingvoteoptions': existingvoteoptions,
         'voteoptionform': newvoteoptionform
+    }
+    return HttpResponse(template.render(context, request))
+
+
+@login_required
+def voteresult(request, ref):
+    user = get_current_user(request)
+    vote = get_object_or_404(VoteElection, ref=ref)
+    if not user.iscontrib:
+        messages.error(request, 'This page is only accessible to contributing members.')
+        return HttpResponseRedirect("/")
+
+    if vote.owner != user:
+        messages.error(request, 'You can only view results for your own votes.')
+        return HttpResponseRedirect("/")
+
+    if not vote.is_over:
+        messages.error(request, 'Vote must be finished to view results.')
+        return HttpResponseRedirect("/")
+
+    membervotes = sorted(VoteVote.objects.all(), key=lambda x: x.resultcookie)
+
+    if vote.system == 0:
+        votesystem = CondorcetVS(vote, membervotes)
+    elif vote.system == 1:
+        votesystem = CondorcetVS(vote, membervotes, ignoremissing=False)
+    elif vote.system == 2:
+        votesystem = OpenSTVVS(vote, membervotes)
+
+    template = loader.get_template('vote-result.html')
+    context = {
+        'user': user,
+        'vote': vote,
+        'membervotes': membervotes,
+        'votesystem': votesystem
     }
     return HttpResponse(template.render(context, request))
 
