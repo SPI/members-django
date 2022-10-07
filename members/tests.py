@@ -80,14 +80,17 @@ def create_vote(testcase, current=False, past=False):
     return response
 
 
-def create_vote_manually(current=False, past=False):
+def create_vote_manually(current=False, past=False, owner=None):
+    if owner is None:
+        # Can't pass global variable in the function's signature
+        owner = member
     if current:
         vote = VoteElection(title="Test vote",
                             description="Hello world voteelection",
                             period_start=(timezone.now() + datetime.timedelta(days=-1)),
                             period_stop=(timezone.now() + datetime.timedelta(days=7)),
                             system=2,
-                            owner=member
+                            owner=owner
                             )
         vote.save()
     elif past:
@@ -96,7 +99,7 @@ def create_vote_manually(current=False, past=False):
                             period_start=(timezone.now() + datetime.timedelta(days=-7)),
                             period_stop=(timezone.now() + datetime.timedelta(days=-1)),
                             system=2,
-                            owner=member
+                            owner=owner
                             )
         vote.save()
 
@@ -430,3 +433,11 @@ class ManagerTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Hello world voteoption edited")
         self.assertContains(response, "Hello world 2 voteoption edited")
+
+    def test_viewvoteresult(self):
+        member = create_other_member(self)
+        create_vote_manually(self, owner=member)
+        vote = VoteElection.objects.all()[0]
+        response = self.client.get('/vote/%d/result' % vote.pk)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "You can only view results for your own votes.")
