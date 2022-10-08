@@ -369,8 +369,9 @@ class ManagerTest(TestCase):
 
     def test_votecreate(self):
         response = create_vote(self)
-        self.assertEqual(response.status_code, 302)
         self.assertEqual(VoteElection.objects.count(), 1)
+        vote = VoteElection.objects.all()[0]
+        self.assertRedirects(response, '/vote/%d/edit' % vote.pk, status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=True)
         response = self.client.get('/')
         self.assertContains(response, "Your votes")
         self.assertContains(response, "Test vote")
