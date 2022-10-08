@@ -6,6 +6,7 @@ from django.contrib.auth.models import User
 from django.db.models.functions import Now
 from django.core.validators import MinValueValidator
 from django.db.models import Q
+from django.core.exceptions import ObjectDoesNotExist
 
 
 class Members(models.Model):
@@ -161,13 +162,16 @@ class VoteVote(models.Model):
 
         newvotes = []
         for char in votestr:
-            option = VoteOption.object.get(Q(option_character=char) & Q(election_ref=self.election_ref))
-            if option is None:
+            try:
+                option = VoteOption.object.get(Q(option_character=char) & Q(election_ref=self.election_ref))
+            except ObjectDoesNotExist:
                 return "Invalid vote option " + char
             if option in newvotes:
                 return "Can't vote for " + char + " more than once."
             newvotes.append(option)
         self.votes = newvotes
+        self.save()
+        return None
 
 
 class VoteVoteOption(models.Model):

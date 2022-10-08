@@ -166,7 +166,7 @@ def votevote(request, ref):
                 if request.POST['vote'] != membervote.votestr():
                     res = membervote.set_vote(request.POST['vote'])
                     if res is not None:
-                        messages.warning(request, res)
+                        messages.error(request, res)
     return HttpResponseRedirect(reverse('vote', args=[ref]))
 
 
