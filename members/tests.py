@@ -129,7 +129,7 @@ def create_vote_option(testcase, voteid):
         "sort": 1,
         "obtn": "Add"
     }
-    response = testcase.client.post("/vote/%s/edit" % voteid, data=data, follow=True)
+    response = testcase.client.post("/vote/%s/editoption" % voteid, data=data, follow=True)
     return response
 
 
@@ -140,7 +140,7 @@ def create_vote_option2(testcase, voteid):
         "sort": 2,
         "obtn": "Add"
     }
-    response = testcase.client.post("/vote/%s/edit" % voteid, data=data)
+    response = testcase.client.post("/vote/%s/editoption" % voteid, data=data, follow=True)
     return response
 
 
@@ -150,7 +150,7 @@ def delete_vote_option(testcase, voteid):
         "sort": 1,
         "obtn": "Delete"
     }
-    response = testcase.client.post("/vote/%s/edit" % voteid, data=data, follow=True)
+    response = testcase.client.post("/vote/%s/editoption" % voteid, data=data, follow=True)
     return response
 
 
@@ -161,7 +161,7 @@ def edit_vote_option(testcase, voteid):
         "sort": 1,
         "obtn": "Edit"
     }
-    response = testcase.client.post("/vote/%s/edit" % voteid, data=data)
+    response = testcase.client.post("/vote/%s/editoption" % voteid, data=data, follow=True)
     return response
 
 
@@ -172,7 +172,7 @@ def edit_vote_option2(testcase, voteid):
         "sort": 2,
         "obtn": "Edit"
     }
-    response = testcase.client.post("/vote/%s/edit" % voteid, data=data)
+    response = testcase.client.post("/vote/%s/editoption" % voteid, data=data, follow=True)
     return response
 
 
@@ -478,10 +478,10 @@ class ManagerTest(TestCase):
         create_vote(self)
         vote = VoteElection.objects.all()[0]
         response = create_vote_option(self, vote.pk)
-        self.assertEqual(response.status_code, 200)
+        self.assertRedirects(response, "/vote/%s/edit" % vote.pk, status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=True)
         self.assertContains(response, "Hello world voteoption")
         response = create_vote_option2(self, vote.pk)
-        self.assertEqual(response.status_code, 200)
+        self.assertRedirects(response, "/vote/%s/edit" % vote.pk, status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=True)
         self.assertContains(response, "Hello world voteoption")
         self.assertContains(response, "Hello world 2 voteoption")
 
