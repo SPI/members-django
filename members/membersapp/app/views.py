@@ -293,20 +293,25 @@ def votecreate(request):
     return HttpResponse(template.render(context, request))
 
 
+def tests_vote(request, user, vote):
+    if not user.createvote:
+        messages.error(request, 'You are not allowed to create new votes')
+        return False
+    if vote.owner != user:
+        messages.error(request, 'You can only edit your own votes.')
+        return False
+    if vote.is_active or vote.is_over:
+        messages.error(request, 'Vote must not have run to be edited.')
+        return False
+    return True
+
+
 @login_required
 def voteeditedit(request, ref):
     user = get_current_user(request)
     vote = get_object_or_404(VoteElection, ref=ref)
-    if not user.createvote:
-        messages.error(request, 'You are not allowed to create new votes')
-        return HttpResponseRedirect("/")
 
-    if vote.owner != user:
-        messages.error(request, 'You can only edit your own votes.')
-        return HttpResponseRedirect("/")
-
-    if vote.is_active or vote.is_over:
-        messages.error(request, 'Vote must not have run to be edited.')
+    if not tests_vote(request, user, vote):
         return HttpResponseRedirect("/")
 
     if request.method == 'POST':
@@ -323,16 +328,8 @@ def voteeditedit(request, ref):
 def voteedit(request, ref):
     user = get_current_user(request)
     vote = get_object_or_404(VoteElection, ref=ref)
-    if not user.createvote:
-        messages.error(request, 'You are not allowed to create new votes')
-        return HttpResponseRedirect("/")
 
-    if vote.owner != user:
-        messages.error(request, 'You can only edit your own votes.')
-        return HttpResponseRedirect("/")
-
-    if vote.is_active or vote.is_over:
-        messages.error(request, 'Vote must not have run to be edited.')
+    if not tests_vote(request, user, vote):
         return HttpResponseRedirect("/")
 
     template = loader.get_template('vote-edit.html')
@@ -363,17 +360,10 @@ def voteedit(request, ref):
 def voteeditoption(request, ref):
     user = get_current_user(request)
     vote = get_object_or_404(VoteElection, ref=ref)
-    if not user.createvote:
-        messages.error(request, 'You are not allowed to create new votes')
+
+    if not tests_vote(request, user, vote):
         return HttpResponseRedirect("/")
 
-    if vote.owner != user:
-        messages.error(request, 'You can only edit your own votes.')
-        return HttpResponseRedirect("/")
-
-    if vote.is_active or vote.is_over:
-        messages.error(request, 'Vote must not have run to be edited.')
-        return HttpResponseRedirect("/")
     if request.method == 'POST':
         voteoption = VoteOption.objects.filter(Q(sort=request.POST['sort']) & Q(election_ref=vote))
         if request.POST['obtn'] == "Add":
