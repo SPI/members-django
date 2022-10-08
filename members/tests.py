@@ -468,7 +468,7 @@ class ManagerTest(TestCase):
         create_vote_option(self, vote.pk)
         create_vote_option2(self, vote.pk)
         response = vote_vote(self, vote.pk, correct=True)
-        self.assertRedirects(response, '/vote/%d', status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=True)
+        self.assertRedirects(response, '/vote/%d' % vote.pk, status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=True)
         self.assertContains(response, "Your vote is as follows:")
 
     def test_votevote(self):
@@ -477,5 +477,5 @@ class ManagerTest(TestCase):
         create_vote_option(self, vote.pk)
         create_vote_option2(self, vote.pk)
         response = vote_vote(self, vote.pk, correct=False)
-        self.assertRedirects(response, '/vote/%d', status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=True)
+        self.assertRedirects(response, '/vote/%d' % vote.pk, status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=True)
         self.assertContains(response, "Invalid vote option Z")
