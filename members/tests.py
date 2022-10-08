@@ -351,7 +351,6 @@ class NonManagerTest(TestCase):
         create_vote_with_manager(self)
         vote = VoteElection.objects.all()[0]
         response = create_vote(self, title="Edited vote", target="/vote/%d/editedit" % vote.pk)
-        dump_page(response.content)
         self.assertRedirects(response, '/', status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=True)
         self.assertNotContains(response, "Edited vote")
         self.assertContains(response, "You are not allowed to create new votes")
