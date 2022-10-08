@@ -169,6 +169,19 @@ def edit_vote_option2(testcase, voteid):
     return response
 
 
+def vote_vote(testcase, voteid, correct=True):
+    if correct:
+        data = {
+            "vote": "BA"
+        }
+    else:
+        data = {
+            "vote": "ABZ"
+        }
+    response = testcase.client.post("/vote/%s/vote" % voteid, data=data, follow=True)
+    return response
+
+
 class NonLoggedInViewsTests(TestCase):
 
     def test_index(self):
@@ -448,3 +461,21 @@ class ManagerTest(TestCase):
         response = self.client.get('/vote/%d/result' % vote.pk)
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "You can only view results for your own votes.")
+
+    def test_votevote(self):
+        create_vote(self)
+        vote = VoteElection.objects.all()[0]
+        create_vote_option(self, vote.pk)
+        create_vote_option2(self, vote.pk)
+        response = vote_vote(self, vote.pk, correct=True)
+        self.assertRedirects(response, '/vote/%d', status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=True)
+        self.assertContains(response, "Your vote is as follows:")
+
+    def test_votevote(self):
+        create_vote(self)
+        vote = VoteElection.objects.all()[0]
+        create_vote_option(self, vote.pk)
+        create_vote_option2(self, vote.pk)
+        response = vote_vote(self, vote.pk, correct=False)
+        self.assertRedirects(response, '/vote/%d', status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=True)
+        self.assertContains(response, "Invalid vote option Z")
