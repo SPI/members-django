@@ -116,7 +116,6 @@ def create_vote_with_manager(testcase):
     testcase.client.logout()
     testcase.client.force_login(manager.memid)
     response = create_vote(testcase)
-    testcase.assertEqual(response.status_code, 302)
     testcase.assertEqual(VoteElection.objects.count(), 1)
     # relog as non-manager
     testcase.client.logout()
