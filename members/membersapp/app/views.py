@@ -315,11 +315,16 @@ def voteeditedit(request, ref):
         return HttpResponseRedirect("/")
 
     if request.method == 'POST':
-        form = EditVoteForm(request.POST, instance=vote)
-        if form.is_valid():
-            form.instance.owner = user
-            form.save()
-        return HttpResponseRedirect(reverse('voteedit', args=(ref,)))
+        if request.POST['vote-btn'] == "Edit":
+            form = EditVoteForm(request.POST, instance=vote)
+            if form.is_valid():
+                form.instance.owner = user
+                form.save()
+                return HttpResponseRedirect(reverse('voteedit', args=(ref,)))
+        elif request.POST['vote-btn'] == "Delete":
+            VoteOption.objects.filter(election_ref=vote).delete()
+            vote.delete()
+            messages.success(request, 'Vote deleted')
 
     return HttpResponseRedirect("/")
 
