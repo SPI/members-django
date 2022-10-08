@@ -383,8 +383,7 @@ class ManagerTest(TestCase):
         self.assertContains(response, "Vote must not have run to be edited")
 
     def test_viewcurrentvote(self):
-        create_vote_manually(current=True)
-        vote = VoteElection.objects.all()[0]
+        vote = create_vote_manually(current=True)
         response = self.client.get('/vote/%d' % vote.pk,)
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "You have not yet cast a vote.")
@@ -400,7 +399,7 @@ class ManagerTest(TestCase):
         self.assertContains(response, "Vote must not have run to be edited")
 
     def test_viewfuturevote(self):
-        create_vote_manually(self)
+        create_vote(self)
         vote = VoteElection.objects.all()[0]
         response = self.client.get('/vote/%d' % vote.pk)
         self.assertEqual(response.status_code, 200)

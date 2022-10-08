@@ -102,7 +102,7 @@ class VoteElection(models.Model):
     def is_pending(self):
         """"Check if a vote is still waiting to be active"""
         now = timezone.now()
-        return now < self.period_stop
+        return now < self.period_start
 
 
 class VoteOption(models.Model):
