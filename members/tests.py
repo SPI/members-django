@@ -411,6 +411,7 @@ class ManagerTest(TestCase):
         response = self.client.get('/vote/%d' % vote.pk)
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Test vote")
+        self.assertNotContains(response, "Magic Voodoo")
 
     def test_addoptionform(self):
         create_vote(self)
