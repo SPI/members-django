@@ -12,7 +12,8 @@ default_name = 'testuser'
 manager = None
 
 
-# Use dump_page(response.content) to dump a page to test.html
+# To dump a page to test.html, use:
+# dump_page(response.content)
 def dump_page(page):
     with open('test.html', 'w') as f:
         print(page.decode('UTF-8'), file=f)
