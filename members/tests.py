@@ -59,7 +59,8 @@ def create_vote(testcase, current=False, past=False, title="Test vote", target="
             "description": "Hello world create_vote",
             "period_start": (timezone.now() + datetime.timedelta(days=-1)).strftime("%Y-%m-%d"),
             "period_stop": (timezone.now() + datetime.timedelta(days=7)).strftime("%Y-%m-%d"),
-            "system": "2"
+            "system": "2",
+            "winners": "1"
         }
     elif past:
         data = {
@@ -67,7 +68,8 @@ def create_vote(testcase, current=False, past=False, title="Test vote", target="
             "description": "Hello world create_vote",
             "period_start": (timezone.now() + datetime.timedelta(days=-7)).strftime("%Y-%m-%d"),
             "period_stop": (timezone.now() + datetime.timedelta(days=-1)).strftime("%Y-%m-%d"),
-            "system": "2"
+            "system": "2",
+            "winners": "1"
         }
     else:
         data = {
@@ -75,7 +77,8 @@ def create_vote(testcase, current=False, past=False, title="Test vote", target="
             "description": "Hello world create_vote",
             "period_start": (timezone.now() + datetime.timedelta(days=1)).strftime("%Y-%m-%d"),
             "period_stop": (timezone.now() + datetime.timedelta(days=7)).strftime("%Y-%m-%d"),
-            "system": "2"
+            "system": "2",
+            "winners": "1"
         }
     response = testcase.client.post(target, data=data, follow=True)
     return response
@@ -379,8 +382,9 @@ class ManagerTest(TestCase):
     def test_vote_edit(self):
         create_vote(self)
         vote = VoteElection.objects.all()[0]
-        response = create_vote(self, title="Edited vote", target="/vote/%d/edit" % vote.pk)
-        self.assertRedirects(response, '/vote/%d' % vote.pk, status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=True)
+        response = create_vote(self, title="Edited vote", target="/vote/%d/editedit" % vote.pk)
+        dump_page(response.content)
+        self.assertRedirects(response, '/vote/%d/edit' % vote.pk, status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=True)
         self.assertContains(response, "Edited vote")
 
     def test_editcurrentvote(self):
