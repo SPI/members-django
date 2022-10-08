@@ -1,7 +1,7 @@
 from django.db import connection
 from openstv.plugins import getMethodPlugins
 
-from .models import Members
+from .models import Members, VoteOption
 
 
 VOTE_SYSTEMS = [(0, "Condorcet (ignore unspecified)"),
@@ -18,12 +18,13 @@ class CondorcetVS(object):
         self.ignoremissing = ignoremissing
         # Initialise our empty beat matrix
         self.beatmatrix = {}
-        for row in self.vote.options:
+        options = VoteOption.objects.filter(election_ref=self.vote)
+        for row in options:
             self.beatmatrix[row.optionid] = {}
-            for col in self.vote.options:
+            for col in options:
                 self.beatmatrix[row.optionid][col.optionid] = 0
         self.tie = False
-        self.winners = [None] * len(self.vote.options)
+        self.winners = [None] * len(options)
         self.wincount = {}
 
     def description(self):
@@ -34,7 +35,7 @@ class CondorcetVS(object):
 
     def run(self):
         """Run the vote"""
-        options = [option.optionid for option in self.vote.options]
+        options = VoteOption.objects.filter(election_ref=self.vote)
 
         # Fill the beat matrix. bm[x][y] is the number of times x was
         # preferred over y.
