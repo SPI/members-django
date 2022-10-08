@@ -124,7 +124,7 @@ def create_vote_option(testcase, voteid):
         "sort": 1,
         "obtn": "Add"
     }
-    response = testcase.client.post("/vote/%s/edit" % voteid, data=data)
+    response = testcase.client.post("/vote/%s/edit" % voteid, data=data, follow=True)
     return response
 
 
@@ -145,7 +145,7 @@ def delete_vote_option(testcase, voteid):
         "sort": 1,
         "obtn": "Delete"
     }
-    response = testcase.client.post("/vote/%s/edit" % voteid, data=data)
+    response = testcase.client.post("/vote/%s/edit" % voteid, data=data, follow=True)
     return response
 
 
@@ -417,7 +417,7 @@ class ManagerTest(TestCase):
         create_vote(self)
         vote = VoteElection.objects.all()[0]
         response = create_vote_option(self, vote.pk)
-        self.assertEqual(response.status_code, 200)
+        self.assertRedirects(response, "/vote/%s/edit" % vote.pk, status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=True)
         self.assertContains(response, "Hello world voteoption")
 
     def test_deletevoteoptionform(self):
@@ -426,7 +426,7 @@ class ManagerTest(TestCase):
         response = create_vote_option(self, vote.pk)
         self.assertContains(response, "Hello world voteoption")
         response = delete_vote_option(self, vote.pk)
-        self.assertEqual(response.status_code, 200)
+        self.assertRedirects(response, "/vote/%s/edit" % vote.pk, status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=True)
         self.assertNotContains(response, "Hello world voteoption")
 
     def test_editoptionform(self):
@@ -434,7 +434,7 @@ class ManagerTest(TestCase):
         vote = VoteElection.objects.all()[0]
         create_vote_option(self, vote.pk)
         response = edit_vote_option(self, vote.pk)
-        self.assertEqual(response.status_code, 200)
+        self.assertRedirects(response, "/vote/%s/edit" % vote.pk, status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=True)
         self.assertContains(response, "Hello world voteoption edited")
 
     def test_addoptionform_multiple(self):
