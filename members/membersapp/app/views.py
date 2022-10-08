@@ -137,6 +137,7 @@ def showvote(request, ref):
     form = VoteVoteForm()
     try:
         membervote = VoteVote.object.get(voter_ref=user, election_ref=vote)
+        membervote.set_vote(membervote.votestr)
     except VoteVote.DoesNotExist:
         membervote = None
     context = {

@@ -42,7 +42,7 @@
     {% if membervote %}
         <p>Your vote is as follows:</p>
         {% for vote in membervote.votes %}
-            (<b>{{ vote.char }}</b>) {{ vote.description }}<br />
+            (<b>{{ vote.option_character }}</b>) {{ vote.description }}<br />
         {% endfor %}
     {% else %}
         {% if vote.is_pending %}
