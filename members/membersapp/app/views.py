@@ -175,6 +175,8 @@ def votevote(request, ref):
                     if res is not None:
                         messages.error(request, res)
                     else:
+                        # Remove any previous vote details first
+                        VoteVoteOption.objects.filter(vote_ref=membervote).delete()
                         for i, voteoption in enumerate(membervote.votes, 1):
                             votevoteoption = VoteVoteOption(vote_ref=membervote, option_ref=voteoption)
                             votevoteoption.save()
