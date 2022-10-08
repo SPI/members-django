@@ -473,6 +473,7 @@ class ManagerTest(TestCase):
     def test_votevote(self):
         create_vote(self)
         vote = VoteElection.objects.all()[0]
+        # We can't add vote on current test
         create_vote_option(self, vote.pk)
         create_vote_option2(self, vote.pk)
         set_vote_current(vote)
@@ -483,6 +484,7 @@ class ManagerTest(TestCase):
     def test_votevote_incorrect(self):
         create_vote(self)
         vote = VoteElection.objects.all()[0]
+        # We can't add vote on current test
         create_vote_option(self, vote.pk)
         create_vote_option2(self, vote.pk)
         set_vote_current(vote)
