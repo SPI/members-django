@@ -1,5 +1,6 @@
 import datetime
 import hashlib
+import uuid
 
 from django.http import HttpResponse, HttpResponseRedirect, HttpResponseNotFound
 from django.template import loader
@@ -154,10 +155,10 @@ def votevote(request, ref):
         membervote, created = VoteVote.object.get_or_create(voter_ref=user, election_ref=vote)
         if created:
             md5 = hashlib.md5()
-            md5.update(vote.title)
-            md5.update(user.email)
-            md5.update(uuid.uuid1().hex)
-            membervote.secret = md5.hexdigest()
+            md5.update(vote.title.encode('utf-8'))
+            md5.update(user.email.encode('utf-8'))
+            md5.update(uuid.uuid1().hex.encode('utf-8'))
+            membervote.private_secret = md5.hexdigest()
             membervote.save()
         if form.is_valid():
             if not vote.is_active:
