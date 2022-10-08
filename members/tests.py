@@ -196,6 +196,14 @@ def set_vote_current(vote):
     vote.save()
 
 
+def delete_vote(testcase, voteid):
+    data = {
+        "vote-btn": "Delete"
+    }
+    response = testcase.client.post("/vote/%s/editedit" % voteid, data=data, follow=True)
+    return response
+
+
 class NonLoggedInViewsTests(TestCase):
 
     def test_index(self):
@@ -386,9 +394,16 @@ class ManagerTest(TestCase):
         create_vote(self)
         vote = VoteElection.objects.all()[0]
         response = create_vote(self, title="Edited vote", target="/vote/%d/editedit" % vote.pk)
-        dump_page(response.content)
         self.assertRedirects(response, '/vote/%d/edit' % vote.pk, status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=True)
         self.assertContains(response, "Edited vote")
+
+    def test_vote_delete(self):
+        create_vote(self)
+        vote = VoteElection.objects.all()[0]
+        response = delete_vote(self, vote.pk)
+        self.assertEqual(VoteElection.objects.count(), 0)
+        self.assertRedirects(response, '/', status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=True)
+        self.assertContains(response, "Vote deleted")
 
     def test_editcurrentvote(self):
         create_vote_manually(current=True)
