@@ -55,7 +55,7 @@ def application(request, appid):
     template = loader.get_template('application.html')
     application = get_object_or_404(Applications, appid=appid)
     user = get_current_user(request)
-    if application.member != user:
+    if not user.ismanager:
         return render(request, 'manager-only.html')
     member = Members.object.get(memid=application.member_id)
     memberform = MemberForm(instance=member)
@@ -210,7 +210,8 @@ def memberedit(request):
 
 @login_required
 def applicationedit(request, appid):
-    # todo: check edit privileges
+    if not user.ismanager:
+        return render(request, 'manager-only.html')
     if request.method == 'POST':
         application = Applications.objects.get(pk=appid)
         application_pre_value = application.approve
