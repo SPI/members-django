@@ -1,4 +1,5 @@
 import datetime
+import hashlib
 
 from django.http import HttpResponse, HttpResponseRedirect, HttpResponseNotFound
 from django.template import loader
@@ -164,12 +165,8 @@ def votevote(request, ref):
             if vote.is_active and membervote:
                 if request.POST['vote'] != membervote.votestr():
                     res = membervote.set_vote(request.POST['vote'])
-                    if isinstance(res, basestring):
+                    if res is not None:
                         messages.warning(request, res)
-                    else:
-                        res.save()
-            user.set_vote(votestr)
-            user.save()
     return HttpResponseRedirect(reverse('vote', args=[ref]))
 
 
