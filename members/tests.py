@@ -60,7 +60,8 @@ def create_vote(testcase, current=False, past=False, title="Test vote", target="
             "period_start": (timezone.now() + datetime.timedelta(days=-1)).strftime("%Y-%m-%d"),
             "period_stop": (timezone.now() + datetime.timedelta(days=7)).strftime("%Y-%m-%d"),
             "system": "2",
-            "winners": "1"
+            "winners": "1",
+            "vote-btn": "Edit"
         }
     elif past:
         data = {
@@ -69,7 +70,8 @@ def create_vote(testcase, current=False, past=False, title="Test vote", target="
             "period_start": (timezone.now() + datetime.timedelta(days=-7)).strftime("%Y-%m-%d"),
             "period_stop": (timezone.now() + datetime.timedelta(days=-1)).strftime("%Y-%m-%d"),
             "system": "2",
-            "winners": "1"
+            "winners": "1",
+            "vote-btn": "Edit"
         }
     else:
         data = {
@@ -78,7 +80,8 @@ def create_vote(testcase, current=False, past=False, title="Test vote", target="
             "period_start": (timezone.now() + datetime.timedelta(days=1)).strftime("%Y-%m-%d"),
             "period_stop": (timezone.now() + datetime.timedelta(days=7)).strftime("%Y-%m-%d"),
             "system": "2",
-            "winners": "1"
+            "winners": "1",
+            "vote-btn": "Edit"
         }
     response = testcase.client.post(target, data=data, follow=True)
     return response
