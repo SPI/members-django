@@ -103,6 +103,7 @@ def create_vote_manually(current=False, past=False, owner=None):
                             owner=owner
                             )
         vote.save()
+    return vote
 
 
 def create_vote_with_manager(testcase):
@@ -181,6 +182,12 @@ def vote_vote(testcase, voteid, correct=True):
         }
     response = testcase.client.post("/vote/%s/vote" % voteid, data=data, follow=True)
     return response
+
+
+def set_vote_current(vote):
+    vote.period_start = timezone.now() + datetime.timedelta(days=-1)
+    vote.period_stop = timezone.now() + datetime.timedelta(days=7)
+    vote.save()
 
 
 class NonLoggedInViewsTests(TestCase):
@@ -468,15 +475,17 @@ class ManagerTest(TestCase):
         vote = VoteElection.objects.all()[0]
         create_vote_option(self, vote.pk)
         create_vote_option2(self, vote.pk)
+        set_vote_current(vote)
         response = vote_vote(self, vote.pk, correct=True)
         self.assertRedirects(response, '/vote/%d' % vote.pk, status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=True)
         self.assertContains(response, "Your vote is as follows:")
 
-    def test_votevote(self):
+    def test_votevote_incorrect(self):
         create_vote(self)
         vote = VoteElection.objects.all()[0]
         create_vote_option(self, vote.pk)
         create_vote_option2(self, vote.pk)
+        set_vote_current(vote)
         response = vote_vote(self, vote.pk, correct=False)
         self.assertRedirects(response, '/vote/%d' % vote.pk, status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=True)
         self.assertContains(response, "Invalid vote option Z")
