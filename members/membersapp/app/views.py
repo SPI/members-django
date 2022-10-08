@@ -294,7 +294,73 @@ def votecreate(request):
 
 
 @login_required
+def voteeditedit(request, ref):
+    user = get_current_user(request)
+    vote = get_object_or_404(VoteElection, ref=ref)
+    if not user.createvote:
+        messages.error(request, 'You are not allowed to create new votes')
+        return HttpResponseRedirect("/")
+
+    if vote.owner != user:
+        messages.error(request, 'You can only edit your own votes.')
+        return HttpResponseRedirect("/")
+
+    if vote.is_active or vote.is_over:
+        messages.error(request, 'Vote must not have run to be edited.')
+        return HttpResponseRedirect("/")
+
+    if request.method == 'POST':
+        form = EditVoteForm(request.POST, instance=vote)
+        if form.is_valid():
+            form.instance.owner = user
+            form.save()
+        return HttpResponseRedirect(reverse('voteedit', args=(ref,)))
+
+    return HttpResponseRedirect("/")
+
+
+@login_required
 def voteedit(request, ref):
+    user = get_current_user(request)
+    vote = get_object_or_404(VoteElection, ref=ref)
+    if not user.createvote:
+        messages.error(request, 'You are not allowed to create new votes')
+        return HttpResponseRedirect("/")
+
+    if vote.owner != user:
+        messages.error(request, 'You can only edit your own votes.')
+        return HttpResponseRedirect("/")
+
+    if vote.is_active or vote.is_over:
+        messages.error(request, 'Vote must not have run to be edited.')
+        return HttpResponseRedirect("/")
+
+    template = loader.get_template('vote-edit.html')
+    editvoteform = EditVoteForm(instance=vote)
+    existingvoteoptions = []
+    voteoptions = VoteOption.objects.filter(election_ref=ref)
+    existingvoteorders = set()
+    for voteoption in voteoptions:
+        voteoptionform = VoteOptionForm(instance=voteoption)
+        existingvoteoptions.append(voteoptionform)
+        existingvoteorders.add(voteoption.sort)
+    if len(existingvoteorders) == 0:
+        sort = 1
+    else:
+        sort = max(existingvoteorders) + 1
+    newvoteoptionform = VoteOptionForm(initial={'sort': sort, 'election_ref': ref})
+    context = {
+        'user': user,
+        'editvoteform': editvoteform,
+        'existingvoteoptions': existingvoteoptions,
+        'voteoptionform': newvoteoptionform,
+        'vote_ref': ref
+    }
+    return HttpResponse(template.render(context, request))
+
+
+@login_required
+def voteeditoption(request, ref):
     user = get_current_user(request)
     vote = get_object_or_404(VoteElection, ref=ref)
     if not user.createvote:
@@ -331,28 +397,7 @@ def voteedit(request, ref):
         elif request.POST['obtn'] == "Delete":
             form = VoteOptionForm(request.POST)
             voteoption.delete()
-
-    template = loader.get_template('vote-edit.html')
-    editvoteform = EditVoteForm(instance=vote)
-    existingvoteoptions = []
-    voteoptions = VoteOption.objects.filter(election_ref=ref)
-    existingvoteorders = set()
-    for voteoption in voteoptions:
-        voteoptionform = VoteOptionForm(instance=voteoption)
-        existingvoteoptions.append(voteoptionform)
-        existingvoteorders.add(voteoption.sort)
-    if len(existingvoteorders) == 0:
-        sort = 1
-    else:
-        sort = max(existingvoteorders) + 1
-    newvoteoptionform = VoteOptionForm(initial={'sort': sort, 'election_ref': ref})
-    context = {
-        'user': user,
-        'editvoteform': editvoteform,
-        'existingvoteoptions': existingvoteoptions,
-        'voteoptionform': newvoteoptionform
-    }
-    return HttpResponse(template.render(context, request))
+    return HttpResponseRedirect(reverse('voteedit', args=(ref,)))
 
 
 @login_required

@@ -3,7 +3,7 @@
 {% block content %}
     <h1>Edit Vote</h1>
 
-    <form method="post">
+    <form method="post" action="{% url 'voteeditedit' vote_ref %}">
     {% csrf_token %}
 
     <table>
@@ -18,7 +18,7 @@
     <table>
     <tr><th>Selection character</th><th>Option text</th><th></th></tr>
     {% for of in existingvoteoptions %}
-    <form method="post">
+    <form method="post" action="{% url 'voteeditoption' vote_ref %}">
     {% csrf_token %}
     <tr>
       <td><span class="voteoptioncharacter">{{ of.option_character }}</span></td>
@@ -31,7 +31,7 @@
     </tr>
     </form>
     {% endfor %}
-    <form method="post">
+    <form method="post" action="{% url 'voteeditoption' vote_ref %}">
     {% csrf_token %}
     <tr>
       <td><span class="voteoptioncharacter">{{ voteoptionform.option_character }}</span></td>
