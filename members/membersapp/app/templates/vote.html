@@ -127,7 +127,7 @@
         secret cookie in the result:</p>
         <p><code>{{ membervote.resultcookie }} {{ membervote.votestr }}</code></p>
         <p>This cookie was created by using the equivalent of:</p>
-        <code>echo &quot;{{ membervote.secret }} {{ membervote.user.email }}&quot; | md5sum</code><br />
+        <code>echo &quot;{{ membervote.private_secret }} {{ user.email }}&quot; | md5sum</code><br />
         <p><code>{{ membervote.secret }}</code> was generated randomly and is
         unique to each voter.</p>
     {% endif %}

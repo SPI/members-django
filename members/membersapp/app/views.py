@@ -135,11 +135,16 @@ def showvote(request, ref):
     vote = VoteElection.object.get(pk=ref)
     options = VoteOption.objects.filter(election_ref=ref)
     form = VoteVoteForm()
+    try:
+        membervote = VoteVote.object.get(voter_ref=user, election_ref=vote)
+    except VoteVote.DoesNotExist:
+        membervote = None
     context = {
         'user': user,
         'vote': vote,
         'options': options,
-        'form': form
+        'form': form,
+        'membervote': membervote
     }
     return HttpResponse(template.render(context, request))
 
