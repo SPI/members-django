@@ -138,11 +138,13 @@ class VoteVote(models.Model):
         unique_together = (('voter_ref', 'election_ref'), )
         db_table = 'vote_vote'
 
+    @property
     def votestr(self):
         """Returns a string representing the user's voting preference."""
         res = ""
+        self.votes = VoteVoteOption.objects.filter(vote_ref=self.ref)
         for vote in self.votes:
-            res += vote.char
+            res += vote.option_ref.option_character
         return res
 
     @property
@@ -169,7 +171,6 @@ class VoteVote(models.Model):
                 return "Can't vote for " + char + " more than once."
             newvotes.append(option)
         self.votes = newvotes
-        self.save()
         return None
 
 

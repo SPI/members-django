@@ -16,7 +16,7 @@ from django.utils import timezone
 
 from membersapp.app.stats import get_stats
 from membersapp.app.applications import *
-from .models import Members, Applications, VoteElection, VoteOption, VoteVote
+from .models import Members, Applications, VoteElection, VoteOption, VoteVote, VoteVoteOption
 from .forms import *
 from .votes import *
 
@@ -169,10 +169,14 @@ def votevote(request, ref):
             if not vote.is_active:
                 messages.error(request, 'Vote is not currently running.')
             if vote.is_active and membervote:
-                if request.POST['vote'] != membervote.votestr():
+                if request.POST['vote'] != membervote.votestr:
                     res = membervote.set_vote(request.POST['vote'])
                     if res is not None:
                         messages.error(request, res)
+                    else:
+                        for i, voteoption in enumerate(membervote.votes, 1):
+                            votevoteoption = VoteVoteOption(vote_ref=membervote, option_ref=voteoption)
+                            votevoteoption.save()
     return HttpResponseRedirect(reverse('vote', args=[ref]))
 
 
