@@ -133,6 +133,7 @@ class VoteVote(models.Model):
     votes = []
 
     object = models.Manager()
+    objects = models.Manager()
 
     class Meta:
         unique_together = (('voter_ref', 'election_ref'), )
