@@ -20,9 +20,9 @@ class CondorcetVS(object):
         self.beatmatrix = {}
         options = VoteOption.objects.filter(election_ref=self.vote)
         for row in options:
-            self.beatmatrix[row.optionid] = {}
+            self.beatmatrix[row.ref] = {}
             for col in options:
-                self.beatmatrix[row.optionid][col.optionid] = 0
+                self.beatmatrix[row.ref][col.ref] = 0
         self.tie = False
         self.winners = [None] * len(options)
         self.wincount = {}
@@ -43,9 +43,9 @@ class CondorcetVS(object):
         for membervote in self.membervotes:
             votecounted = {}
             for curpref, pref in enumerate(membervote.votes):
-                votecounted[pref.optionid] = True
+                votecounted[pref.ref] = True
                 for lesspref in membervote.votes[curpref + 1:]:
-                    self.beatmatrix[pref.optionid][lesspref.optionid] += 1
+                    self.beatmatrix[pref.ref][lesspref.ref] += 1
 
                 # If we're not ignoring missing options then treat them
                 # as lower preference than anyone who was listed.

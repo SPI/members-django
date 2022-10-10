@@ -13,7 +13,7 @@
 
     <h2>Voters</h2>
     <ol>
-    {% for membervote in membervotes|sort(attribute='user.name') %}
+    {% for membervote in membervotes %}
         <li>{{ membervote.user.name }}</li>
     {% endfor %}
     </ol>
@@ -21,7 +21,7 @@
     <h2>Votes</h2>
     <code>
     {% for membervote in membervotes %}
-        {{ membervote.resultcookie() }} {{ membervote.votestr() }}<br />
+        {{ membervote.resultcookie }} {{ membervote.votestr }}<br />
     {% endfor %}
     </code>
 
@@ -40,11 +40,11 @@
             <th>{{ row.char }}</th>
         {% for col in vote.options %}
             <td>
-            {%- if col == row -%}
+            {% if col == row %}
                 -
-            {%- else -%}
-                {{ votesystem.beatmatrix[row.optionid][col.optionid] }}
-            {%- endif -%}
+            {% else %}
+                {{ votesystem.beatmatrix[row.ref][col.ref] }}
+            {% endif %}
             </td>
         {% endfor %}
         </tr>
@@ -68,15 +68,15 @@
             {%- if col == row -%}
                 -
             {%- else -%}
-                {%- if votesystem.wincount[row.optionid][col.optionid] > 0 -%}
-                    <b>{{ votesystem.wincount[row.optionid][col.optionid] }}</b>
+                {%- if votesystem.wincount[row.ref][col.ref] > 0 -%}
+                    <b>{{ votesystem.wincount[row.ref][col.ref] }}</b>
                 {%- else -%}
-                    {{ votesystem.wincount[row.optionid][col.optionid] }}
+                    {{ votesystem.wincount[row.ref][col.ref] }}
                 {%- endif -%}
             {%- endif -%}
             </td>
         {% endfor %}
-            <td>{{ votesystem.wincount[row.optionid]['wins'] }}</td>
+            <td>{{ votesystem.wincount[row.ref]['wins'] }}</td>
         </tr>
     {% endfor %}
     </table>
@@ -143,10 +143,10 @@ digraph Results {
     ranksep=0.25;
 {% for option in vote.options %}
     "{{ option.description }}" [ style="filled", fontname="Helvetica", fontsize=10, color="#99ff99" ];
-    {% for beats in votesystem.wincount[option.optionid] %}
+    {% for beats in votesystem.wincount[option.ref] %}
         {% if beats != 'wins' and
-              votesystem.wincount[option.optionid][beats] > 0 %}
-    "{{ option.description }}" -&gt; "{{ vote.option_by_ref(beats).description }}" [ label="{{ votesystem.wincount[option.optionid][beats] }}" ];
+              votesystem.wincount[option.ref][beats] > 0 %}
+    "{{ option.description }}" -&gt; "{{ vote.option_by_ref(beats).description }}" [ label="{{ votesystem.wincount[option.ref][beats] }}" ];
         {% endif %}
     {% endfor %}
 {% endfor %}
