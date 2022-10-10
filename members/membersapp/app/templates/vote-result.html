@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load filters %}
 {% block title %}Vote - {{ vote.title }}{% endblock %}
 {% block content %}
     <h1>{{ vote.title }}</h1>
@@ -43,7 +44,7 @@
             {% if col == row %}
                 -
             {% else %}
-                {{ votesystem.beatmatrix[row.ref][col.ref] }}
+                {{ votesystem.beatmatrix|index:row.ref|index:col.ref }}
             {% endif %}
             </td>
         {% endfor %}
@@ -65,18 +66,18 @@
             <th>{{ row.char }}</th>
         {% for col in vote.options %}
             <td>
-            {%- if col == row -%}
+            {% if col == row %}
                 -
-            {%- else -%}
-                {%- if votesystem.wincount[row.ref][col.ref] > 0 -%}
-                    <b>{{ votesystem.wincount[row.ref][col.ref] }}</b>
-                {%- else -%}
-                    {{ votesystem.wincount[row.ref][col.ref] }}
-                {%- endif -%}
-            {%- endif -%}
+            {% else %}
+                {% if votesystem.wincount|index:row.ref|index:col.ref > 0 %}
+                    <b>{{ votesystem.wincount|index:row.ref|index:col.ref }}</b>
+                {% else %}
+                    {{ votesystem.wincount|index:row.ref|index:col.ref }}
+                {% endif %}
+            {% endif %}
             </td>
         {% endfor %}
-            <td>{{ votesystem.wincount[row.ref]['wins'] }}</td>
+            <td>{{ votesystem.wincount|index:row.ref|index:'wins' }}</td>
         </tr>
     {% endfor %}
     </table>
@@ -87,34 +88,38 @@
     <table class="rounds">
         <tr>
             <th>Round</th>
-        {%- for candidate in votesystem.election.b.names %}
+        {% for candidate in votesystem.election.b.names %}
             <th>{{ candidate }}</th>
-        {%- endfor %}
+        {% endfor %}
             <th>Exhausted</th>
-        {%- if votesystem.election.threshMethod %}
+        {% if votesystem.election.threshMethod %}
             <th>Surplus</th>
             <th>Threshold</th>
-        {% endif -%}
+        {% endif %}
         </tr>
 
-    {% for r in range(votesystem.election.numRounds) %}
+    {% for r in votesystem.election.numRounds|times %}
         <tr>
-            <td class="round" rowspan="2">{{ r + 1 }}</td>
-        {%- for candidate in range(votesystem.election.b.numCandidates) %}
-            <td>{{ votesystem.election.displayValue(votesystem.election.count[r][candidate]) }}</td>
-        {%- endfor %}
-            <td>{{ votesystem.election.displayValue(votesystem.election.exhausted[r]) }}</td>
-        {% if votesystem.election.threshMethod -%}
-            <td>{{ votesystem.election.displayValue(votesystem.election.surplus[r]) }}</td>
-            <td>{{ votesystem.election.displayValue(votesystem.election.thresh[r]) }}</td>
-        {% endif -%}
+            <td class="round" rowspan="2">{{ r|add:"1" }}</td>
+        {% for candidate in votesystem.election.b.numCandidates|times %}
+            <td>{{ votesystem|displayValue:votesystem.election.count.r.candidate }}</td>
+        {% endfor %}
+            <td>{{ votesystem|displayValue:votesystem.election.exhausted.r }}</td>
+        {% if votesystem.election.threshMethod %}
+            <td>{{ votesystem|displayValue:votesystem.election.surplus.r }}</td>
+            <td>{{ votesystem|displayValue:votesystem.election.thresh.r }}</td>
+        {% endif %}
         </tr>
         <tr>
-            <td colspan="{{ votesystem.election.b.numCandidates + 1 + 2 if votesystem.election.threshMethod }}" class="comment">
-                {{ votesystem.election.msg[r] }}
+            {% if votesystem.election.threshMethod %}
+            <td colspan="{{ votesystem.election.b.numCandidates|add:'3' }}" class="comment">
+            {% else %}
+            <td colspan="{{ votesystem.election.b.numCandidates|add:'1' }}" class="comment">
+            {% endif %}
+                {{ votesystem.election.msg.r }}
             </td>
         </tr>
-    {% endfor -%}
+    {% endfor %}
 
     </table>
     {% endif %}
@@ -131,7 +136,7 @@
         <p>Ties exist!</p>
     {% endif %}
     <ol>
-    {% for winner in votesystem.results() %}
+    {% for winner in votesystem|results %}
         <li>{{ winner }}</li>
     {% endfor %}
     </ol>
@@ -143,10 +148,9 @@ digraph Results {
     ranksep=0.25;
 {% for option in vote.options %}
     "{{ option.description }}" [ style="filled", fontname="Helvetica", fontsize=10, color="#99ff99" ];
-    {% for beats in votesystem.wincount[option.ref] %}
-        {% if beats != 'wins' and
-              votesystem.wincount[option.ref][beats] > 0 %}
-    "{{ option.description }}" -&gt; "{{ vote.option_by_ref(beats).description }}" [ label="{{ votesystem.wincount[option.ref][beats] }}" ];
+    {% for beats in votesystem.wincount|index:option.ref %}
+        {% if beats != 'wins' and votesystem.wincount|index:option.ref|index:beats > 0 %}
+    "{{ option.description }}" -&gt; "{{ vote.options.beats.description }}" [ label="{{ votesystem.wincount|index:option.ref|index:beats }}" ];
         {% endif %}
     {% endfor %}
 {% endfor %}
