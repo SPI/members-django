@@ -15,7 +15,7 @@
     <h2>Voters</h2>
     <ol>
     {% for membervote in membervotes %}
-        <li>{{ membervote.user.name }}</li>
+        <li>{{ membervote.voter_ref.name }}</li>
     {% endfor %}
     </ol>
 
