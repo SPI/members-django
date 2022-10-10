@@ -27,6 +27,7 @@ class CondorcetVS(object):
         self.winners = [None] * len(options)
         self.wincount = {}
 
+    @property
     def description(self):
         if self.ignoremissing:
             return "Condorcet (ignore unspecified)"
@@ -91,6 +92,7 @@ class OpenSTVVS(object):
         self.system = methods[system]
         self.election = None
 
+    @property
     def description(self):
         """Return a text string describing the voting system"""
         return self.system.longMethodName + " (OpenSTV)"
