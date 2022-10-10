@@ -8,8 +8,8 @@
     <p>Voting system: {{ votesystem.description }}</p>
 
     <h2>Candidates</h2>
-    {% for option in vote.options %}
-        (<b>{{ option.char }}</b>) {{ option.description }}<br />
+    {% for option in options %}
+        (<b>{{ option.option_character }}</b>) {{ option.description }}<br />
     {% endfor %}
 
     <h2>Voters</h2>

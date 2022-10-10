@@ -413,6 +413,7 @@ def voteresult(request, ref):
         return HttpResponseRedirect("/")
 
     membervotes = sorted(VoteVote.objects.filter(election_ref=ref), key=lambda x: x.resultcookie)
+    options = VoteOption.objects.filter(election_ref=ref)
 
     if vote.system == 0:
         votesystem = CondorcetVS(vote, membervotes)
@@ -425,6 +426,7 @@ def voteresult(request, ref):
     context = {
         'user': user,
         'vote': vote,
+        'options': options,
         'membervotes': membervotes,
         'votesystem': votesystem
     }
