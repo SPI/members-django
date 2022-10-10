@@ -1,5 +1,5 @@
 from django.db import connection
-from openstv.plugins import getMethodPlugins
+from .openstv.openstv.plugins import getMethodPlugins
 
 from .models import Members, VoteOption
 
