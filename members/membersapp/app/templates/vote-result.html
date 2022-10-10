@@ -21,7 +21,7 @@
 
     <h2>Votes</h2>
     <code>
-    {% for membervote in membervotes %}
+    {% for membervote in membervotes|dictsort:"resultcookie" %}
         {{ membervote.resultcookie }} {{ membervote.votestr }}<br />
     {% endfor %}
     </code>
