@@ -36,7 +36,7 @@ class CondorcetVS(object):
 
     def run(self):
         """Run the vote"""
-        options = VoteOption.objects.filter(election_ref=self.vote)
+        options = [x.ref for x in VoteOption.objects.filter(election_ref=self.vote)]
 
         # Fill the beat matrix. bm[x][y] is the number of times x was
         # preferred over y.
@@ -71,9 +71,9 @@ class CondorcetVS(object):
             if self.winners[wins]:
                 self.tie = True
                 self.winners[wins] += " AND "
-                self.winners[wins] += self.vote.option_by_ref(row).description
+                self.winners[wins] += VoteOption.object.get(ref=row).description
             else:
-                self.winners[wins] = self.vote.option_by_ref(row).description
+                self.winners[wins] = VoteOption.object.get(ref=row).description
 
     def results(self):
         """Return an array of the vote winners"""
