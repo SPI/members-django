@@ -507,11 +507,11 @@ class ManagerTest(TestCase):
         self.assertContains(response, "Hello world 2 voteoption edited")
 
     def test_viewvoteresult(self):
-        member = create_other_member(self)
+        member = create_other_member()
         create_vote_manually(self, owner=member)
         vote = VoteElection.objects.all()[0]
-        response = self.client.get('/vote/%d/result' % vote.pk)
-        self.assertEqual(response.status_code, 200)
+        response = self.client.get('/vote/%d/result' % vote.pk, follow=True)
+        self.assertRedirects(response, '/', status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=True)
         self.assertContains(response, "You can only view results for your own votes.")
 
     def test_votevote(self):
