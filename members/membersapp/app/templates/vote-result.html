@@ -32,14 +32,14 @@
     <table border="1">
         <tr>
             <th></th>
-    {% for col in vote.options %}
-            <th>{{ col.char }}</th>
+    {% for col in options %}
+            <th>{{ col.option_char }}</th>
     {% endfor %}
         </tr>
-    {% for row in vote.options %}
+    {% for row in options %}
         <tr>
-            <th>{{ row.char }}</th>
-        {% for col in vote.options %}
+            <th>{{ row.option_char }}</th>
+        {% for col in options %}
             <td>
             {% if col == row %}
                 -
@@ -56,15 +56,15 @@
     <table border="1">
         <tr>
             <th></th>
-    {% for col in vote.options %}
-            <th>{{ col.char }}</th>
+    {% for col in options %}
+            <th>{{ col.option_char }}</th>
     {% endfor %}
             <th>Wins</th>
         </tr>
     {% for row in vote.options %}
         <tr>
-            <th>{{ row.char }}</th>
-        {% for col in vote.options %}
+            <th>{{ row.option_char }}</th>
+        {% for col in options %}
             <td>
             {% if col == row %}
                 -
