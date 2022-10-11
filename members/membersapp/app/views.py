@@ -422,6 +422,8 @@ def voteresult(request, ref):
     elif vote.system == 2:
         votesystem = OpenSTVVS(vote, membervotes)
 
+    votesystem.run()
+
     template = loader.get_template('vote-result.html')
     context = {
         'user': user,
