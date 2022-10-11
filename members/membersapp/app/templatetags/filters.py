@@ -1,5 +1,7 @@
 from django import template
 
+from membersapp.app.models import VoteOption
+
 
 register = template.Library()
 
@@ -22,3 +24,8 @@ def displayValue(votesystem, value):
 @register.filter
 def results(votesystem):
     return votesystem.results()
+
+
+@register.filter
+def option_description_by_ref(beats):
+    return VoteOption.object.get(ref=beats).description
