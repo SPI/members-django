@@ -145,15 +145,9 @@
     <h2>Graphviz output</h2>
     <pre>
 digraph Results {
-    ranksep=0.25;
-{% for option in vote.options %}
-    "{{ option.description }}" [ style="filled", fontname="Helvetica", fontsize=10, color="#99ff99" ];
-    {% for beats in votesystem.wincount|index:option.ref %}
-        {% if beats != 'wins' and votesystem.wincount|index:option.ref|index:beats > 0 %}
-    "{{ option.description }}" -&gt; "{{ vote.options.beats.description }}" [ label="{{ votesystem.wincount|index:option.ref|index:beats }}" ];
-        {% endif %}
-    {% endfor %}
-{% endfor %}
+    ranksep=0.25;{% for option in options %}
+    "{{ option.description }}" [ style="filled", fontname="Helvetica", fontsize=10, color="#99ff99" ];{% for beats in votesystem.wincount|index:option.ref %}{% if beats != 'wins' and votesystem.wincount|index:option.ref|index:beats > 0 %}
+    "{{ option.description }}" -&gt; "{{ options.beats.description }}" [ label="{{ votesystem.wincount|index:option.ref|index:beats }}" ];{% endif %}{% endfor %}{% endfor %}
 }
     </pre>
     {% endif %}
