@@ -139,11 +139,14 @@ class VoteVote(models.Model):
         unique_together = (('voter_ref', 'election_ref'), )
         db_table = 'vote_vote'
 
+    def __init__(self, *args, **kwargs):
+        super(VoteVote, self).__init__(*args, **kwargs)
+        self.votes = VoteVoteOption.objects.filter(vote_ref=self.ref)
+
     @property
     def votestr(self):
         """Returns a string representing the user's voting preference."""
         res = ""
-        self.votes = VoteVoteOption.objects.filter(vote_ref=self.ref)
         for vote in self.votes:
             res += vote.option_ref.option_character
         return res
