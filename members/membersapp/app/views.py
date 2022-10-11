@@ -55,7 +55,7 @@ def application(request, appid):
     template = loader.get_template('application.html')
     application = get_object_or_404(Applications, appid=appid)
     user = get_current_user(request)
-    if not user.ismanager:
+    if not user.ismanager and not application.member == user:
         return render(request, 'manager-only.html')
     member = Members.object.get(memid=application.member_id)
     memberform = MemberForm(instance=member)
