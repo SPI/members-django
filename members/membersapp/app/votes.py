@@ -43,9 +43,9 @@ class CondorcetVS(object):
         for membervote in self.membervotes:
             votecounted = {}
             for curpref, pref in enumerate(membervote.votes):
-                votecounted[pref.id] = True
+                votecounted[pref.ref] = True
                 for lesspref in membervote.votes[curpref + 1:]:
-                    self.beatmatrix[pref.option_ref.ref][lesspref.option_ref.ref] += 1
+                    self.beatmatrix[pref.ref][lesspref.ref] += 1
 
                 # If we're not ignoring missing options then treat them
                 # as lower preference than anyone who was listed.
