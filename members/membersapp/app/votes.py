@@ -1,5 +1,5 @@
 from django.db import connection
-from OpenSTV.plugins import getMethodPlugins
+from openstv.MethodPlugins import ScottishSTV
 
 from .models import Members, VoteOption
 
@@ -86,10 +86,7 @@ class OpenSTVVS(object):
         self.vote = vote
         self.membervotes = membervotes
         self.tie = False
-        methods = getMethodPlugins("byName", exclude0=False)
-        if system not in methods:
-            raise Exception("Unknown OpenSTV method " + system)
-        self.system = methods[system]
+        self.system = ScottishSTV
         self.election = None
 
     @property
