@@ -1,5 +1,8 @@
 from django.db import connection
 from openstv.MethodPlugins import ScottishSTV
+from openstv.plugins import LoaderPlugin
+from openstv.ballots import Ballots
+import openstv
 
 from .models import Members, VoteOption
 
@@ -97,11 +100,11 @@ class OpenSTVVS(object):
     def run(self):
         """Run the vote using the OpenSTV backend"""
         loader = SPIBallotLoader(self.vote, self.membervotes)
-        dirty = openstv.ballots.Ballots()
+        dirty = Ballots()
         dirty.loader = loader
         loader.loadballots(dirty)
         clean = dirty.getCleanBallots()
-        self.election = self.system(clean)
+        self.election = ScottishSTV.ScottishSTV(clean)
         self.election.runElection()
 
     def results(self):
@@ -112,3 +115,36 @@ class OpenSTVVS(object):
             return None
         else:
             return [self.election.b.names[c] for c in winners]
+
+
+class SPIBallotLoader(LoaderPlugin):
+    "OpenSTV Ballot loader class for SPI Membership Website"
+
+    def __init__(self, vote, membervotes):
+        self.vote = vote
+        self.membervotes = membervotes
+        LoaderPlugin.__init__(self)
+        self.options = VoteOption.objects.filter(election_ref=vote)
+
+    def loadballots(self, ballots):
+        "Load data from the database into an OpenSTV ballot object"
+
+        ballots.numCandidates = len(self.options)
+        ballots.numSeats = self.vote.winners
+        ballots.title = self.vote.title
+        # Make a textual array
+        ballots.names = []
+        optionmap = {}
+        for (index, option) in enumerate(sorted(self.options,
+                                                key=lambda option:
+                                                option.option_character)):
+            ballots.names.append(option.description)
+            optionmap[option.option_character] = index
+
+        for vote in self.membervotes:
+            ballot = []
+
+            for rank in vote.votes:
+                ballot.append(optionmap[rank.option_character])
+
+            ballots.appendBallot(ballot)
