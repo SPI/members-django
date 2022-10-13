@@ -89,7 +89,7 @@ class OpenSTVVS(object):
         self.vote = vote
         self.membervotes = membervotes
         self.tie = False
-        self.system = ScottishSTV
+        self.system = ScottishSTV.ScottishSTV
         self.election = None
 
     @property
@@ -104,7 +104,7 @@ class OpenSTVVS(object):
         dirty.loader = loader
         loader.loadballots(dirty)
         clean = dirty.getCleanBallots()
-        self.election = ScottishSTV.ScottishSTV(clean)
+        self.election = self.system(clean)
         self.election.runElection()
 
     def results(self):
