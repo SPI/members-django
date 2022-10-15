@@ -153,8 +153,9 @@ def showvote(request, ref):
 def votevote(request, ref):
     user = get_current_user(request)
     vote = VoteElection.object.get(pk=ref)
-    if not user.ismanager:
-        return render(request, 'manager-only.html')
+    if not user.iscontrib:
+        messages.error(request, 'This page is only accessible to contributing members.')
+        return HttpResponseRedirect("/")
     if request.method == 'POST':
         form = VoteVoteForm(request.POST)
         membervote, created = VoteVote.object.get_or_create(voter_ref=user, election_ref=vote)
