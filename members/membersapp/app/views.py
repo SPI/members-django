@@ -414,6 +414,10 @@ def voteresult(request, ref):
     membervotes = sorted(VoteVote.objects.filter(election_ref=ref), key=lambda x: x.voter_ref.name)
     options = VoteOption.objects.filter(election_ref=ref)
 
+    if len(options) < 2:
+        messages.error(request, 'Votes must have at least 2 candidates to run.')
+        return HttpResponseRedirect("/")
+
     if vote.system == 0:
         votesystem = CondorcetVS(vote, membervotes)
     elif vote.system == 1:

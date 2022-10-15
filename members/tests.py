@@ -514,6 +514,14 @@ class ManagerTest(TestCase):
         self.assertRedirects(response, '/', status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=True)
         self.assertContains(response, "You can only view results for your own votes.")
 
+    def test_viewvoteresult_no_option(self):
+        create_vote_manually(past=True)
+        vote = VoteElection.objects.all()[0]
+        response = self.client.get('/vote/%d/result' % vote.pk, follow=True)
+        dump_page(response.content)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Votes must have at least 2 candidates to run.")
+
     def test_votevote(self):
         create_vote(self)
         vote = VoteElection.objects.all()[0]
