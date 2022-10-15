@@ -518,8 +518,7 @@ class ManagerTest(TestCase):
         create_vote_manually(past=True)
         vote = VoteElection.objects.all()[0]
         response = self.client.get('/vote/%d/result' % vote.pk, follow=True)
-        dump_page(response.content)
-        self.assertEqual(response.status_code, 200)
+        self.assertRedirects(response, '/', status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=True)
         self.assertContains(response, "Votes must have at least 2 candidates to run.")
 
     def test_votevote(self):
