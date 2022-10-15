@@ -52,14 +52,14 @@ def create_application_post(testcase):
     return response
 
 
-def create_vote(testcase, current=False, past=False, title="Test vote", target="/vote/create"):
+def create_vote(testcase, current=False, past=False, title="Test vote", target="/vote/create", system="2"):
     if current:
         data = {
             "title": title,
             "description": "Hello world create_vote",
             "period_start": (timezone.now() + datetime.timedelta(days=-1)).strftime("%Y-%m-%d"),
             "period_stop": (timezone.now() + datetime.timedelta(days=7)).strftime("%Y-%m-%d"),
-            "system": "2",
+            "system": system,
             "winners": "1",
             "vote-btn": "Edit"
         }
@@ -69,7 +69,7 @@ def create_vote(testcase, current=False, past=False, title="Test vote", target="
             "description": "Hello world create_vote",
             "period_start": (timezone.now() + datetime.timedelta(days=-7)).strftime("%Y-%m-%d"),
             "period_stop": (timezone.now() + datetime.timedelta(days=-1)).strftime("%Y-%m-%d"),
-            "system": "2",
+            "system": system,
             "winners": "1",
             "vote-btn": "Edit"
         }
@@ -79,7 +79,7 @@ def create_vote(testcase, current=False, past=False, title="Test vote", target="
             "description": "Hello world create_vote",
             "period_start": (timezone.now() + datetime.timedelta(days=1)).strftime("%Y-%m-%d"),
             "period_stop": (timezone.now() + datetime.timedelta(days=7)).strftime("%Y-%m-%d"),
-            "system": "2",
+            "system": system,
             "winners": "1",
             "vote-btn": "Edit"
         }
@@ -192,6 +192,12 @@ def vote_vote(testcase, voteid, correct=True):
 def set_vote_current(vote):
     vote.period_start = timezone.now() + datetime.timedelta(days=-1)
     vote.period_stop = timezone.now() + datetime.timedelta(days=7)
+    vote.save()
+
+
+def set_vote_past(vote):
+    vote.period_start = timezone.now() + datetime.timedelta(days=-7)
+    vote.period_stop = timezone.now() + datetime.timedelta(days=-1)
     vote.save()
 
 
@@ -520,6 +526,29 @@ class ManagerTest(TestCase):
         response = self.client.get('/vote/%d/result' % vote.pk, follow=True)
         self.assertRedirects(response, '/', status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=True)
         self.assertContains(response, "Votes must have at least 2 candidates to run.")
+
+    def test_viewvoteresult_STV(self):
+        create_vote(self, system="2")
+        vote = VoteElection.objects.all()[0]
+        response = create_vote_option(self, vote.pk)
+        response = create_vote_option2(self, vote.pk)
+        set_vote_current(vote)
+        response = vote_vote(self, vote.pk, correct=True)
+        set_vote_past(vote)
+        response = self.client.get('/vote/%d/result' % vote.pk)
+        self.assertEqual(response.status_code, 200)
+
+    def test_viewvoteresult_Condorcet(self):
+        create_vote(self, system="0")
+        vote = VoteElection.objects.all()[0]
+        response = create_vote_option(self, vote.pk)
+        response = create_vote_option2(self, vote.pk)
+        set_vote_current(vote)
+        response = vote_vote(self, vote.pk, correct=True)
+        set_vote_past(vote)
+        response = self.client.get('/vote/%d/result' % vote.pk)
+        dump_page(response.content)
+        self.assertEqual(response.status_code, 200)
 
     def test_votevote(self):
         create_vote(self)
