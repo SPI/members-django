@@ -129,8 +129,9 @@ def showvotes(request):
 @login_required
 def showvote(request, ref):
     user = get_current_user(request)
-    if not user.ismanager:
-        return render(request, 'manager-only.html')
+    if not user.iscontrib:
+        messages.error(request, 'This page is only accessible to contributing members.')
+        return HttpResponseRedirect("/")
     template = loader.get_template('vote.html')
     vote = VoteElection.object.get(pk=ref)
     options = VoteOption.objects.filter(election_ref=ref)
