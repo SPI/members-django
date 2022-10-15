@@ -210,6 +210,7 @@ def memberedit(request):
 
 @login_required
 def applicationedit(request, appid):
+    user = get_current_user(request)
     if not user.ismanager:
         return render(request, 'manager-only.html')
     if request.method == 'POST':
