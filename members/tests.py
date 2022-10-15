@@ -27,9 +27,9 @@ def create_member(manager=False, contrib=False):
     member.save()
 
 
-def create_other_member(manager=False):
+def create_other_member(manager=False, contrib=False):
     user = User(username='other member')
-    member = Members(memid=user, name='Other User', email='other_user@spi-inc.org', ismanager=manager)
+    member = Members(memid=user, name='Other User', email='other_user@spi-inc.org', ismanager=manager, iscontrib=contrib)
     user.save()
     member.save()
     return member
@@ -120,12 +120,12 @@ def create_vote_with_manager(testcase):
     switch_back(testcase)
 
 
-def switch_to_other_member(testcase, switch_to_manager=False):
+def switch_to_other_member(testcase, switch_to_manager=False, switch_to_contrib=False):
     testcase.client.logout()
     if switch_to_manager:
         testcase.client.force_login(manager.memid)
     else:
-        other_member = create_other_member()
+        other_member = create_other_member(contrib=switch_to_contrib)
         testcase.client.force_login(other_member.memid)
 
 
@@ -198,6 +198,16 @@ def vote_vote(testcase, voteid, correct=True):
             "vote": "ABZ"
         }
     response = testcase.client.post("/vote/%s/vote" % voteid, data=data, follow=True)
+    return response
+
+
+def vote_vote_other_member(testcase, voteid):
+    switch_to_other_member(testcase, switch_to_contrib=True)
+    data = {
+        "vote": "B"
+    }
+    response = testcase.client.post("/vote/%s/vote" % voteid, data=data, follow=True)
+    switch_back(testcase)
     return response
 
 
@@ -546,6 +556,7 @@ class ManagerTest(TestCase):
         response = create_vote_option2(self, vote.pk)
         set_vote_current(vote)
         response = vote_vote(self, vote.pk, correct=True)
+        response = vote_vote_other_member(self, vote.pk)
         set_vote_past(vote)
         response = self.client.get('/vote/%d/result' % vote.pk)
         self.assertEqual(response.status_code, 200)
@@ -557,9 +568,9 @@ class ManagerTest(TestCase):
         response = create_vote_option2(self, vote.pk)
         set_vote_current(vote)
         response = vote_vote(self, vote.pk, correct=True)
+        response = vote_vote_other_member(self, vote.pk)
         set_vote_past(vote)
         response = self.client.get('/vote/%d/result' % vote.pk)
-        dump_page(response.content)
         self.assertEqual(response.status_code, 200)
 
     def test_votevote(self):
