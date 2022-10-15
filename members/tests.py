@@ -506,9 +506,9 @@ class ManagerTest(TestCase):
         self.assertContains(response, "Hello world voteoption edited")
         self.assertContains(response, "Hello world 2 voteoption edited")
 
-    def test_viewvoteresult(self):
+    def test_viewvoteresult_incorrect(self):
         member = create_other_member()
-        create_vote_manually(self, owner=member)
+        create_vote_manually(past=True, owner=member)
         vote = VoteElection.objects.all()[0]
         response = self.client.get('/vote/%d/result' % vote.pk, follow=True)
         self.assertRedirects(response, '/', status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=True)
