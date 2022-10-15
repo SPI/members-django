@@ -354,9 +354,9 @@ class NonManagerTest(TestCase):
     def test_vote_view(self):
         create_vote_with_manager(self)
         vote = VoteElection.objects.all()[0]
-        response = self.client.get('/vote/%d' % vote.pk)
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "This page is only accessible to application managers.")
+        response = self.client.get('/vote/%d' % vote.pk, follow=True)
+        self.assertRedirects(response, '/', status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=True)
+        self.assertContains(response, "This page is only accessible to contributing members.")
 
     def test_viewvoteresult_noncontrib(self):
         create_vote_manually(self)
