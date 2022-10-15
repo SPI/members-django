@@ -102,12 +102,12 @@
         <tr>
             <td class="round" rowspan="2">{{ r|add:"1" }}</td>
         {% for candidate in votesystem.election.b.numCandidates|times %}
-            <td>{{ votesystem|displayValue:votesystem.election.count.r.candidate }}</td>
+            <td>{% displayValueDoubleIndex votesystem votesystem.election.count r candidate %}</td>
         {% endfor %}
-            <td>{{ votesystem|displayValue:votesystem.election.exhausted.r }}</td>
+            <td>{% displayValue votesystem votesystem.election.exhausted r %}</td>
         {% if votesystem.election.threshMethod %}
-            <td>{{ votesystem|displayValue:votesystem.election.surplus.r }}</td>
-            <td>{{ votesystem|displayValue:votesystem.election.thresh.r }}</td>
+            <td>{% displayValue votesystem votesystem.election.surplus r %}</td>
+            <td>{% displayValue votesystem votesystem.election.thresh r %}</td>
         {% endif %}
         </tr>
         <tr>

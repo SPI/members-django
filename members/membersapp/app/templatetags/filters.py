@@ -16,9 +16,16 @@ def times(number):
     return range(number)
 
 
-@register.filter
-def displayValue(votesystem, value):
-    return votesystem.election.displayValue(value)
+# Ugly workaround to the fact that you cannot call function or address tables
+# in Django templates (unlike Flask)
+@register.simple_tag
+def displayValue(votesystem, value, index):
+    return votesystem.election.displayValue(value[index])
+
+
+@register.simple_tag
+def displayValueDoubleIndex(votesystem, value, index, index2):
+    return votesystem.election.displayValue(value[index][index2])
 
 
 @register.filter
