@@ -116,7 +116,7 @@
             {% else %}
             <td colspan="{{ votesystem.election.b.numCandidates|add:'1' }}" class="comment">
             {% endif %}
-                {{ votesystem.election.msg.r }}
+                {{ votesystem.election.msg|index:r }}
             </td>
         </tr>
     {% endfor %}
