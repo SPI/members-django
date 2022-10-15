@@ -113,11 +113,23 @@ def create_vote_manually(current=False, past=False, owner=None):
 
 
 def create_vote_with_manager(testcase):
-    testcase.client.logout()
-    testcase.client.force_login(manager.memid)
+    switch_to_other_member(testcase, switch_to_manager=True)
     response = create_vote(testcase)
     testcase.assertEqual(VoteElection.objects.count(), 1)
     # relog as non-manager
+    switch_back(testcase)
+
+
+def switch_to_other_member(testcase, switch_to_manager=False):
+    testcase.client.logout()
+    if switch_to_manager:
+        testcase.client.force_login(manager.memid)
+    else:
+        other_member = create_other_member()
+        testcase.client.force_login(other_member.memid)
+
+
+def switch_back(testcase):
     testcase.client.logout()
     testcase.client.force_login(member.memid)
 
