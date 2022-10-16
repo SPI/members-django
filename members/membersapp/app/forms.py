@@ -19,8 +19,8 @@ class ApplicationForm(ModelForm):
         model = Applications
         fields = ['contrib', 'manager', 'manager_date', 'comment', 'approve', 'approve_date']
         widgets = {
-            'manager_date': DateInput(),
-            'approve_date': DateInput()
+            'manager_date': DateInput(format=('%Y-%m-%d'), attrs={'class': 'datepicker', 'value': datetime.datetime.now().strftime("%Y-%m-%d")}),
+            'approve_date': DateInput(format=('%Y-%m-%d'), attrs={'class': 'datepicker', 'value': datetime.datetime.now().strftime("%Y-%m-%d")})
         }
 
 
