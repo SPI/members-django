@@ -391,6 +391,19 @@ class NonManagerTest(TestCase):
         self.assertContains(response, "This page is only accessible to contributing members.")
 
 
+class ContribUserTest(TestCase):
+    def setUp(self):
+        create_member(manager=False, contrib=True)
+        self.client.force_login(member.memid)
+
+    def test_votes(self):
+        create_vote_manually(current=True)
+        response = self.client.get('/votes')
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Welcome to the election pages of Software in the Public Interest, Inc.")
+        self.assertContains(response, "Test vote")
+
+
 class ManagerTest(TestCase):
     def setUp(self):
         create_member(manager=True, contrib=True)
