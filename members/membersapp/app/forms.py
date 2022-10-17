@@ -63,6 +63,19 @@ class VoteOptionForm(ModelForm):
         fields = ['option_character', 'description', 'sort']
         exclude = ['election_ref']
 
+    def __init__(self, *args, **kwargs):
+        super(VoteOptionForm, self).__init__(*args, **kwargs)
+        initial = kwargs.get('initial')
+        if initial is not None:
+            voteoptions = VoteOption.objects.filter(election_ref=initial['election_ref'])
+            if len(voteoptions) == 0:
+                self.fields['option_character'].initial = 'A'
+            else:
+                nextchar = chr(max([ord(x.option_character) for x in voteoptions]) + 1)
+                print("nextchar: %s" % nextchar)
+                print("Here")
+                self.fields['option_character'].initial = str(nextchar)
+
 
 class VoteVoteForm(Form):
     vote = CharField(required=True)
