@@ -334,9 +334,9 @@ class NonManagerTest(TestCase):
         self.client.force_login(member.memid)
 
     def test_votes(self):
-        response = self.client.get('/votes')
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "This page is only accessible to application managers.")
+        response = self.client.get('/votes', follow=True)
+        self.assertRedirects(response, '/', status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=True)
+        self.assertContains(response, "This page is only accessible to contributing members.")
 
     def test_applications(self):
         response = self.client.get('/applications/all')

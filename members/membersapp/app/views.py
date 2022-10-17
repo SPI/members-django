@@ -117,8 +117,9 @@ def showapplications(request, listtype):
 @login_required
 def showvotes(request):
     user = get_current_user(request)
-    if not user.ismanager:
-        return render(request, 'manager-only.html')
+    if not user.iscontrib:
+        messages.error(request, 'This page is only accessible to contributing members.')
+        return HttpResponseRedirect("/")
     template = loader.get_template('votes.html')
     votes = VoteElection.objects.order_by('-period_start')
     context = {
