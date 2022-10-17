@@ -13,10 +13,10 @@ manager = None
 
 
 # To dump a page to test.html, use:
-# dump_page(response.content)
-def dump_page(page):
+# dump_page(response)
+def dump_page(response):
     with open('test.html', 'w') as f:
-        print(page.decode('UTF-8'), file=f)
+        print(response.content.decode('UTF-8'), file=f)
 
 
 def create_member(manager=False, contrib=False):
