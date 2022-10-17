@@ -33,7 +33,9 @@ def handler404(request, exception):
 def index(request):
     if not request.user.is_authenticated:
         template = loader.get_template('index.html')
-        context = {}
+        context = {
+            'apply_url': settings.PGAUTH_ROOT + '/account/signup/'
+        }
         return HttpResponse(template.render(context, request))
     else:
         template = loader.get_template('status.html')
