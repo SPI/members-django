@@ -72,8 +72,6 @@ class VoteOptionForm(ModelForm):
                 self.fields['option_character'].initial = 'A'
             else:
                 nextchar = chr(max([ord(x.option_character) for x in voteoptions]) + 1)
-                print("nextchar: %s" % nextchar)
-                print("Here")
                 self.fields['option_character'].initial = str(nextchar)
 
 
