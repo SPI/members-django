@@ -134,9 +134,12 @@ def showvote(request, ref):
     if not user.iscontrib:
         messages.error(request, 'This page is only accessible to contributing members.')
         return HttpResponseRedirect("/")
+    options = VoteOption.objects.filter(election_ref=ref)
+    if len(options) < 2:
+        messages.error(request, 'Error: vote does not have enough options to run.')
+        return HttpResponseRedirect("/")
     template = loader.get_template('vote.html')
     vote = VoteElection.object.get(pk=ref)
-    options = VoteOption.objects.filter(election_ref=ref)
     form = VoteVoteForm()
     try:
         membervote = VoteVote.object.get(voter_ref=user, election_ref=vote)
