@@ -240,7 +240,7 @@ class NonLoggedInViewsTests(TestCase):
 
     def test_applications(self):
         response = self.client.get('/applications/all')
-        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, '/accounts/login/?next=/applications/all', status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=False)
 
     def test_stats(self):
         response = self.client.get('/stats/')
