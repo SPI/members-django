@@ -118,8 +118,7 @@ def showapplications(request, listtype):
 def showvotes(request):
     user = get_current_user(request)
     if not user.iscontrib:
-        messages.error(request, 'This page is only accessible to contributing members.')
-        return HttpResponseRedirect("/")
+        return render(request, 'contrib-only.html')
     template = loader.get_template('votes.html')
     votes = VoteElection.objects.order_by('-period_start')
     context = {
@@ -133,8 +132,7 @@ def showvotes(request):
 def showvote(request, ref):
     user = get_current_user(request)
     if not user.iscontrib:
-        messages.error(request, 'This page is only accessible to contributing members.')
-        return HttpResponseRedirect("/")
+        return render(request, 'contrib-only.html')
     options = VoteOption.objects.filter(election_ref=ref)
     if len(options) < 2:
         messages.error(request, 'Error: vote does not have enough options to run.')
@@ -161,8 +159,7 @@ def votevote(request, ref):
     user = get_current_user(request)
     vote = VoteElection.object.get(pk=ref)
     if not user.iscontrib:
-        messages.error(request, 'This page is only accessible to contributing members.')
-        return HttpResponseRedirect("/")
+        return render(request, 'contrib-only.html')
     if request.method == 'POST':
         form = VoteVoteForm(request.POST)
         membervote, created = VoteVote.object.get_or_create(voter_ref=user, election_ref=vote)
@@ -409,8 +406,7 @@ def voteresult(request, ref):
     user = get_current_user(request)
     vote = get_object_or_404(VoteElection, ref=ref)
     if not user.iscontrib:
-        messages.error(request, 'This page is only accessible to contributing members.')
-        return HttpResponseRedirect("/")
+        return render(request, 'contrib-only.html')
 
     if vote.owner != user:
         messages.error(request, 'You can only view results for your own votes.')

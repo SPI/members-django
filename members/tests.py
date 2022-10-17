@@ -334,8 +334,8 @@ class NonManagerTest(TestCase):
         self.client.force_login(member.memid)
 
     def test_votes(self):
-        response = self.client.get('/votes', follow=True)
-        self.assertRedirects(response, '/', status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=True)
+        response = self.client.get('/votes')
+        self.assertEqual(response.status_code, 200)
         self.assertContains(response, "This page is only accessible to contributing members.")
 
     def test_applications(self):
@@ -364,15 +364,15 @@ class NonManagerTest(TestCase):
     def test_vote_view(self):
         create_vote_with_manager(self)
         vote = VoteElection.objects.all()[0]
-        response = self.client.get('/vote/%d' % vote.pk, follow=True)
-        self.assertRedirects(response, '/', status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=True)
+        response = self.client.get('/vote/%d' % vote.pk)
+        self.assertEqual(response.status_code, 200)
         self.assertContains(response, "This page is only accessible to contributing members.")
 
     def test_viewvoteresult_noncontrib(self):
         create_vote_manually(self)
         vote = VoteElection.objects.all()[0]
-        response = self.client.get('/vote/%d/result' % vote.pk, follow=True)
-        self.assertRedirects(response, '/', status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=True)
+        response = self.client.get('/vote/%d/result' % vote.pk)
+        self.assertEqual(response.status_code, 200)
         self.assertContains(response, "This page is only accessible to contributing members.")
 
     def test_vote_edit_nonmanager(self):
@@ -386,8 +386,8 @@ class NonManagerTest(TestCase):
     def test_viewvoteresult_noncontrib(self):
         create_vote_with_manager(self)
         vote = VoteElection.objects.all()[0]
-        response = self.client.get('/vote/%d/result' % vote.pk, follow=True)
-        self.assertRedirects(response, '/', status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=True)
+        response = self.client.get('/vote/%d/result' % vote.pk)
+        self.assertEqual(response.status_code, 200)
         self.assertContains(response, "This page is only accessible to contributing members.")
 
 
