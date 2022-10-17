@@ -403,6 +403,23 @@ class ContribUserTest(TestCase):
         self.assertContains(response, "Welcome to the election pages of Software in the Public Interest, Inc.")
         self.assertContains(response, "Test vote")
 
+    def test_index(self):
+        response = self.client.get('/')
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Membership status for")
+        self.assertContains(response, "Yes")
+
+    def test_applications(self):
+        response = self.client.get('/applications/all')
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "This page is only accessible to application managers.")
+
+    # Copy of nonloggedinviewstests (should give the same result)
+    def test_stats(self):
+        response = self.client.get('/stats/')
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Contrib Membership Applications")
+
 
 class ManagerTest(TestCase):
     def setUp(self):
