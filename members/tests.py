@@ -590,6 +590,18 @@ class ManagerTest(TestCase):
         response = self.client.get('/vote/%d/result' % vote.pk)
         self.assertEqual(response.status_code, 200)
 
+    def test_viewvoteresult_Condorcet2(self):
+        create_vote(self, system="1")
+        vote = VoteElection.objects.all()[0]
+        response = create_vote_option(self, vote.pk)
+        response = create_vote_option2(self, vote.pk)
+        set_vote_current(vote)
+        response = vote_vote(self, vote.pk, correct=True)
+        response = vote_vote_other_member(self, vote.pk)
+        set_vote_past(vote)
+        response = self.client.get('/vote/%d/result' % vote.pk)
+        self.assertEqual(response.status_code, 200)
+
     def test_votevote(self):
         create_vote(self)
         vote = VoteElection.objects.all()[0]
