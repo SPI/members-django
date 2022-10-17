@@ -454,15 +454,28 @@ class ManagerTest(TestCase):
         self.assertRedirects(response, '/', status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=True)
         self.assertContains(response, "Vote must not have run to be edited")
 
-    def test_viewcurrentvote(self):
+    def test_viewvotenotenoughoptions(self):
         vote = create_vote_manually(current=True)
-        response = self.client.get('/vote/%d' % vote.pk,)
+        response = self.client.get('/vote/%d' % vote.pk, follow=True)
+        self.assertRedirects(response, '/', status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=True)
+        self.assertContains(response, "Error: vote does not have enough options to run.")
+
+    def test_viewcurrentvote(self):
+        create_vote(self)
+        vote = VoteElection.objects.all()[0]
+        create_vote_option(self, vote.pk)
+        create_vote_option2(self, vote.pk)
+        set_vote_current(vote)
+        response = self.client.get('/vote/%d' % vote.pk)
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "You have not yet cast a vote.")
 
     def test_viewpastvote(self):
-        create_vote_manually(past=True)
+        create_vote(self)
         vote = VoteElection.objects.all()[0]
+        create_vote_option(self, vote.pk)
+        create_vote_option2(self, vote.pk)
+        set_vote_past(vote)
         response = self.client.get('/vote/%d' % vote.pk)
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "The voting period ended")
@@ -473,6 +486,8 @@ class ManagerTest(TestCase):
     def test_viewfuturevote(self):
         create_vote(self)
         vote = VoteElection.objects.all()[0]
+        create_vote_option(self, vote.pk)
+        create_vote_option2(self, vote.pk)
         response = self.client.get('/vote/%d' % vote.pk)
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Voting has not yet opened")
@@ -480,6 +495,8 @@ class ManagerTest(TestCase):
     def test_viewvote(self):
         create_vote(self)
         vote = VoteElection.objects.all()[0]
+        create_vote_option(self, vote.pk)
+        create_vote_option2(self, vote.pk)
         response = self.client.get('/vote/%d' % vote.pk)
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Test vote")
