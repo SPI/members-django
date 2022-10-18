@@ -131,9 +131,10 @@ def switch_to_other_member(testcase, switch_to_manager=False, switch_to_contrib=
         testcase.client.force_login(other_member.memid)
 
 
-def switch_back(testcase):
+def switch_back(testcase, logged_in=True):
     testcase.client.logout()
-    testcase.client.force_login(member.memid)
+    if logged_in:
+        testcase.client.force_login(member.memid)
 
 
 def create_vote_option(testcase, voteid):
@@ -234,6 +235,9 @@ def delete_vote(testcase, voteid):
 
 
 class NonLoggedInViewsTests(TestCase):
+    def setUp(self):
+        create_member(manager=False)
+        create_manager()
 
     # ## No need to copy these tests in other roles
     def test_404(self):
@@ -256,6 +260,15 @@ class NonLoggedInViewsTests(TestCase):
         response = self.client.get('/stats/')
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Contrib Membership Applications")
+
+    def test_application_view(self):
+        switch_to_other_member(self)
+        response = create_application_post(self)
+        self.assertEqual(response.status_code, 302)
+        switch_back(self, logged_in=False)
+        application = Applications.objects.all()[0]
+        response = self.client.get('/application/%d' % application.pk)
+        self.assertRedirects(response, '/accounts/login/?next=/application/%s' % application.pk, status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=False)
 
     def test_member(self):
         response = self.client.get('/member/1')
@@ -294,6 +307,15 @@ class LoggedInViewsTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Contrib Membership Applications")
 
+    def test_application_view(self):
+        response = create_application_post(self)
+        self.assertEqual(response.status_code, 302)
+        application = Applications.objects.filter(member=member)[0]
+        response = self.client.get('/application/%d' % application.pk)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Application #%d status" % application.pk)
+        self.assertContains(response, "Member Name</td><td>%s" % default_name)
+
     def test_member(self):
         response = self.client.get('/member/1')
         self.assertEqual(response.status_code, 200)
@@ -312,15 +334,6 @@ class LoggedInViewsTest(TestCase):
         user = Members.object.get(pk=member)  # get updated user
         self.assertEqual(user.sub_private, True)
         self.assertEqual(response.status_code, 302)
-
-    def test_application_view(self):
-        response = create_application_post(self)
-        self.assertEqual(response.status_code, 302)
-        application = Applications.objects.filter(member=member)[0]
-        response = self.client.get('/application/%d' % application.pk)
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "Application #%d status" % application.pk)
-        self.assertContains(response, "Member Name</td><td>%s" % default_name)
 
     def test_updateactive(self):
         data = {
