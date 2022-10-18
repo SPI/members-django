@@ -667,6 +667,8 @@ class ManagerTest(TestCase):
         response = self.client.get('/vote/%d' % vote.pk)
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "You have not yet cast a vote.")
+        self.assertContains(response, "Test vote")
+        self.assertNotContains(response, "Magic Voodoo")
 
     def test_viewpastvote(self):
         create_vote(self)
@@ -677,9 +679,6 @@ class ManagerTest(TestCase):
         response = self.client.get('/vote/%d' % vote.pk)
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "The voting period ended")
-        response = self.client.get('/vote/%d/edit' % vote.pk, follow=True)
-        self.assertRedirects(response, '/', status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=True)
-        self.assertContains(response, "Vote must not have run to be edited")
 
     def test_viewfuturevote(self):
         create_vote(self)
@@ -690,15 +689,36 @@ class ManagerTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Voting has not yet opened")
 
-    def test_viewvote(self):
+    def test_viewvoteedit(self):
         create_vote(self)
         vote = VoteElection.objects.all()[0]
         create_vote_option(self, vote.pk)
         create_vote_option2(self, vote.pk)
-        response = self.client.get('/vote/%d' % vote.pk)
+        response = self.client.get('/vote/%d/edit' % vote.pk)
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "Test vote")
-        self.assertNotContains(response, "Magic Voodoo")
+        self.assertContains(response, "Edit Vote")
+
+    def test_viewvoteedit_current_vote(self):
+        create_vote(self)
+        vote = VoteElection.objects.all()[0]
+        create_vote_option(self, vote.pk)
+        create_vote_option2(self, vote.pk)
+        set_vote_current(vote)
+        response = self.client.get('/vote/%d/edit' % vote.pk, follow=True)
+        self.assertRedirects(response, '/', status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=True)
+        self.assertContains(response, "Vote must not have run to be edited")
+
+    def test_viewvoteedit_past_vote(self):
+        create_vote(self)
+        vote = VoteElection.objects.all()[0]
+        create_vote_option(self, vote.pk)
+        create_vote_option2(self, vote.pk)
+        set_vote_past(vote)
+        response = self.client.get('/vote/%d/edit' % vote.pk, follow=True)
+        self.assertRedirects(response, '/', status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=True)
+        self.assertContains(response, "Vote must not have run to be edited")
+
+    # view other people's vote
 
     def test_addoptionform(self):
         create_vote(self)
