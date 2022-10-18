@@ -1,3 +1,9 @@
+# There are 4 views in the application:
+# - Non logged-in
+# - Non-contributing member
+# - Contributing member (can vote and see votes)
+# - Application manager (can manage applications and votes)
+
 import datetime
 
 from django.test import Client, TestCase
