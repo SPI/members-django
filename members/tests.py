@@ -126,8 +126,12 @@ def create_vote_with_manager(testcase):
     switch_to_other_member(testcase, switch_to_manager=True)
     response = create_vote(testcase)
     testcase.assertEqual(VoteElection.objects.count(), 1)
+    vote = VoteElection.objects.all()[0]
+    create_vote_option(testcase, vote.pk)
+    create_vote_option2(testcase, vote.pk)
     # relog as non-manager
     switch_back(testcase)
+    return vote
 
 
 def switch_to_other_member(testcase, switch_to_manager=False, switch_to_contrib=False):
