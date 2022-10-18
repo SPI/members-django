@@ -415,17 +415,6 @@ class LoggedInViewsTest(TestCase):
             self.assertRedirects(response, '/', status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=True)
             self.assertContains(response, "You are not allowed to create new votes")
 
-    def test_viewvoteresult_incorrect(self):
-        member = create_other_member()
-        create_vote_manually(past=True, owner=member)
-        vote = VoteElection.objects.all()[0]
-        response = self.client.get('/vote/%d/result' % vote.pk, follow=True)
-        self.assertRedirects(response, '/', status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=True)
-        self.assertContains(response, "You can only view results for your own votes.")
-
-    # Only managers should get vote creation rights, so we'll leave the rest of
-    # voting results tests here
-
     def test_votes(self):
         response = self.client.get('/votes')
         self.assertEqual(response.status_code, 200)
@@ -437,12 +426,22 @@ class LoggedInViewsTest(TestCase):
         self.assertContains(response, "You are not allowed to create new votes")
 
     def test_vote_edit_nonmanager(self):
-        create_vote_with_manager(self)
-        vote = VoteElection.objects.all()[0]
+        vote = create_vote_with_manager(self)
         response = create_vote(self, title="Edited vote", target="/vote/%d/editedit" % vote.pk)
         self.assertRedirects(response, '/', status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=True)
         self.assertNotContains(response, "Edited vote")
         self.assertContains(response, "You are not allowed to create new votes")
+
+    def test_viewvoteresult_incorrect(self):
+        member = create_other_member()
+        create_vote_manually(past=True, owner=member)
+        vote = VoteElection.objects.all()[0]
+        response = self.client.get('/vote/%d/result' % vote.pk, follow=True)
+        self.assertRedirects(response, '/', status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=True)
+        self.assertContains(response, "You can only view results for your own votes.")
+
+    # Only managers should get vote creation rights, so we'll leave the rest of
+    # voting results tests here
 
 
 class ContribUserTest(TestCase):
@@ -461,11 +460,6 @@ class ContribUserTest(TestCase):
         response = self.client.get('/stats/')
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Contrib Membership Applications")
-
-    def test_new_application(self):
-        response = create_application_post(self)
-        self.assertRedirects(response, '/', status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=False)
-        self.assertContains(response, "You are already an SPI contributing member")
 
     def test_application_view(self):
         application = Applications(member=member)
@@ -506,9 +500,15 @@ class ContribUserTest(TestCase):
         self.assertRedirects(response, '/', status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=False)
 
     def test_applications(self):
-        response = self.client.get('/applications/all')
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, error_application_manager)
+        for case in ['all', 'ncm', 'ca', 'cm', 'mgr']:
+            response = self.client.get('/applications/%s' % case)
+            self.assertEqual(response.status_code, 200)
+            self.assertContains(response, error_application_manager)
+
+    def test_new_application(self):
+        response = create_application_post(self)
+        self.assertRedirects(response, '/', status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=False)
+        self.assertContains(response, "You are already an SPI contributing member")
 
     def test_votes(self):
         create_vote_manually(current=True)
@@ -516,6 +516,77 @@ class ContribUserTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Welcome to the election pages of Software in the Public Interest, Inc.")
         self.assertContains(response, "Test vote")
+
+    def test_vote_create(self):
+        response = self.client.get('/vote/create', follow=True)
+        self.assertRedirects(response, '/', status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=False)
+        self.assertContains(response, "You are not allowed to create new votes")
+
+    def test_viewcurrentvote(self):
+        vote = create_vote_with_manager(self)
+        set_vote_current(vote)
+        response = self.client.get('/vote/%d' % vote.pk)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "You have not yet cast a vote.")
+        self.assertContains(response, "Test vote")
+        self.assertNotContains(response, "Magic Voodoo")
+
+    def test_viewpastvote(self):
+        vote = create_vote_with_manager(self)
+        set_vote_past(vote)
+        response = self.client.get('/vote/%d' % vote.pk)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "The voting period ended")
+
+    def test_viewfuturevote(self):
+        vote = create_vote_with_manager(self)
+        response = self.client.get('/vote/%d' % vote.pk)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Voting has not yet opened")
+
+    def test_viewvoteedit(self):
+        vote = create_vote_with_manager(self)
+        response = self.client.get('/vote/%d/edit' % vote.pk, follow=True)
+        self.assertRedirects(response, '/', status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=True)
+        self.assertContains(response, "You are not allowed to create new votes")
+
+    def test_vote_edit(self):
+        vote = create_vote_with_manager(self)
+        response = create_vote(self, title="Edited vote", target="/vote/%d/editedit" % vote.pk)
+        self.assertRedirects(response, '/', status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=False)
+        self.assertContains(response, "You are not allowed to create new votes")
+
+    def test_editoptionform(self):
+        vote = create_vote_with_manager(self)
+        response = edit_vote_option(self, vote.pk)
+        self.assertRedirects(response, '/', status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=False)
+        self.assertContains(response, "You are not allowed to create new votes")
+
+    def test_votevote(self):
+        vote = create_vote_with_manager(self)
+        set_vote_current(vote)
+        response = vote_vote(self, vote.pk, correct=True)
+        self.assertRedirects(response, '/vote/%d' % vote.pk, status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=True)
+        self.assertContains(response, "Your vote is as follows:")
+
+    def test_votevote_incorrect(self):
+        vote = create_vote_with_manager(self)
+        set_vote_current(vote)
+        response = vote_vote(self, vote.pk, correct=False)
+        dump_page(response)
+        self.assertRedirects(response, '/vote/%d' % vote.pk, status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=True)
+        self.assertContains(response, "Invalid vote option Z")
+
+    def test_viewvoteresult_incorrect(self):
+        member = create_other_member()
+        create_vote_manually(past=True, owner=member)
+        vote = VoteElection.objects.all()[0]
+        response = self.client.get('/vote/%d/result' % vote.pk, follow=True)
+        self.assertRedirects(response, '/', status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=True)
+        self.assertContains(response, "You can only view results for your own votes.")
+
+    # Only managers should get vote creation rights, so we'll leave the rest of
+    # voting results tests here
 
 
 class ManagerTest(TestCase):
