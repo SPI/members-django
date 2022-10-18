@@ -323,10 +323,17 @@ class NonLoggedInViewsTests(TestCase):
             self.assertRedirects(response, '/accounts/login/?next=%s' % case, status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=False)
 
 
+# Non-contrib member
 class LoggedInViewsTest(TestCase):
     def setUp(self):
-        create_member()
+        create_member(manager=False)
+        create_manager()
         self.client.force_login(member.memid)
+
+    def test_logout(self):
+        # We can't test pgweb from here
+        response = self.client.get('/logout')
+        self.assertEqual(response.status_code, 302)
 
     def test_index_loggedin(self):
         response = self.client.get('/')
@@ -348,15 +355,27 @@ class LoggedInViewsTest(TestCase):
         self.assertContains(response, "Application #%d status" % application.pk)
         self.assertContains(response, "Member Name</td><td>%s" % default_name)
 
-    def test_member(self):
-        response = self.client.get('/member/1')
-        self.assertEqual(response.status_code, 200)
+    def test_application_other_view(self):
+        switch_to_other_member(self)
+        response = create_application_post(self)
+        self.assertEqual(response.status_code, 302)
+        switch_back(self)
+        application = Applications.objects.all()[0]
+        response = self.client.get('/application/%d' % application.pk)
         self.assertContains(response, error_application_manager)
 
-    def test_apply(self):
-        response = create_application_post(self)
+    def test_updateactive(self):
+        data = {
+        }
+        response = self.client.post("/updateactive", data=data)
+        user = Members.object.get(pk=member)  # get updated user
+        self.assertEqual(user.lastactive, datetime.date.today())
         self.assertRedirects(response, '/', status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=False)
-        self.assertEqual(Applications.objects.count(), 1)
+
+    def test_member(self):
+        response = self.client.get('/member/%d' % member.pk)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, error_application_manager)
 
     def test_memberedit(self):
         data = {
@@ -365,69 +384,73 @@ class LoggedInViewsTest(TestCase):
         response = self.client.post("/member/edit", data=data)
         user = Members.object.get(pk=member)  # get updated user
         self.assertEqual(user.sub_private, True)
+        self.assertRedirects(response, '/', status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=False)
+
+    def test_applications(self):
+        for case in ['all', 'ncm', 'ca', 'cm', 'mgr']:
+            response = self.client.get('/applications/%s' % case)
+            self.assertEqual(response.status_code, 200)
+            self.assertContains(response, error_application_manager)
+
+    def test_application_view(self):
+        response = create_application_post(self)
         self.assertEqual(response.status_code, 302)
+        application = Applications.objects.filter(member=member)[0]
+        response = self.client.get('/application/%d' % application.pk)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Application #%d status" % application.pk)
+        self.assertContains(response, "Member Name</td><td>%s" % default_name)
 
-    def test_updateactive(self):
-        data = {
-        }
-        response = self.client.post("/updateactive", data=data)
-        user = Members.object.get(pk=member)  # get updated user
-        self.assertEqual(user.lastactive, datetime.date.today())
+    def test_application_other_view(self):
+        switch_to_other_member(self)
+        response = create_application_post(self)
         self.assertEqual(response.status_code, 302)
+        switch_back(self)
+        application = Applications.objects.all()[0]
+        response = self.client.get('/application/%d' % application.pk, follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, error_application_manager)
 
-    def test_logout(self):
-        # We can't test pgweb from here
-        response = self.client.get('/logout')
-        self.assertEqual(response.status_code, 302)
+    def test_apply(self):
+        response = create_application_post(self)
+        self.assertRedirects(response, '/', status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=False)
+        self.assertEqual(Applications.objects.count(), 1)
 
+    def tests_vote_noncontrib_contrib_error(self):
+        create_vote_manually(self)
+        vote = VoteElection.objects.all()[0]
+        for case in ['/votes', '/vote/%d' % vote.pk, '/vote/%d/vote' % vote.pk]:
+            response = self.client.get(case)
+            self.assertContains(response, error_contrib_member)
 
-class NonManagerTest(TestCase):
-    def setUp(self):
-        create_member(manager=False)
-        create_manager()
-        self.client.force_login(member.memid)
+    def tests_vote_noncontrib_not_allowed_error(self):
+        create_vote_manually(self)
+        vote = VoteElection.objects.all()[0]
+        for case in ['/vote/%d/edit' % vote.pk, '/vote/%d/editoption' % vote.pk]:
+            response = self.client.get(case, follow=True)
+            self.assertRedirects(response, '/', status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=True)
+            self.assertContains(response, "You are not allowed to create new votes")
+
+    def test_viewvoteresult_incorrect(self):
+        member = create_other_member()
+        create_vote_manually(past=True, owner=member)
+        vote = VoteElection.objects.all()[0]
+        response = self.client.get('/vote/%d/result' % vote.pk, follow=True)
+        self.assertRedirects(response, '/', status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=True)
+        self.assertContains(response, "You can only view results for your own votes.")
+
+    # Only managers should get vote creation rights, so we'll leave the rest of
+    # voting results tests here
 
     def test_votes(self):
         response = self.client.get('/votes')
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, error_contrib_member)
 
-    def test_stats(self):
-        response = self.client.get('/stats/')
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "Contrib Membership Applications")
-
-    def test_applications(self):
-        response = self.client.get('/applications/all')
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, error_application_manager)
-
-    def test_member(self):
-        response = self.client.get('/member/%d' % member.pk)
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, error_application_manager)
-
-    def test_application_view_not_own(self):
-        other_member = create_other_member()
-        other_application = Applications(member=other_member)
-        other_application.save()
-        response = self.client.get('/application/%d' % other_application.pk)
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, error_application_manager)
-
-    def test_vote_view(self):
-        create_vote_with_manager(self)
-        vote = VoteElection.objects.all()[0]
-        response = self.client.get('/vote/%d' % vote.pk)
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, error_contrib_member)
-
-    def test_viewvoteresult_noncontrib(self):
-        create_vote_manually(self)
-        vote = VoteElection.objects.all()[0]
-        response = self.client.get('/vote/%d/result' % vote.pk)
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, error_contrib_member)
+    def test_vote_create(self):
+        response = self.client.get('/vote/create', follow=True)
+        self.assertRedirects(response, '/', status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=False)
+        self.assertContains(response, "You are not allowed to create new votes")
 
     def test_vote_edit_nonmanager(self):
         create_vote_with_manager(self)
@@ -436,13 +459,6 @@ class NonManagerTest(TestCase):
         self.assertRedirects(response, '/', status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=True)
         self.assertNotContains(response, "Edited vote")
         self.assertContains(response, "You are not allowed to create new votes")
-
-    def test_viewvoteresult_noncontrib(self):
-        create_vote_with_manager(self)
-        vote = VoteElection.objects.all()[0]
-        response = self.client.get('/vote/%d/result' % vote.pk)
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, error_contrib_member)
 
 
 class ContribUserTest(TestCase):
