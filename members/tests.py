@@ -318,7 +318,7 @@ class NonLoggedInViewsTests(TestCase):
     def tests_vote_redirect(self):
         create_vote_manually(self)
         vote = VoteElection.objects.all()[0]
-        for case in ['/votes', '/vote/create', '/vote/%d' % vote.pk, '/vote/%d/edit' % vote.pk, '/vote/%d/editedit' % vote.pk, '/vote/%d/editoption' % vote.pk, '/vote/%d/result' % vote.pk, '/vote/%d/vote' % vote.pk]:
+        for case in ['/votes', '/vote/create', '/vote/%d' % vote.pk, '/vote/%d/edit' % vote.pk, '/vote/%d/editedit' % vote.pk, '/vote/%d/editoption' % vote.pk, '/vote/%d/vote' % vote.pk, '/vote/%d/result' % vote.pk]:
             response = self.client.get(case)
             self.assertRedirects(response, '/accounts/login/?next=%s' % case, status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=False)
 
@@ -682,6 +682,28 @@ class ManagerTest(TestCase):
         self.assertRedirects(response, '/', status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=True)
         self.assertContains(response, "You can only view results for your own votes.")
 
+    def test_votevote(self):
+        create_vote(self)
+        vote = VoteElection.objects.all()[0]
+        # We can't add vote on current test
+        create_vote_option(self, vote.pk)
+        create_vote_option2(self, vote.pk)
+        set_vote_current(vote)
+        response = vote_vote(self, vote.pk, correct=True)
+        self.assertRedirects(response, '/vote/%d' % vote.pk, status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=True)
+        self.assertContains(response, "Your vote is as follows:")
+
+    def test_votevote_incorrect(self):
+        create_vote(self)
+        vote = VoteElection.objects.all()[0]
+        # We can't add vote on current test
+        create_vote_option(self, vote.pk)
+        create_vote_option2(self, vote.pk)
+        set_vote_current(vote)
+        response = vote_vote(self, vote.pk, correct=False)
+        self.assertRedirects(response, '/vote/%d' % vote.pk, status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=True)
+        self.assertContains(response, "Invalid vote option Z")
+
     def test_viewvoteresult_no_option(self):
         create_vote_manually(past=True)
         vote = VoteElection.objects.all()[0]
@@ -724,25 +746,3 @@ class ManagerTest(TestCase):
         set_vote_past(vote)
         response = self.client.get('/vote/%d/result' % vote.pk)
         self.assertEqual(response.status_code, 200)
-
-    def test_votevote(self):
-        create_vote(self)
-        vote = VoteElection.objects.all()[0]
-        # We can't add vote on current test
-        create_vote_option(self, vote.pk)
-        create_vote_option2(self, vote.pk)
-        set_vote_current(vote)
-        response = vote_vote(self, vote.pk, correct=True)
-        self.assertRedirects(response, '/vote/%d' % vote.pk, status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=True)
-        self.assertContains(response, "Your vote is as follows:")
-
-    def test_votevote_incorrect(self):
-        create_vote(self)
-        vote = VoteElection.objects.all()[0]
-        # We can't add vote on current test
-        create_vote_option(self, vote.pk)
-        create_vote_option2(self, vote.pk)
-        set_vote_current(vote)
-        response = vote_vote(self, vote.pk, correct=False)
-        self.assertRedirects(response, '/vote/%d' % vote.pk, status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=True)
-        self.assertContains(response, "Invalid vote option Z")
