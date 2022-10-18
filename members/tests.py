@@ -233,6 +233,18 @@ def delete_vote(testcase, voteid):
 
 class NonLoggedInViewsTests(TestCase):
 
+    # ## No need to copy these tests in other roles
+    def test_404(self):
+        response = self.client.get('/nonenxistent_page/')
+        self.assertEqual(response.status_code, 404)
+
+    def test_admin(self):
+        response = self.client.get('/admin/', follow=True)
+        self.assertRedirects(response, '/admin/login/?next=/admin/', status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=True)
+        self.assertContains(response, "Django administration")
+        self.assertContains(response, "Username:")
+
+    # ## Views tests
     def test_index(self):
         response = self.client.get('/')
         self.assertEqual(response.status_code, 200)
@@ -246,16 +258,6 @@ class NonLoggedInViewsTests(TestCase):
         response = self.client.get('/stats/')
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Contrib Membership Applications")
-
-    def test_404(self):
-        response = self.client.get('/nonenxistent_page/')
-        self.assertEqual(response.status_code, 404)
-
-    def test_admin(self):
-        response = self.client.get('/admin/', follow=True)
-        self.assertRedirects(response, '/admin/login/?next=/admin/', status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=True)
-        self.assertContains(response, "Django administration")
-        self.assertContains(response, "Username:")
 
     def test_member(self):
         response = self.client.get('/member/1')
@@ -290,19 +292,15 @@ class LoggedInViewsTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Contrib Membership Applications")
 
+    def test_member(self):
+        response = self.client.get('/member/1')
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, error_application_manager)
+
     def test_apply(self):
         response = create_application_post(self)
         self.assertRedirects(response, '/', status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=False)
         self.assertEqual(Applications.objects.count(), 1)
-
-    def test_application_view(self):
-        response = create_application_post(self)
-        self.assertEqual(response.status_code, 302)
-        application = Applications.objects.filter(member=member)[0]
-        response = self.client.get('/application/%d' % application.pk)
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "Application #%d status" % application.pk)
-        self.assertContains(response, "Member Name</td><td>%s" % default_name)
 
     def test_memberedit(self):
         data = {
@@ -312,6 +310,15 @@ class LoggedInViewsTest(TestCase):
         user = Members.object.get(pk=member)  # get updated user
         self.assertEqual(user.sub_private, True)
         self.assertEqual(response.status_code, 302)
+
+    def test_application_view(self):
+        response = create_application_post(self)
+        self.assertEqual(response.status_code, 302)
+        application = Applications.objects.filter(member=member)[0]
+        response = self.client.get('/application/%d' % application.pk)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Application #%d status" % application.pk)
+        self.assertContains(response, "Member Name</td><td>%s" % default_name)
 
     def test_updateactive(self):
         data = {
@@ -409,16 +416,15 @@ class ContribUserTest(TestCase):
         self.assertContains(response, "Membership status for")
         self.assertContains(response, "Yes")
 
-    def test_applications(self):
-        response = self.client.get('/applications/all')
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "This page is only accessible to application managers.")
-
-    # Copy of nonloggedinviewstests (should give the same result)
     def test_stats(self):
         response = self.client.get('/stats/')
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Contrib Membership Applications")
+
+    def test_applications(self):
+        response = self.client.get('/applications/all')
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "This page is only accessible to application managers.")
 
 
 class ManagerTest(TestCase):
