@@ -252,10 +252,6 @@ class NonLoggedInViewsTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Welcome to the membership pages")
 
-    def test_applications(self):
-        response = self.client.get('/applications/all')
-        self.assertRedirects(response, '/accounts/login/?next=/applications/all', status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=False)
-
     def test_stats(self):
         response = self.client.get('/stats/')
         self.assertEqual(response.status_code, 200)
@@ -264,6 +260,10 @@ class NonLoggedInViewsTests(TestCase):
     def test_member(self):
         response = self.client.get('/member/1')
         self.assertRedirects(response, '/accounts/login/?next=/member/1', status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=False)
+
+    def test_applications(self):
+        response = self.client.get('/applications/all')
+        self.assertRedirects(response, '/accounts/login/?next=/applications/all', status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=False)
 
     def test_apply(self):
         response = create_application_post(self)
@@ -347,15 +347,15 @@ class NonManagerTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, error_contrib_member)
 
-    def test_applications(self):
-        response = self.client.get('/applications/all')
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, error_application_manager)
-
     def test_stats(self):
         response = self.client.get('/stats/')
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Contrib Membership Applications")
+
+    def test_applications(self):
+        response = self.client.get('/applications/all')
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, error_application_manager)
 
     def test_member(self):
         response = self.client.get('/member/%d' % member.pk)
