@@ -3,6 +3,8 @@
 # - Non-contributing member
 # - Contributing member (can vote and see votes)
 # - Application manager (can manage applications and votes)
+# Besides of that, member can have vote creation rights (which should probably
+# only be attributed to managers)
 
 import datetime
 
