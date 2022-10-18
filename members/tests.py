@@ -10,6 +10,8 @@ from membersapp.app.models import Members, Applications, VoteElection
 member = None
 default_name = 'testuser'
 manager = None
+error_application_manager = "This page is only accessible to application managers."
+error_contrib_member = "This page is only accessible to contributing members."
 
 
 # To dump a page to test.html, use:
@@ -343,12 +345,12 @@ class NonManagerTest(TestCase):
     def test_votes(self):
         response = self.client.get('/votes')
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "This page is only accessible to contributing members.")
+        self.assertContains(response, error_contrib_member)
 
     def test_applications(self):
         response = self.client.get('/applications/all')
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "This page is only accessible to application managers.")
+        self.assertContains(response, error_application_manager)
 
     def test_stats(self):
         response = self.client.get('/stats/')
@@ -358,7 +360,7 @@ class NonManagerTest(TestCase):
     def test_member(self):
         response = self.client.get('/member/%d' % member.pk)
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "This page is only accessible to application managers.")
+        self.assertContains(response, error_application_manager)
 
     def test_application_view_not_own(self):
         other_member = create_other_member()
@@ -366,21 +368,21 @@ class NonManagerTest(TestCase):
         other_application.save()
         response = self.client.get('/application/%d' % other_application.pk)
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "This page is only accessible to application managers.")
+        self.assertContains(response, error_application_manager)
 
     def test_vote_view(self):
         create_vote_with_manager(self)
         vote = VoteElection.objects.all()[0]
         response = self.client.get('/vote/%d' % vote.pk)
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "This page is only accessible to contributing members.")
+        self.assertContains(response, error_contrib_member)
 
     def test_viewvoteresult_noncontrib(self):
         create_vote_manually(self)
         vote = VoteElection.objects.all()[0]
         response = self.client.get('/vote/%d/result' % vote.pk)
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "This page is only accessible to contributing members.")
+        self.assertContains(response, error_contrib_member)
 
     def test_vote_edit_nonmanager(self):
         create_vote_with_manager(self)
@@ -395,7 +397,7 @@ class NonManagerTest(TestCase):
         vote = VoteElection.objects.all()[0]
         response = self.client.get('/vote/%d/result' % vote.pk)
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "This page is only accessible to contributing members.")
+        self.assertContains(response, error_contrib_member)
 
 
 class ContribUserTest(TestCase):
@@ -424,7 +426,7 @@ class ContribUserTest(TestCase):
     def test_applications(self):
         response = self.client.get('/applications/all')
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "This page is only accessible to application managers.")
+        self.assertContains(response, error_application_manager)
 
 
 class ManagerTest(TestCase):
