@@ -405,8 +405,6 @@ def voteeditoption(request, ref):
 def voteresult(request, ref):
     user = get_current_user(request)
     vote = get_object_or_404(VoteElection, ref=ref)
-    if not user.iscontrib:
-        return render(request, 'contrib-only.html')
 
     if vote.owner != user:
         messages.error(request, 'You can only view results for your own votes.')
