@@ -53,12 +53,12 @@ def create_manager():
     manager.save()
 
 
-def create_application_post(testcase):
+def create_application_post(testcase, follow=True):
     data = {
         "contrib": "Hello world create_application_post",
         "sub_private": " on",
     }
-    response = testcase.client.post("/apply/contrib", data=data)
+    response = testcase.client.post("/apply/contrib", data=data, follow=follow)
     return response
 
 
@@ -272,7 +272,7 @@ class NonLoggedInViewsTests(TestCase):
     def test_application_view(self):
         switch_to_other_member(self)
         response = create_application_post(self)
-        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, '/', status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=False)
         switch_back(self, logged_in=False)
         application = Applications.objects.all()[0]
         response = self.client.get('/application/%d' % application.pk)
@@ -311,7 +311,7 @@ class NonLoggedInViewsTests(TestCase):
         self.assertRedirects(response, '/accounts/login/?next=/application/%d/edit' % application.pk, status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=False)
 
     def test_apply(self):
-        response = create_application_post(self)
+        response = create_application_post(self, follow=False)
         self.assertRedirects(response, '/accounts/login/?next=/apply/contrib', status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=False)
         self.assertEqual(Applications.objects.count(), 0)
 
@@ -348,7 +348,7 @@ class LoggedInViewsTest(TestCase):
 
     def test_application_view(self):
         response = create_application_post(self)
-        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, '/', status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=False)
         application = Applications.objects.filter(member=member)[0]
         response = self.client.get('/application/%d' % application.pk)
         self.assertEqual(response.status_code, 200)
@@ -358,7 +358,6 @@ class LoggedInViewsTest(TestCase):
     def test_application_other_view(self):
         switch_to_other_member(self)
         response = create_application_post(self)
-        self.assertEqual(response.status_code, 302)
         switch_back(self)
         application = Applications.objects.all()[0]
         response = self.client.get('/application/%d' % application.pk)
@@ -394,7 +393,6 @@ class LoggedInViewsTest(TestCase):
 
     def test_application_view(self):
         response = create_application_post(self)
-        self.assertEqual(response.status_code, 302)
         application = Applications.objects.filter(member=member)[0]
         response = self.client.get('/application/%d' % application.pk)
         self.assertEqual(response.status_code, 200)
@@ -404,7 +402,6 @@ class LoggedInViewsTest(TestCase):
     def test_application_other_view(self):
         switch_to_other_member(self)
         response = create_application_post(self)
-        self.assertEqual(response.status_code, 302)
         switch_back(self)
         application = Applications.objects.all()[0]
         response = self.client.get('/application/%d' % application.pk, follow=True)
@@ -464,14 +461,8 @@ class LoggedInViewsTest(TestCase):
 class ContribUserTest(TestCase):
     def setUp(self):
         create_member(manager=False, contrib=True)
+        create_manager()
         self.client.force_login(member.memid)
-
-    def test_votes(self):
-        create_vote_manually(current=True)
-        response = self.client.get('/votes')
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "Welcome to the election pages of Software in the Public Interest, Inc.")
-        self.assertContains(response, "Test vote")
 
     def test_index(self):
         response = self.client.get('/')
@@ -484,10 +475,60 @@ class ContribUserTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Contrib Membership Applications")
 
+    def test_new_application(self):
+        response = create_application_post(self)
+        self.assertRedirects(response, '/', status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=False)
+        self.assertContains(response, "You are already an SPI contributing member")
+
+    def test_application_view(self):
+        application = Applications(member=member)
+        application.save()
+        response = self.client.get('/application/%d' % application.pk)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Application #%d status" % application.pk)
+        self.assertContains(response, "Member Name</td><td>%s" % default_name)
+
+    def test_application_other_view(self):
+        switch_to_other_member(self)
+        response = create_application_post(self)
+        switch_back(self)
+        application = Applications.objects.all()[0]
+        response = self.client.get('/application/%d' % application.pk)
+        self.assertContains(response, error_application_manager)
+
+    def test_updateactive(self):
+        data = {
+        }
+        response = self.client.post("/updateactive", data=data)
+        user = Members.object.get(pk=member)  # get updated user
+        self.assertEqual(user.lastactive, datetime.date.today())
+        self.assertRedirects(response, '/', status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=False)
+
+    def test_member(self):
+        response = self.client.get('/member/%d' % member.pk)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, error_application_manager)
+
+    def test_memberedit(self):
+        data = {
+            "sub_private": "on",
+        }
+        response = self.client.post("/member/edit", data=data)
+        user = Members.object.get(pk=member)  # get updated user
+        self.assertEqual(user.sub_private, True)
+        self.assertRedirects(response, '/', status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=False)
+
     def test_applications(self):
         response = self.client.get('/applications/all')
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, error_application_manager)
+
+    def test_votes(self):
+        create_vote_manually(current=True)
+        response = self.client.get('/votes')
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Welcome to the election pages of Software in the Public Interest, Inc.")
+        self.assertContains(response, "Test vote")
 
 
 class ManagerTest(TestCase):
