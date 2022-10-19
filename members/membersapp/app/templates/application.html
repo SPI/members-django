@@ -1,6 +1,12 @@
 {% extends "base.html" %}
 {% block title %}Application Status{% endblock %}
 {% block content %}
+    <div class="error">
+        {{ applicationform.errors }}
+        {{ memberform.non_field_errors }}
+        {{ memberform.errors }}
+        {{ applicationform.non_field_errors }}
+    </div>
     <h1>Application #{{ application.appid }} status</h1>
     <table>
 
