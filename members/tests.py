@@ -597,11 +597,14 @@ class ManagerTest(TestCase):
         create_member(manager=True, contrib=True)
         self.client.force_login(member.memid)
 
-    def test_votes(self):
-        response = self.client.get('/votes')
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "Welcome to the election pages of Software in the Public Interest, Inc.")
-        self.assertContains(response, "All Applications")
+    # Note: this test cannot work because we have to bypass pgweb auth using
+    # force_login()
+    # def test_admin_staff(self):
+    #    member.is_staff = True
+    #    member.is_superuser = True
+    #    member.save()
+    #    response = self.client.get('/admin/', follow=True)
+    #    self.assertContains(response, "Site administration")
 
     def test_applications(self):
         response = self.client.get('/applications/all')
