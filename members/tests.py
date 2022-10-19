@@ -39,7 +39,7 @@ def create_member(manager=False, contrib=False):
 
 def create_other_member(manager=False, contrib=False):
     user = User(username='other member')
-    member = Members(memid=user, name='Other User', email='other_user@spi-inc.org', ismanager=manager, iscontrib=contrib)
+    member = Members(memid=user, name='Other User', email='other_user@spi-inc.org', ismanager=manager, iscontrib=contrib, createvote=manager)
     user.save()
     member.save()
     return member
@@ -134,10 +134,14 @@ def create_vote_with_manager(testcase):
     return vote
 
 
-def switch_to_other_member(testcase, switch_to_manager=False, switch_to_contrib=False):
+def switch_to_other_member(testcase, switch_to_manager=False, switch_to_contrib=False, new_manager=False):
     testcase.client.logout()
     if switch_to_manager:
-        testcase.client.force_login(manager.memid)
+        if new_manager:
+            other_manager = create_other_member(manager=True)
+            testcase.client.force_login(other_manager.memid)
+        else:
+            testcase.client.force_login(manager.memid)
     else:
         other_member = create_other_member(contrib=switch_to_contrib)
         testcase.client.force_login(other_member.memid)
@@ -719,6 +723,28 @@ class ManagerTest(TestCase):
         self.assertContains(response, "Vote must not have run to be edited")
 
     # view other people's vote
+    def test_viewvotes_other_managers(self):
+        switch_to_other_member(self, switch_to_manager=True, new_manager=True)
+        create_vote(self)
+        vote = VoteElection.objects.all()[0]
+        create_vote_option(self, vote.pk)
+        create_vote_option2(self, vote.pk)
+        switch_back(self)
+        response = self.client.get('/vote/%d' % vote.pk, follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Voting has not yet opened")
+
+    def test_editvotes_other_managers(self):
+        switch_to_other_member(self, switch_to_manager=True, new_manager=True)
+        create_vote(self)
+        vote = VoteElection.objects.all()[0]
+        create_vote_option(self, vote.pk)
+        create_vote_option2(self, vote.pk)
+        switch_back(self)
+        for case in ['/vote/%d/edit' % vote.pk, '/vote/%d/editedit' % vote.pk, '/vote/%d/editoption' % vote.pk]:
+            response = self.client.get(case, follow=True)
+            self.assertEqual(response.status_code, 200)
+            self.assertContains(response, "You can only edit your own votes.")
 
     def test_addoptionform(self):
         create_vote(self)
