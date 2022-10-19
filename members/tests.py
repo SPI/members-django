@@ -606,10 +606,10 @@ class ManagerTest(TestCase):
     #    response = self.client.get('/admin/', follow=True)
     #    self.assertContains(response, "Site administration")
 
-    def test_applications(self):
-        response = self.client.get('/applications/all')
+    def test_index(self):
+        response = self.client.get('/')
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "This page contains a list of ALL membership records")
+        self.assertContains(response, "Membership status for")
         self.assertContains(response, "All Applications")
 
     def test_stats(self):
@@ -622,10 +622,49 @@ class ManagerTest(TestCase):
         response = self.client.get('/application/1337')
         self.assertEqual(response.status_code, 404)
 
+    def test_application_view(self):
+        other_member = create_other_member()
+        application = Applications(member=other_member)
+        application.save()
+        response = self.client.get('/application/%d' % application.pk)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Application #%d status" % application.pk)
+        self.assertContains(response, "Member Name</td><td>%s" % "Other User")
+
+    def test_updateactive(self):
+        data = {
+        }
+        response = self.client.post("/updateactive", data=data)
+        user = Members.object.get(pk=member)  # get updated user
+        self.assertEqual(user.lastactive, datetime.date.today())
+        self.assertRedirects(response, '/', status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=False)
+
     def test_member(self):
         response = self.client.get('/member/%d' % member.pk)
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Membership status for %s" % default_name)
+
+    def test_memberedit(self):
+        data = {
+            "sub_private": "on",
+        }
+        response = self.client.post("/member/edit", data=data)
+        user = Members.object.get(pk=member)  # get updated user
+        self.assertEqual(user.sub_private, True)
+        self.assertRedirects(response, '/', status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=False)
+
+    # applications/<str:listtype> tests are in the next class (with full workflow)
+
+    def test_applications_wronglisttype(self):
+        response = self.client.get('/applications/foo', follow=True)
+        self.assertRedirects(response, '/', status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=True)
+        self.assertContains(response, "Unknown application type!")
+
+    def test_votes(self):
+        response = self.client.get('/votes')
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Welcome to the election pages of Software in the Public Interest, Inc.")
+        self.assertContains(response, "All Applications")
 
     def test_votecreate(self):
         response = create_vote(self)
@@ -635,6 +674,14 @@ class ManagerTest(TestCase):
         response = self.client.get('/')
         self.assertContains(response, "Your votes")
         self.assertContains(response, "Test vote")
+
+    def test_votecreate_norights(self):
+        member.createvote = False
+        member.save()
+        response = create_vote(self)
+        self.assertEqual(VoteElection.objects.count(), 0)
+        self.assertRedirects(response, '/', status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=True)
+        self.assertContains(response, "You are not allowed to create new votes")
 
     def test_vote_edit(self):
         create_vote(self)
