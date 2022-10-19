@@ -103,8 +103,11 @@ def showapplications(request, listtype):
         applications = Applications.objects.filter(Q(member__iscontrib=True) & Q(contribapp=True))
     elif listtype == 'mgr':
         applications = Applications.objects.filter(Q(member__ismanager=True) & Q(contribapp=True))
-    else:
+    elif listtype == 'all':
         applications = Applications.objects.all()
+    else:
+        messages.error(request, "Unknown application type!")
+        return HttpResponseRedirect("/")
     sorted_applications = applications.order_by('appid')
     context = {
         'applicants': sorted_applications,
