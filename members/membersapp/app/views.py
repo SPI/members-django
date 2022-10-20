@@ -41,11 +41,13 @@ def index(request):
         template = loader.get_template('status.html')
         user = get_current_user(request)
         form = MemberForm(instance=user)
+        contribapp = (len(Applications.objects.filter(Q(member=user) & Q(contribapp=True))) > 0)
         context = {
             'active_votes': VoteElection.objects.filter(Q(period_start__lte=timezone.now()) & Q(period_stop__gte=timezone.now())),
             'user_votes': VoteElection.objects.filter(owner=user),
             'applications': Applications.objects.filter(member=user),
             'applicants': Applications.objects.filter(manager=user),
+            'contribapp': contribapp,
             'user': user,
             'form': form
         }

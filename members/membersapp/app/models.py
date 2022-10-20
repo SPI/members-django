@@ -44,6 +44,9 @@ class Applications(models.Model):
     approve_date = models.DateField(null=True)
     contribapp = models.BooleanField(null=True, default=False)
 
+    object = models.Manager()
+    objects = models.Manager()
+
     def __str__(self):
         return "{0} ({1})".format(self.member, self.appdate)
 
