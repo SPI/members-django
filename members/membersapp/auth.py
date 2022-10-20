@@ -3,7 +3,8 @@
 #
 # The main location of the original version of this module is the pgweb
 # git repository hosted on git.postgresql.org - look there for updates.
-# This version links user on emails instead of usernames.
+# This version links user on emails instead of usernames, and creates
+# non-contrib applications upon importing new users.
 #
 # To integrate with django, you need the following:
 # * Make sure the view "login" from this module is used for login
@@ -43,8 +44,9 @@ from Cryptodome.Cipher import AES
 from Cryptodome.Hash import SHA
 from Cryptodome import Random
 import time
+import datetime
 
-from .app.models import Members
+from .app.models import Members, Applications
 
 # This signal fires whenever new user data has been received. Note that this
 # happens *after* first_name, last_name and email has been updated on the user
@@ -181,6 +183,13 @@ We apologize for the inconvenience.
                          email=data['e'][0],
                          )
         member.save()
+        # ...and a non-contrib application
+        app = Applications(member=member,
+                           appdate=datetime.date.today(),
+                           lastchange=datetime.date.today(),
+                           contribapp=False,
+                           contrib=False)
+        app.save()
 
     # Ok, we have a proper user record. Now tell django that
     # we're authenticated so it persists it in the session. Before
@@ -342,5 +351,12 @@ def user_import(uid):
         password='setbypluginnotsha1',
     )
     u.save()
+
+    app = Applications(member=u,
+                       appdate=datetime.date.today(),
+                       lastchange=datetime.date.today(),
+                       contribapp=False,
+                       contrib=False)
+    app.save()
 
     return u
