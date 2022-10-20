@@ -681,6 +681,26 @@ class ManagerTest(TestCase):
         self.assertContains(response, "Applicant become a Contributing member, emailing them.")
         self.assertEqual(application.approve, True)
 
+    def test_application_edit_reject(self):
+        other_member = switch_to_other_member(self)
+        response = create_application_post(self)
+        switch_back(self)
+        application = Applications.objects.all()[0]
+        data = {
+            "contrib": "sdfs",
+            "manager": member.memid_id,
+            "manager_date": timezone.now().strftime("%Y-%m-%d"),
+            "comment": "Test+approve",
+            "approve": "false",
+            "approve_date": timezone.now().strftime("%Y-%m-%d")
+        }
+        response = self.client.post('/application/%d/edit' % application.pk, data=data, follow=True)
+        application = Applications.objects.all()[0]
+        self.assertRedirects(response, '/application/%d' % application.pk, status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=False)
+        self.assertContains(response, "selected>No")
+        self.assertNotContains(response, "Applicant become a Contributing member, emailing them.")
+        self.assertEqual(application.approve, False)
+
     def test_votes(self):
         response = self.client.get('/votes')
         self.assertEqual(response.status_code, 200)
