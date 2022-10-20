@@ -37,9 +37,9 @@ def create_member(manager=False, contrib=False):
     member.save()
 
 
-def create_other_member(manager=False, contrib=False):
-    user = User(username='other member')
-    member = Members(memid=user, name='Other User', email='other_user@spi-inc.org', ismanager=manager, iscontrib=contrib, createvote=manager)
+def create_other_member(manager=False, contrib=False, name='Other User', email='other_user@spi-inc.org'):
+    user = User(username=name)
+    member = Members(memid=user, name=name, email=email, ismanager=manager, iscontrib=contrib, createvote=manager)
     user.save()
     member.save()
     return member
@@ -145,6 +145,7 @@ def switch_to_other_member(testcase, switch_to_manager=False, switch_to_contrib=
     else:
         other_member = create_other_member(contrib=switch_to_contrib)
         testcase.client.force_login(other_member.memid)
+        return other_member
 
 
 def switch_back(testcase, logged_in=True):
@@ -659,6 +660,26 @@ class ManagerTest(TestCase):
         response = self.client.get('/applications/foo', follow=True)
         self.assertRedirects(response, '/', status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=True)
         self.assertContains(response, "Unknown application type!")
+
+    def test_application_edit(self):
+        other_member = switch_to_other_member(self)
+        response = create_application_post(self)
+        switch_back(self)
+        application = Applications.objects.all()[0]
+        data = {
+            "contrib": "sdfs",
+            "manager": member.memid_id,
+            "manager_date": timezone.now().strftime("%Y-%m-%d"),
+            "comment": "Test+approve",
+            "approve": "true",
+            "approve_date": timezone.now().strftime("%Y-%m-%d")
+        }
+        response = self.client.post('/application/%d/edit' % application.pk, data=data, follow=True)
+        application = Applications.objects.all()[0]
+        self.assertRedirects(response, '/application/%d' % application.pk, status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=False)
+        self.assertContains(response, "selected>Yes")
+        self.assertContains(response, "Applicant become a Contributing member, emailing them.")
+        self.assertEqual(application.approve, True)
 
     def test_votes(self):
         response = self.client.get('/votes')
