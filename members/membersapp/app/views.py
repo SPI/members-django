@@ -44,8 +44,8 @@ def index(request):
         context = {
             'active_votes': VoteElection.objects.filter(Q(period_start__lte=timezone.now()) & Q(period_stop__gte=timezone.now())),
             'user_votes': VoteElection.objects.filter(owner=user),
-            'applications': get_applications_by_user(user),
-            'applicants': get_applications(user),
+            'applications': Applications.objects.filter(member=user),
+            'applicants': Applications.objects.filter(manager=user),
             'user': user,
             'form': form
         }
