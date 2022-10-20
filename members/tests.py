@@ -710,6 +710,11 @@ class ManagerTest(TestCase):
         self.assertNotContains(response, "Applicant become a Contributing member, emailing them.")
         self.assertEqual(application.approve, False)
 
+    def test_apply(self):
+        response = create_application_post(self)
+        self.assertRedirects(response, '/', status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=False)
+        self.assertContains(response, "You are already an SPI contributing member")
+
     def test_votes(self):
         response = self.client.get('/votes')
         self.assertEqual(response.status_code, 200)
