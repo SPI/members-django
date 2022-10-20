@@ -56,7 +56,7 @@ def create_manager():
 def create_application_post(testcase, follow=True):
     data = {
         "contrib": "Hello world create_application_post",
-        "sub_private": " on",
+        "sub_private": "on",
     }
     response = testcase.client.post("/apply/contrib", data=data, follow=follow)
     return response
