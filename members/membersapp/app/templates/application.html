@@ -42,7 +42,7 @@
             <tr><td>Last Changed</td><td>{{ application.lastchange|date:"Y-m-d" }}</td></tr>
         {% endif %}
     </table>
-{% if application.contribapp %}
+{% if user.ismanager %}
     <input type="submit" value="Update">
     </form>
 {% endif %}
