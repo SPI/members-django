@@ -400,6 +400,15 @@ class LoggedInViewsTest(TestCase):
             self.assertEqual(response.status_code, 200)
             self.assertContains(response, error_application_manager)
 
+    def test_application_edit(self):
+        response = create_application_post(self)
+        application = Applications.objects.all()[0]
+        data = {
+        }
+        response = self.client.post('/application/%d/edit' % application.pk, data=data)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, error_application_manager)
+
     def test_apply(self):
         response = create_application_post(self)
         self.assertRedirects(response, '/', status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=False)
