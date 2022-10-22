@@ -56,14 +56,12 @@ class Applications(models.Model):
     @property
     def get_status(self):
         """Return the member status for this application"""
-        if self.contrib is not None:
+        if self.member.iscontrib:
             return 'CM'
         elif self.contribapp:
             return 'CA'
-        elif self.approve:
-            return 'NCM'
         else:
-            return 'NCA'
+            return 'NCM'
 
 
 class VoteElection(models.Model):
