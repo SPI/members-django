@@ -971,3 +971,90 @@ class ManagerTest(TestCase):
         set_vote_past(vote)
         response = self.client.get('/vote/%d/result' % vote.pk)
         self.assertEqual(response.status_code, 200)
+
+
+class ApplicationWorkflowTests(TestCase):
+    def setUp(self):
+        create_member(manager=True, contrib=True)
+        # Manager is already contrib, so we can't create an application using POST
+        Applications(member=member, contribapp=True, approve=True).save()
+        member_noncontrib = create_other_member(contrib=False, name='Other User noncontrib')
+        # This application is created upon importing user from pgweb
+        Applications(member=member_noncontrib, contribapp=False).save()
+        self.client.force_login(member_noncontrib.memid)
+        member_contrib_pending = create_other_member(contrib=False, name='Other User pending contrib', email='other_user_pending_contrib@spi-inc.org')
+        self.client.force_login(member_contrib_pending.memid)
+        create_application_post(self)
+        member_contrib = create_other_member(contrib=False, name='Other User contrib', email='other_user_contrib@spi-inc.org')
+        self.client.force_login(member_contrib.memid)
+        create_application_post(self)
+        switch_back(self)
+        application = Applications.object.get(member=member_contrib)
+        data = {
+            "contrib": "sdfs",
+            "manager": member.memid_id,
+            "manager_date": timezone.now().strftime("%Y-%m-%d"),
+            "comment": "Test+approve",
+            "approve": "true",
+            "approve_date": timezone.now().strftime("%Y-%m-%d")
+        }
+        response = self.client.post('/application/%d/edit' % application.pk, data=data, follow=True)
+
+    def test_applications_all(self):
+        response = self.client.get('/applications/all')
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "This page contains a list of ALL membership records")
+        self.assertContains(response, "All Applications")
+        self.assertContains(response, default_name)
+        self.assertContains(response, "Other User pending contrib")
+        self.assertContains(response, "Other User noncontrib")
+        self.assertContains(response, "Other User contrib")
+
+    def test_applications_nca(self):
+        response = self.client.get('/applications/nca', follow=True)
+        # Disabled because these are stuck to the pgweb validation step
+        # self.assertEqual(response.status_code, 200)
+        # self.assertContains(response, "This page contains a list of all people who have applied for non-contributing membership but have not completed the email verification step.")
+        self.assertRedirects(response, '/', status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=True)
+        self.assertContains(response, "Unknown application type!")
+        self.assertContains(response, "All Applications")
+
+    def test_applications_cnm(self):
+        response = self.client.get('/applications/ncm')
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "This page lists all members who have non-contributing status.")
+        self.assertContains(response, "All Applications")
+        self.assertNotContains(response, default_name)
+        self.assertContains(response, "Other User noncontrib")
+        self.assertNotContains(response, "Other User pending contrib")
+        self.assertNotContains(response, "Other User contrib")
+
+    def test_applications_ca(self):
+        response = self.client.get('/applications/ca')
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "This page lists all non-contributing members who have filed a contributing")
+        self.assertContains(response, "All Applications")
+        self.assertNotContains(response, default_name)
+        self.assertContains(response, "Other User pending contrib")
+        self.assertNotContains(response, "Other User noncontrib")
+        self.assertNotContains(response, "Other User contrib")
+
+    def test_applications_cm(self):
+        response = self.client.get('/applications/cm')
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "This page lists all active contributing members in SPI.")
+        self.assertContains(response, "All Applications")
+        self.assertContains(response, default_name)
+        self.assertNotContains(response, "Other User pending contrib")
+        self.assertNotContains(response, "Other User noncontrib")
+        self.assertContains(response, "Other User contrib")
+
+    def test_applications_mgr(self):
+        response = self.client.get('/applications/mgr')
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "This page lists all members who are application managers.")
+        self.assertContains(response, "All Applications")
+        self.assertContains(response, default_name)
+        self.assertNotContains(response, "Other User pending contrib")
+        self.assertNotContains(response, "Other User noncontrib")
+        self.assertNotContains(response, "Other User contrib")
