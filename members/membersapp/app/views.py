@@ -229,9 +229,11 @@ def applicationedit(request, appid):
         applicationform = ApplicationForm(request.POST, instance=application)
         # caution: is_valid() modifies objects
         if memberform.is_valid() and applicationform.is_valid():
-            process_contrib_application(request, applicationform, application, application_pre_value)
             memberform.save()
             applicationform.save()
+            # This step must be done after others, otherwise changes on user
+            # will be reverted
+            process_contrib_application(request, applicationform, application, application_pre_value)
     return HttpResponseRedirect(reverse('application', args=[appid]))
 
 
