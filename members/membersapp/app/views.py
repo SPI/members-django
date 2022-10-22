@@ -202,7 +202,7 @@ def showmember(request, memid):
     context = {
         'user': user,
         'member': member,
-        'applications': get_applications_by_user(member)
+        'applications': Applications.objects.filter(member=member)
     }
     return HttpResponse(template.render(context, request))
 
