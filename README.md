@@ -47,9 +47,9 @@ sudo -u postgres psql spimembers -c 'drop table temp'; sudo -u postgres psql spi
 sudo chown $USER:postgres spimembers.sql temp_table.sql
 
 sudo -u postgres psql membersdjango < temp_table.sql
+sudo -u postgres psql --single-transaction membersdjango < applications.sql
 sudo -u postgres psql membersdjango < import_from_members_additional_fixes.sql
 sudo -u postgres psql --single-transaction membersdjango < spimembers.sql
-sudo -u postgres psql --single-transaction membersdjango < applications.sql
 sudo -u postgres psql -c 'delete from applications where member NOT in (select memid from members);' membersdjango
 ```
 
