@@ -583,6 +583,18 @@ class ContribUserTest(TestCase):
         self.assertRedirects(response, '/vote/%d' % vote.pk, status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=True)
         self.assertContains(response, "Your vote is as follows:")
 
+    def test_votevote_lastactive(self):
+        global member
+        vote = create_vote_with_manager(self)
+        set_vote_current(vote)
+        member.lastactive = None
+        member.save()
+        member = Members.object.get(pk=member.memid)
+        self.assertEqual(member.lastactive, None)
+        response = vote_vote(self, vote.pk, correct=True)
+        member = Members.object.get(pk=member.memid)
+        self.assertEqual(member.lastactive, datetime.date.today())
+
     def test_votevote_incorrect(self):
         vote = create_vote_with_manager(self)
         set_vote_current(vote)
