@@ -192,6 +192,8 @@ def votevote(request, ref):
                             votevoteoption = VoteVoteOption(vote_ref=membervote, option_ref=voteoption)
                             votevoteoption.save()
                         membervote.save()
+                        user.lastactive = datetime.date.today()
+                        user.save()
     return HttpResponseRedirect(reverse('vote', args=[ref]))
 
 
