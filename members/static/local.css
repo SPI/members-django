@@ -244,6 +244,10 @@ div.recentchanges {
     height: 20px;
 }
 
+.applications td:nth-child(5) {
+    white-space: nowrap;
+}
+
 /* media-query for mobile */
 
 @media(max-width:640px) {
