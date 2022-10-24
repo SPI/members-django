@@ -177,7 +177,6 @@ def votevote(request, ref):
             md5.update(user.email.encode('utf-8'))
             md5.update(uuid.uuid1().hex.encode('utf-8'))
             membervote.private_secret = md5.hexdigest()
-            membervote.save()
         if form.is_valid():
             if not vote.is_active:
                 messages.error(request, 'Vote is not currently running.')
@@ -192,6 +191,7 @@ def votevote(request, ref):
                         for i, voteoption in enumerate(membervote.votes, 1):
                             votevoteoption = VoteVoteOption(vote_ref=membervote, option_ref=voteoption)
                             votevoteoption.save()
+                        membervote.save()
     return HttpResponseRedirect(reverse('vote', args=[ref]))
 
 
