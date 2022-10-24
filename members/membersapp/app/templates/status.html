@@ -35,7 +35,7 @@
         <ul>
         {% for vote in active_votes %}
             <li><a href="/vote/{{ vote.ref }}">{{ vote.title }}</a>
-                (ends {{ vote.period_stop }})</li>
+                (ends {{ vote.period_stop|date:"Y-m-d H:i:s" }} UTC-4)</li>
         {% endfor %}
         </ul>
     {% endif %}
@@ -46,13 +46,13 @@
             <li>
             {% if vote.is_active %}
                 <a href="/vote/{{ vote.ref }}">{{ vote.title }}</a>
-                (ends {{ vote.period_stop }})
+                (ends {{ vote.period_stop|date:"Y-m-d H:i:s" }} UTC-4)
             {% elif vote.is_over %}
                 <a href="/vote/{{ vote.ref }}/result">{{ vote.title }}</a>
                 (ended)
             {% else %}
                 <a href="/vote/{{ vote.ref }}/edit">{{ vote.title }}</a>
-                (starts {{ vote.period_start }})
+                (starts {{ vote.period_start|date:"Y-m-d H:i:s" }} UTC-4)
             {% endif %}
             </li>
         {% endfor %}
