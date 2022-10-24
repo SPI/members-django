@@ -7,7 +7,7 @@
     <table>
         <tr><td>Name</td><td>{{ user.name }}</td></tr>
         <tr><td>Email address</td><td>{{ user.email }}</td></tr>
-        <tr><td>Member Since</td><td>{{ user.firstdate }}</td></tr>
+        <tr><td>Member Since</td><td>{{ auth_user.date_joined|date:"Y-m-d" }}</td></tr>
         </td></tr>
         <tr><td>Application Manager</td><td>
             {% if user.ismanager %} Yes {% else %} No {% endif %}

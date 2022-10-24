@@ -14,7 +14,6 @@ class Members(models.Model):
     name = models.CharField(max_length=50, null=False)
     phone = models.CharField(max_length=20, null=True)
     pgpkey = models.CharField(max_length=50, null=True)
-    firstdate = models.DateField(null=True)
     expirydate = models.DateField(null=True)
     iscontrib = models.BooleanField(null=False, blank=False, default=False)
     ismanager = models.BooleanField(null=False, blank=False, default=False)

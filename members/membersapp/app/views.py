@@ -2,6 +2,7 @@ import datetime
 import hashlib
 import uuid
 
+from django.contrib.auth.models import User
 from django.http import HttpResponse, HttpResponseRedirect, HttpResponseNotFound
 from django.template import loader
 from django.shortcuts import render, get_object_or_404
@@ -40,6 +41,7 @@ def index(request):
     else:
         template = loader.get_template('status.html')
         user = get_current_user(request)
+        auth_user = User.objects.get(id=user.memid_id)
         form = MemberForm(instance=user)
         contribapp = (len(Applications.objects.filter(Q(member=user) & Q(contribapp=True))) > 0)
         context = {
@@ -49,6 +51,7 @@ def index(request):
             'applicants': Applications.objects.filter(manager=user),
             'contribapp': contribapp,
             'user': user,
+            'auth_user': auth_user,
             'form': form
         }
         return HttpResponse(template.render(context, request))
@@ -199,9 +202,11 @@ def showmember(request, memid):
         return render(request, 'manager-only.html')
     template = loader.get_template('member.html')
     member = Members.object.get(pk=memid)
+    auth_user = User.objects.get(id=memid)
     context = {
         'user': user,
         'member': member,
+        'auth_user': auth_user,
         'applications': Applications.objects.filter(member=member)
     }
     return HttpResponse(template.render(context, request))

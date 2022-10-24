@@ -5,7 +5,7 @@
     <table>
         <tr><td>Name</td><td>{{ member.name }}</td></tr>
         <tr><td>Email address</td><td>{{ member.email }}</td></tr>
-        <tr><td>Member Since</td><td>{{ member.firstdate }}</td></tr>
+        <tr><td>Member Since</td><td>{{ auth_user.date_joined|date:"Y-m-d" }}</td></tr>
         <tr><td>Current Member</td><td>
             Yes
         </td></tr>
