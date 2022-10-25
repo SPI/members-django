@@ -297,6 +297,9 @@ def votecreate(request):
         form = CreateVoteForm(request.POST)
         if form.is_valid():
             form.instance.owner = user
+            # match behaviour of previous application by setting end date to
+            # end of the day
+            form.instance.period_stop += datetime.timedelta(hours=23, minutes=59, seconds=59)
             new_vote = form.save()
             return HttpResponseRedirect(reverse('voteedit', args=(new_vote.pk,)))
         else:
