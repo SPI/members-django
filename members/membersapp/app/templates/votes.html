@@ -7,9 +7,9 @@
     <ul>
         {% for vote in votes %}
             {% if vote.owner == user and not vote.is_active and not vote.is_over %}
-        <li><a href="/vote/{{ vote.ref }}/edit">{{ vote.title }}</a> (ends {{ vote.period_stop|date:"Y-m-d H:i:s" }} UTC-4)</li>
+        <li><a href="/vote/{{ vote.ref }}/edit">{{ vote.title }}</a> (ends {{ vote.period_stop|date:"Y-m-d H:i:s" }} UTC)</li>
             {% else %}
-        <li><a href="/vote/{{ vote.ref }}">{{ vote.title }}</a> (ends {{ vote.period_stop|date:"Y-m-d H:i:s" }} UTC-4)</li>
+        <li><a href="/vote/{{ vote.ref }}">{{ vote.title }}</a> (ends {{ vote.period_stop|date:"Y-m-d H:i:s" }} UTC)</li>
             {% endif %}
         {% endfor %}
     </ul>
