@@ -23,7 +23,7 @@ class Command(BaseCommand):
                             action='store_const', const=True, default=False)
 
     def handle(self, *args, **options):
-        template = loader.get_template('stats.txt')      
+        template = loader.get_template('stats.txt')
         context = {
             'stats': get_stats(),
             'date': '{:%F %T}'.format(datetime.datetime.today())
@@ -31,7 +31,7 @@ class Command(BaseCommand):
         msg = template.render(context)
         if not options['dryrun']:
             try:
-                send_mail('SPI membership statistics', msg, 'SPI Membership Committee <membership@spi-inc.org>', list(options['email']), fail_silently=False)
+                send_mail('SPI membership statistics', msg, 'SPI Membership Committee <membership@spi-inc.org>', options['email'].split(","), fail_silently=False)
             except (SMTPException, ConnectionRefusedError):
                 raise CommandError('Unable to send contributing member confirmation email.')
         else:
