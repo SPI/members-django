@@ -682,6 +682,11 @@ class ManagerTest(TestCase):
         self.assertRedirects(response, '/', status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=True)
         self.assertContains(response, "Unknown application type!")
 
+    def test_applications_emptylist(self):
+        response = self.client.get('/applications/cm')
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, "Unknown application type!")
+
     def test_application_edit(self):
         other_member = switch_to_other_member(self)
         response = create_application_post(self)
