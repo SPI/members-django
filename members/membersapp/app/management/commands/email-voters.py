@@ -38,7 +38,7 @@ class Command(BaseCommand):
             try:
                 send_mail(subject, msg, 'SPI Membership Committee <membership@spi-inc.org>', user.email, fail_silently=False)
             except (SMTPException, ConnectionRefusedError):
-                raise CommandError('Unable to send voting information email to user %s (%s).' % (user.name, user.email))
+                raise CommandError('Unable to send voting information email to user %s (%s) regarding vote %s.' % (user.name, user.email, vote.ref))
 
     def inform_voters(self, vote, new=False, dryrun=False):
         voters = [x.voter_ref.memid for x in VoteVote.objects.filter(election_ref=vote)]
