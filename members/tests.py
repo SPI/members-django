@@ -536,6 +536,10 @@ class ContribUserTest(TestCase):
         self.assertRedirects(response, '/', status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=False)
         self.assertContains(response, "You are not allowed to create new votes")
 
+    def test_view_vote_404(self):
+        response = self.client.get('/vote/1337')
+        self.assertEqual(response.status_code, 404)
+
     def test_viewcurrentvote(self):
         vote = create_vote_with_manager(self)
         set_vote_current(vote)
