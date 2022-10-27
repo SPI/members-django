@@ -162,7 +162,7 @@ def showvote(request, ref):
 def votevote(request, ref):
     """Handler for registering a vote."""
     user = get_current_user(request)
-    vote = VoteElection.object.get(pk=ref)
+    vote = get_object_or_404(VoteElection, ref=ref)
     if not user.iscontrib:
         return render(request, 'contrib-only.html')
     if request.method == 'POST':
