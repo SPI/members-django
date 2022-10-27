@@ -21,7 +21,7 @@ class Command(BaseCommand):
 
     def get_concerned_members(self):
         max_date = VoteElection.objects.aggregate(Max('period_start'))['period_start__max']
-        concerned_members = Members.objects.filter(Q(iscontrib=True) & Q(expirydate=None) & Q(lastactive__lt=max_date))
+        concerned_members = Members.objects.filter(Q(iscontrib=True) & Q(lastactive__lt=max_date))
         return concerned_members
 
     def clean_contrib(self, dryrun):
