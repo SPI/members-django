@@ -418,6 +418,14 @@ class LoggedInViewsTest(TestCase):
         self.assertRedirects(response, '/', status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=False)
         self.assertEqual(Applications.objects.count(), 1)
 
+    def test_apply_twice(self):
+        response = create_application_post(self)
+        self.assertRedirects(response, '/', status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=False)
+        self.assertEqual(Applications.objects.count(), 1)
+        response = create_application_post(self)
+        self.assertRedirects(response, '/', status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=False)
+        self.assertContains(response, 'You already have an outstanding SPI contributing')
+
     def tests_vote_noncontrib_contrib_error(self):
         create_vote_manually(self)
         vote = VoteElection.objects.all()[0]
