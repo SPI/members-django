@@ -331,6 +331,10 @@ class NonLoggedInViewsTests(TestCase):
             response = self.client.get(case)
             self.assertRedirects(response, '/accounts/login/?next=%s' % case, status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=False)
 
+    def test_privatesubs(self):
+        response = self.client.get('/privatesubs')
+        self.assertRedirects(response, '/accounts/login/?next=/privatesubs', status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=False)
+
 
 # Non-contrib member
 class LoggedInViewsTest(TestCase):
@@ -456,6 +460,11 @@ class LoggedInViewsTest(TestCase):
 
     # Only managers should get vote creation rights, so we'll leave the rest of
     # voting results tests here
+
+    def test_privatesubs(self):
+        response = self.client.get('/privatesubs')
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, error_application_manager)
 
 
 class ContribUserTest(TestCase):
@@ -616,6 +625,11 @@ class ContribUserTest(TestCase):
 
     # Only managers should get vote creation rights, so we'll leave the rest of
     # voting results tests here
+
+    def test_privatesubs(self):
+        response = self.client.get('/privatesubs')
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, error_application_manager)
 
 
 class ManagerTest(TestCase):
@@ -992,6 +1006,20 @@ class ManagerTest(TestCase):
         set_vote_past(vote)
         response = self.client.get('/vote/%d/result' % vote.pk)
         self.assertEqual(response.status_code, 200)
+
+    def test_privatesubs(self):
+        user1 = User(username="isprivate")
+        user2 = User(username="noprivate")
+        member_private = Members(memid=user1, name="isprivate", email='isprivate@spi-inc.org', sub_private=True, iscontrib=True)
+        member_noprivate = Members(memid=user2, name="noprivate", email='noprivate@spi-inc.org', sub_private=False, iscontrib=True)
+        user1.save()
+        user2.save()
+        member_private.save()
+        member_noprivate.save()
+        response = self.client.get('/privatesubs')
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "isprivate")
+        self.assertNotContains(response, "noprivate")
 
 
 class ApplicationWorkflowTests(TestCase):
