@@ -24,9 +24,11 @@ class Command(BaseCommand):
         if new:
             template = loader.get_template('vote-begin.txt')
             subject = 'SPI vote open: %s' % vote.title
+            print("Emailing voter %s (%s) regarding opening of vote %s" % (user.name, user.email, vote.ref))
         else:
             template = loader.get_template('vote-mid.txt')
             subject = 'SPI vote reminder: %s' % vote.title
+            print("Emailing voter %s (%s) regarding reminder for vote %s" % (user.name, user.email, vote.ref))
         context = {
             'user': user,
             'vote': vote
@@ -34,7 +36,6 @@ class Command(BaseCommand):
         msg = template.render(context)
         if not dryrun:
             try:
-                print("Emailing voter %s" % user.name.encode('utf-8'))
                 send_mail(subject, msg, 'SPI Membership Committee <membership@spi-inc.org>', user.email, fail_silently=False)
             except (SMTPException, ConnectionRefusedError):
                 raise CommandError('Unable to send voting information email to user %s (%s).' % (user.name, user.email))
