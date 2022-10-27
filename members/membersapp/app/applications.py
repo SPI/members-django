@@ -4,6 +4,7 @@ import email.header
 from smtplib import SMTPException
 
 from django.db import connection
+from django.db.models import Q
 from django.contrib import messages
 from django.template import loader
 from django.conf import settings
@@ -35,3 +36,19 @@ def process_contrib_application(request, form, application, approve_pre_value):
             send_mail(subject, msg, from_field, [user.email], fail_silently=False)
         except (SMTPException, ConnectionRefusedError):
             messages.error(request, 'Unable to send contributing member confirmation email.')
+
+
+def get_applications_by_type(listtype):
+    if listtype == 'ncm':
+        applications = Applications.objects.filter(Q(member__iscontrib=False) & (Q(contribapp=False) | Q(contribapp__isnull=True)))
+    elif listtype == 'ca':
+        applications = Applications.objects.filter(Q(approve__isnull=True) & Q(contribapp=True))
+    elif listtype == 'cm':
+        applications = Applications.objects.filter(Q(member__iscontrib=True) & Q(contribapp=True))
+    elif listtype == 'mgr':
+        applications = Applications.objects.filter(Q(member__ismanager=True) & Q(contribapp=True))
+    elif listtype == 'all':
+        applications = Applications.objects.all()
+    else:
+        applications = None
+    return applications

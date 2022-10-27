@@ -12,7 +12,6 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib import messages
 from django.urls import reverse
-from django.db.models import Q
 from django.utils import timezone
 
 from membersapp.app.stats import get_stats
@@ -100,17 +99,8 @@ def showapplications(request, listtype):
     if not user.ismanager:
         return render(request, 'manager-only.html')
     template = loader.get_template('applications.html')
-    if listtype == 'ncm':
-        applications = Applications.objects.filter(Q(member__iscontrib=False) & (Q(contribapp=False) | Q(contribapp__isnull=True)))
-    elif listtype == 'ca':
-        applications = Applications.objects.filter(Q(approve__isnull=True) & Q(contribapp=True))
-    elif listtype == 'cm':
-        applications = Applications.objects.filter(Q(member__iscontrib=True) & Q(contribapp=True))
-    elif listtype == 'mgr':
-        applications = Applications.objects.filter(Q(member__ismanager=True) & Q(contribapp=True))
-    elif listtype == 'all':
-        applications = Applications.objects.all()
-    else:
+    applications = get_applications_by_type(listtype)
+    if applications is None:
         messages.error(request, "Unknown application type!")
         return HttpResponseRedirect("/")
     sorted_applications = applications.order_by('appid')
