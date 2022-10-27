@@ -22,6 +22,7 @@ class Members(models.Model):
     createvote = models.BooleanField(null=False, blank=False, default=False)
 
     object = models.Manager()
+    objects = models.Manager()
 
     def __str__(self):
         return self.name
