@@ -3,7 +3,7 @@ BEGIN;
 
 insert into auth_user (id, email, date_joined, password, is_superuser, is_staff, is_active, username, first_name, last_name) select memid, email, coalesce(firstdate, NOW()), 'imported', false, false, true, memid, '', '' from temp;
 
-insert into members (memid, name, email, phone, pgpkey, expirydate, iscontrib, ismanager, sub_private, lastactive, createvote) select memid, name, email, phone, pgpkey, expirydate, iscontrib, ismanager, coalesce(sub_private, false), lastactive, createvote from temp;
+insert into members (memid, name, email, iscontrib, ismanager, sub_private, lastactive, createvote) select memid, name, email, iscontrib, ismanager, coalesce(sub_private, false), lastactive, createvote from temp;
 insert into applications (appid, appdate, member, contrib, comment, lastchange, manager, manager_date, approve, approve_date, contribapp) select appid, appdate, member, contrib, comment, lastchange, manager, manager_date, approve, approve_date, contribapp from temp2;
 
 drop table temp;
