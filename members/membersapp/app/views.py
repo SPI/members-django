@@ -22,6 +22,7 @@ from .votes import *
 
 
 def handler404(request, exception):
+    """Return a suitable 404 page for unhandled URLs"""
     user = get_current_user(request)
     template = loader.get_template('404.html')
     context = {
@@ -31,6 +32,7 @@ def handler404(request, exception):
 
 
 def index(request):
+    """Handler for main page. Displays users details."""
     if not request.user.is_authenticated:
         template = loader.get_template('index.html')
         context = {
@@ -58,6 +60,7 @@ def index(request):
 
 @login_required
 def application(request, appid):
+    """Handler for viewing a specific application."""
     template = loader.get_template('application.html')
     application = get_object_or_404(Applications, appid=appid)
     user = get_current_user(request)
@@ -95,6 +98,7 @@ def showstats(request):
 
 @login_required
 def showapplications(request, listtype):
+    """Handler for listing applications; managers only."""
     user = get_current_user(request)
     if not user.ismanager:
         return render(request, 'manager-only.html')
@@ -114,6 +118,7 @@ def showapplications(request, listtype):
 
 @login_required
 def showvotes(request):
+    """Handler for listing votes"""
     user = get_current_user(request)
     if not user.iscontrib:
         return render(request, 'contrib-only.html')
@@ -128,6 +133,7 @@ def showvotes(request):
 
 @login_required
 def showvote(request, ref):
+    """Handler for viewing a specific vote."""
     user = get_current_user(request)
     if not user.iscontrib:
         return render(request, 'contrib-only.html')
@@ -154,6 +160,7 @@ def showvote(request, ref):
 
 @login_required
 def votevote(request, ref):
+    """Handler for registering a vote."""
     user = get_current_user(request)
     vote = VoteElection.object.get(pk=ref)
     if not user.iscontrib:
@@ -189,6 +196,7 @@ def votevote(request, ref):
 
 @login_required
 def showmember(request, memid):
+    """Handler for viewing a member"""
     user = get_current_user(request)
     if not user.ismanager:
         return render(request, 'manager-only.html')
@@ -206,6 +214,7 @@ def showmember(request, memid):
 
 @login_required
 def memberedit(request):
+    """Handler for editing member details"""
     if request.method == 'POST':
         user = get_current_user(request)
         form = MemberForm(request.POST, instance=user)
@@ -216,6 +225,7 @@ def memberedit(request):
 
 @login_required
 def applicationedit(request, appid):
+    """Handler for non-contributing membership application."""
     user = get_current_user(request)
     if not user.ismanager:
         return render(request, 'manager-only.html')
@@ -236,6 +246,7 @@ def applicationedit(request, appid):
 
 @login_required
 def contribapplication(request):
+    """Handler for contributing membership application."""
     user = get_current_user(request)
     if user.iscontrib:
         messages.error(request, 'You are already an SPI contributing member')
@@ -277,6 +288,7 @@ def contribapplication(request):
 
 @login_required
 def votecreate(request):
+    """Handler that creates a new vote."""
     user = get_current_user(request)
     if not user.createvote:
         messages.error(request, 'You are not allowed to create new votes')
@@ -307,6 +319,7 @@ def votecreate(request):
 
 
 def tests_vote(request, user, vote):
+    """Checks common to different voting-related functions"""
     if not user.createvote:
         messages.error(request, 'You are not allowed to create new votes')
         return False
@@ -321,6 +334,7 @@ def tests_vote(request, user, vote):
 
 @login_required
 def voteeditedit(request, ref):
+    """Handler for editing a vote."""
     user = get_current_user(request)
     vote = get_object_or_404(VoteElection, ref=ref)
 
@@ -344,6 +358,7 @@ def voteeditedit(request, ref):
 
 @login_required
 def voteedit(request, ref):
+    """Handler for the form to edit a vote."""
     user = get_current_user(request)
     vote = get_object_or_404(VoteElection, ref=ref)
 
@@ -376,6 +391,7 @@ def voteedit(request, ref):
 
 @login_required
 def voteeditoption(request, ref):
+    """Handler for editing options of a vote."""
     user = get_current_user(request)
     vote = get_object_or_404(VoteElection, ref=ref)
 
@@ -410,6 +426,7 @@ def voteeditoption(request, ref):
 
 @login_required
 def voteresult(request, ref):
+    """Handler for viewing a specific vote result."""
     user = get_current_user(request)
     vote = get_object_or_404(VoteElection, ref=ref)
 
