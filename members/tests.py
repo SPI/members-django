@@ -553,10 +553,6 @@ class ContribUserTest(TestCase):
         self.assertRedirects(response, '/', status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=False)
         self.assertContains(response, "You are not allowed to create new votes")
 
-    def test_view_vote_404(self):
-        response = self.client.get('/vote/1337')
-        self.assertEqual(response.status_code, 404)
-
     def test_viewcurrentvote(self):
         vote = create_vote_with_manager(self)
         set_vote_current(vote)
@@ -941,6 +937,15 @@ class ManagerTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Hello world voteoption edited")
         self.assertContains(response, "Hello world 2 voteoption edited")
+
+    def test_votes_404(self):
+        for target in ['/vote/1337', '/vote/1337/edit', 'vote/1337/result']:
+            response = self.client.get(target)
+            self.assertEqual(response.status_code, 404)
+        for target in ['/vote/1337/editedit', '/vote/1337/editoption', 'vote/1337/vote']:
+            response = self.client.post(target)
+            self.assertEqual(response.status_code, 404)
+            dump_page(response)
 
     def test_viewvoteresult_incorrect(self):
         member = create_other_member()
