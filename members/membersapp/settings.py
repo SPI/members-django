@@ -152,6 +152,9 @@ STATIC_ROOT = os.path.join(BASE_DIR, "./media/")
 EMAIL_HOST = 'localhost'
 EMAIL_PORT = '25'
 
+# IPs that will get access to the -private subs list
+LIST_HOSTS = ['127.0.0.1']
+
 try:
     from .local_settings import *
 except ImportError:

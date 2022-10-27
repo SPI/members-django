@@ -448,6 +448,18 @@ def voteresult(request, ref):
     return HttpResponse(template.render(context, request))
 
 
+@login_required
+def privatesubs(request):
+    """Return the list of -private subscriber addressess"""
+    user = get_current_user(request)
+    if request.META.get('REMOTE_ADDR') not in settings.LIST_HOSTS or not user.ismanager:
+        return render(request, 'manager-only.html')
+
+    emails = sorted([x.email for x in Members.objects.filter(Q(sub_private=True) & Q(iscontrib=True))])
+    emaillist = '\n'.join(emails)
+    return HttpResponse(emaillist.lower(), content_type='text/plain')
+
+
 class MemberEditView(LoginRequiredMixin, UpdateView):
     model = Members
     fields = ['sub_private']
