@@ -12,9 +12,6 @@ class Members(models.Model):
     memid = models.OneToOneField(User, null=False, blank=False, primary_key=True, on_delete=models.RESTRICT, db_column='memid', db_constraint=False)
     email = models.CharField(max_length=50, null=False, unique=True)  # for linking with pgweb
     name = models.CharField(max_length=50, null=False)
-    phone = models.CharField(max_length=20, null=True)
-    pgpkey = models.CharField(max_length=50, null=True)
-    expirydate = models.DateField(null=True)
     iscontrib = models.BooleanField(null=False, blank=False, default=False)
     ismanager = models.BooleanField(null=False, blank=False, default=False)
     sub_private = models.BooleanField(default=False, null=False, verbose_name='Subscribe to spi-private?')
