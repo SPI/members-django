@@ -19,7 +19,7 @@ class Command(BaseCommand):
                             action='store_const', const=True, default=False)
 
     def handle(self, *args, **options):
-        url = 'https://beta.membersdjango.spi-inc.org/subprivate'
+        url = 'https://beta.membersdjango.spi-inc.org/privatesubs'
         response = urllib.request.urlopen(url)
         data = response.read()
         addresses = data.decode('utf-8').split('\n')
