@@ -961,6 +961,13 @@ class ManagerTest(TestCase):
         self.assertRedirects(response, '/', status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=True)
         self.assertContains(response, "You can only view results for your own votes.")
 
+    def test_viewvoteresult_unfinished(self):
+        create_vote(self)
+        vote = VoteElection.objects.all()[0]
+        response = self.client.get('/vote/%d/result' % vote.pk, follow=True)
+        self.assertRedirects(response, '/', status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=True)
+        self.assertContains(response, "Vote must be finished to view results.")
+
     def test_votevote(self):
         create_vote(self)
         vote = VoteElection.objects.all()[0]
