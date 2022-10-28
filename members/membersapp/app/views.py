@@ -165,6 +165,9 @@ def votevote(request, ref):
     vote = get_object_or_404(VoteElection, ref=ref)
     if not user.iscontrib:
         return render(request, 'contrib-only.html')
+    if not vote.is_active:
+        messages.error(request, 'Vote is not currently running.')
+        return HttpResponseRedirect(reverse('vote', args=[ref]))
     if request.method == 'POST':
         form = VoteVoteForm(request.POST)
         membervote, created = VoteVote.object.get_or_create(voter_ref=user, election_ref=vote)
@@ -175,8 +178,6 @@ def votevote(request, ref):
             md5.update(uuid.uuid1().hex.encode('utf-8'))
             membervote.private_secret = md5.hexdigest()
         if form.is_valid():
-            if not vote.is_active:
-                messages.error(request, 'Vote is not currently running.')
             if vote.is_active and membervote:
                 if request.POST['vote'] != membervote.votestr:
                     res = membervote.set_vote(request.POST['vote'])

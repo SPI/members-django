@@ -12,7 +12,7 @@ from django.test import Client, TestCase
 from django.contrib.auth.models import User
 from django.utils import timezone
 
-from membersapp.app.models import Members, Applications, VoteElection
+from membersapp.app.models import Members, Applications, VoteElection, VoteVote
 
 
 member = None
@@ -592,6 +592,14 @@ class ContribUserTest(TestCase):
         response = edit_vote_option(self, vote.pk)
         self.assertRedirects(response, '/', status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=False)
         self.assertContains(response, "You are not allowed to create new votes")
+
+    def test_votevote_not_running(self):
+        vote = create_vote_with_manager(self)
+        response = vote_vote(self, vote.pk, correct=True)
+        dump_page(response)
+        self.assertRedirects(response, '/vote/%d' % vote.pk, status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=True)
+        self.assertContains(response, "Vote is not currently running")
+        self.assertEqual(VoteVote.objects.count(), 0)
 
     def test_votevote(self):
         vote = create_vote_with_manager(self)
