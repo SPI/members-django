@@ -945,7 +945,6 @@ class ManagerTest(TestCase):
         for target in ['/vote/1337/editedit', '/vote/1337/editoption', 'vote/1337/vote']:
             response = self.client.post(target)
             self.assertEqual(response.status_code, 404)
-            dump_page(response)
 
     def test_viewvoteresult_incorrect(self):
         member = create_other_member()
