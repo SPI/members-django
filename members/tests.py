@@ -596,7 +596,6 @@ class ContribUserTest(TestCase):
     def test_votevote_not_running(self):
         vote = create_vote_with_manager(self)
         response = vote_vote(self, vote.pk, correct=True)
-        dump_page(response)
         self.assertRedirects(response, '/vote/%d' % vote.pk, status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=True)
         self.assertContains(response, "Vote is not currently running")
         self.assertEqual(VoteVote.objects.count(), 0)
