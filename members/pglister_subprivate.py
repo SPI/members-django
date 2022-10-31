@@ -38,21 +38,29 @@ class Command(BaseCommand):
         data = response.read()
         addresses = data.decode('utf-8').split('\n')
         try:
-            subprivate = List.objects.get(name='spi-private')
+            spiprivate = List.objects.get(name='spi-private')
         except List.DoesNotExist:
             print("Error: spi-private does not exist. Please create it in pglister's admin interface", file=sys.stderr)
             sys.exit(1)
+        previous_subcriptions = ListSubscription.objects.filter(list=spiprivate)
+        for subscription in previous_subcriptions:
+            if str(subscription.subscriber) not in addresses:
+                print("%s no longer subscribed, removing subscription" % subscription.subscriber)
+                if not options['dryrun']:
+                    subscription.delete()
+            elif options['verbose']:
+                print("%s remains subscribed" % subscription.subscriber)
         for address in addresses:
             try:
                 subscriber = SubscriberAddress.objects.get(email=address)
             except SubscriberAddress.DoesNotExist:
                 print("Error: subscriber %s does not exist" % subscriber, file=sys.stderr)
                 continue
-            if ListSubscription.objects.filter(list=subprivate, subscriber=subscriber).exists():
+            if ListSubscription.objects.filter(list=spiprivate, subscriber=subscriber).exists():
                 if options['verbose']:
                     print("%s already subscribed to spi-private" % address)
                 continue
             print("Subscribing %s to spi-private" % address)
             if not options['dryrun']:
-                subscription = ListSubscription(list=subprivate, subscriber=subscriber)
+                subscription = ListSubscription(list=spiprivate, subscriber=subscriber)
                 subscriber.save()
