@@ -37,7 +37,7 @@ class Command(BaseCommand):
         try:
             subprivate = List.objects.get(name='spi-private')
         except List.DoesNotExist:
-            print("Error: spi-private does not exist. Please create it in pglister's admin interface")
+            print("Error: spi-private does not exist. Please create it in pglister's admin interface", file=sys.stderr)
             sys.exit(1)
         for address in addresses:
             subscriber = SubscriberAddress.objects.get(email=address)
