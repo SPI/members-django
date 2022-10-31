@@ -2,6 +2,7 @@
 
 import urllib.request
 import ssl
+import sys
 
 from django.core.management.base import BaseCommand, CommandError
 from django.template import loader
@@ -33,7 +34,11 @@ class Command(BaseCommand):
         response = urllib.request.urlopen(r, context=ctx)
         data = response.read()
         addresses = data.decode('utf-8').split('\n')
-        subprivate = List.objects.get(name='spi-private')
+        try:
+            subprivate = List.objects.get(name='spi-private')
+        except List.DoesNotExist:
+            print("Error: spi-private does not exist. Please create it in pglister's admin interface")
+            sys.exit(1)
         for address in addresses:
             print("Subscribing %s to spi-private" % address)
             if not options['dryrun']:
