@@ -8,7 +8,7 @@ from django.template import loader
 from django.conf import settings
 from django.core.mail import send_mail
 
-# from pglister.lists import
+from pglister.lists.models import SubscriberAddress, List, ListSubscription
 
 
 class Command(BaseCommand):
@@ -33,4 +33,10 @@ class Command(BaseCommand):
         response = urllib.request.urlopen(r, context=ctx)
         data = response.read()
         addresses = data.decode('utf-8').split('\n')
-        print(addresses)
+        subprivate = List.objects.get(name='spi-private')
+        for address in addresses:
+            print("Subscribing %s to spi-private" % address)
+            if not options['dryrun']:
+                subscriber = SubscriberAddress.objects.get(email=address)
+                subscription = ListSubscription(list=subprivate, subscriber=subscriber)
+                subscriber.save()
