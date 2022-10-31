@@ -470,7 +470,7 @@ def privatesubs(request):
     """Return the list of -private subscriber addressess"""
     user = get_current_user(request)
     if request.META.get('REMOTE_ADDR') not in settings.LIST_HOSTS:
-        messages.error('This page is not reachable from your IP address.')
+        messages.error(request, 'This page is not reachable from your IP address.')
         return HttpResponseRedirect("/")
 
     emails = sorted([x.email for x in Members.objects.filter(Q(sub_private=True) & Q(iscontrib=True))])
