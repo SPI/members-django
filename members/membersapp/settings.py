@@ -153,7 +153,7 @@ EMAIL_HOST = 'localhost'
 EMAIL_PORT = '25'
 
 # IPs that will get access to the -private subs list
-LIST_HOSTS = ['127.0.0.1']
+LIST_HOSTS = ['127.0.0.1', '::1']
 
 try:
     from .local_settings import *
