@@ -24,6 +24,9 @@ class Command(BaseCommand):
         parser.add_argument('--url', dest='url',
                             help="URL of the members application",
                             action='store', default='https://localhost')
+        parser.add_argument('--verbose', dest='verbose',
+                            help="Print more information about subscriptions",
+                            action='store_const', const=True, default=False)
 
     def handle(self, *args, **options):
         url = '%s/privatesubs' % options['url']
@@ -46,7 +49,8 @@ class Command(BaseCommand):
                 print("Error: subscriber %s does not exist" % subscriber, file=sys.stderr)
                 continue
             if ListSubscription.objects.filter(list=subprivate, subscriber=subscriber).exists():
-                print("%s already subscribed to spi-private" % address)
+                if options['verbose']:
+                    print("%s already subscribed to spi-private" % address)
                 continue
             print("Subscribing %s to spi-private" % address)
             if not options['dryrun']:
