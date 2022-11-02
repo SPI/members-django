@@ -52,6 +52,9 @@ class Command(BaseCommand):
             elif options['verbose']:
                 print("%s remains subscribed" % subscription.subscriber)
         for address in addresses:
+            if len(address.strip()) == 0:
+                # Trailing space, ignore
+                continue
             try:
                 subscriber = SubscriberAddress.objects.get(email=address)
             except SubscriberAddress.DoesNotExist:
