@@ -66,4 +66,4 @@ class Command(BaseCommand):
             print("Subscribing %s to spi-private" % address)
             if not options['dryrun']:
                 subscription = ListSubscription(list=spiprivate, subscriber=subscriber)
-                subscriber.save()
+                subscription.save()
