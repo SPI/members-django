@@ -54,7 +54,7 @@ class Command(BaseCommand):
             try:
                 subscriber = SubscriberAddress.objects.get(email=address)
             except SubscriberAddress.DoesNotExist:
-                print("Error: subscriber %s does not exist" % subscriber, file=sys.stderr)
+                print("Error: subscriber %s does not exist" % address, file=sys.stderr)
                 continue
             if ListSubscription.objects.filter(list=spiprivate, subscriber=subscriber).exists():
                 if options['verbose']:
