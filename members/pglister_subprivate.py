@@ -10,6 +10,7 @@ from django.conf import settings
 from django.core.mail import send_mail
 
 from pglister.lists.models import SubscriberAddress, List, ListSubscription
+from lib.baselib.misc import generate_random_token
 
 
 class Command(BaseCommand):
@@ -54,8 +55,10 @@ class Command(BaseCommand):
             try:
                 subscriber = SubscriberAddress.objects.get(email=address)
             except SubscriberAddress.DoesNotExist:
-                print("Error: subscriber %s does not exist" % address, file=sys.stderr)
-                continue
+                print("Subscriber %s does not exist, creating them" % address)
+                subscriber = SubscriberAddress(email=address, confirmed=True, blocked=False, token=generate_random_token())
+                if not options['dryrun']:
+                    subscriber.save()
             if ListSubscription.objects.filter(list=spiprivate, subscriber=subscriber).exists():
                 if options['verbose']:
                     print("%s already subscribed to spi-private" % address)
