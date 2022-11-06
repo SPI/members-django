@@ -82,3 +82,39 @@ To run tests, the current user must have the rights to create a database. In pos
 ```
 alter user <USERNAME> CREATEDB;
 ```
+
+# Relationship between Membersdjango, PGWeb and PGLister
+
+Membersdjango is the membership web application. PGWeb handles the centralized login system. PGLister handles mailing lists. For the installation of PGWeb and PGLister, see [here](https://gitlab.com/cmatte/pglister/-/blob/master/INSTALL.md).
+
+## Link between PGWeb and Membersdjango
+
+Similarly to PGLister, a community auth site must be created in PGWeb. First, create a community org auth in [/admin/account/communityauthorg/](https://pgweb.spi-inc.org/admin/account/communityauthorg/). Then create the auth site in [/admin/account/communityauthsite/](https://pgweb.spi-inc.org/admin/account/communityauthsite/).
+
+Use the following parameters:
+- Redirecturl: https://your_membersjango_address.tld/auth_receive/
+- Apiurl: https://your_pgweb_address.tld/account/auth/1/
+- Cryptkey: a random password that you can create using `python tools/communityauth/generate_cryptkey.py`
+- Org: the org site you just created
+
+Then add the correct information in membersdjango's `settings.py` (or `local_settings.py`):
+```
+USE_PG_COMMUNITY_AUTH = True
+PGAUTH_REDIRECT = "https://your_pgweb_address.tld/account/auth/1/"
+PGAUTH_KEY = "YOUR_CRYPTKEY"
+PGAUTH_REDIRECT_SUCCESS = "http://your_membersjango_address.tld/"
+PGAUTH_SIGNUP = "https://your_pgweb_address.tld/account/signup/"
+PGAUTH_ROOT = "https://your_pgweb_address.tld/"
+```
+
+## Scripts
+
+There are several scripts to handle the links between these different components.
+- email-stats: send email containing stats on members and applications
+- email-voters: email contributing members about open votes
+- cleanup-contrib: deal with sending notifications to or cleaning up inactive SPI contributing members
+- subprivate: prompt the members application for contributing members list and subscribe them to the spi-private mailing list
+
+Add these as cron jobs such as:
+- email-stats, email-voters and cleanup-contrib (ping and clean) are running in the context of the membersdjango application
+- subprivate is running in the context of PGLister
