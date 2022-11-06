@@ -10,7 +10,7 @@ from membersapp.app.models import Members, VoteElection
 
 
 class Command(BaseCommand):
-    help = 'Deal with cleaning up inactive SPI contributing members'
+    help = 'Deal with sending notifications to or cleaning up inactive SPI contributing members'
 
     def add_arguments(self, parser):
         parser.add_argument('action', choices=['clean', 'ping'],
