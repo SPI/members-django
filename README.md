@@ -115,11 +115,11 @@ PGAUTH_ROOT = "https://your_pgweb_address.tld/"
 ## Scripts
 
 There are several scripts to handle the links between these different components.
-- email-stats: send email containing stats on members and applications
-- email-voters: email contributing members about open votes
-- cleanup-contrib: deal with sending notifications to or cleaning up inactive SPI contributing members
-- subprivate: prompt the members application for contributing members list and subscribe them to the spi-private mailing list
+- `email-stats`: send email containing stats on members and applications
+- `email-voters`: email contributing members about open votes
+- `cleanup-contrib`: deal with sending notifications to or cleaning up inactive SPI contributing members
+- `subprivate`: prompt the members application for contributing members list and subscribe them to the spi-private mailing list
 
 Add these as cron jobs such as:
-- email-stats, email-voters and cleanup-contrib (ping and clean) are running in the context of the membersdjango application
-- subprivate is running in the context of PGLister
+- `email-stats`, `email-voters` and `cleanup-contrib` (`ping` and `clean`) are running in the context of the membersdjango application
+- `subprivate` is running in the context of PGLister
