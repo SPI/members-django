@@ -83,6 +83,11 @@ To run tests, the current user must have the rights to create a database. In pos
 alter user <USERNAME> CREATEDB;
 ```
 
+In the right venv, they can then be run using:
+```
+PYTHONPATH=membersapp/app/OpenSTV/openstv python manage.py test
+```
+
 # Relationship between Membersdjango, PGWeb and PGLister
 
 Membersdjango is the membership web application. PGWeb handles the centralized login system. PGLister handles mailing lists. For the installation of PGWeb and PGLister, see [here](https://gitlab.com/cmatte/pglister/-/blob/master/INSTALL.md).
