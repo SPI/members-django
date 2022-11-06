@@ -10,6 +10,13 @@ Rewriting of the (Flask-based) Members app in Django
 - python-psycopg2
 - pyenv
 - python-virtualenv
+- python-wxgtk3.0  # for OpenSTV
+
+pip packages:
+- django==3.2
+- psycopg2-binary
+- requests
+- pycryptodomex
 
 ## Install
 
