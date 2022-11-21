@@ -1,6 +1,8 @@
 # Members-django
 
-Rewriting of the (Flask-based) Members app in Django
+Rewriting of the (Flask-based) Members app in Django.
+
+URL: https://members.spi-inc.org
 
 ## Dependencies
 
