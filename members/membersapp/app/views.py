@@ -208,7 +208,8 @@ def showmember(request, memid):
         'user': user,
         'member': member,
         'auth_user': auth_user,
-        'applications': Applications.objects.filter(member=member)
+        'applications': Applications.objects.filter(member=member),
+        'applicants': Applications.objects.filter(manager=member).order_by('appid')
     }
     return HttpResponse(template.render(context, request))
 
