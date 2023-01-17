@@ -34,7 +34,7 @@ from .models import CommunityAuthSite, CommunityAuthConsent, SecondaryEmail
 from .forms import PgwebAuthenticationForm, ConfirmSubmitForm
 from .forms import CommunityAuthConsentForm
 from .forms import SignupForm, SignupOauthForm
-from .forms import UserForm, UserProfileForm, ContributorForm
+from .forms import UserForm, UserProfileForm
 from .forms import AddEmailForm, PgwebPasswordResetForm
 
 import logging

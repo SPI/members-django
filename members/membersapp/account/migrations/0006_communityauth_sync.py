@@ -9,7 +9,6 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('account', '0005_secondaryemail'),
-        ('core', '0001_initial'),
     ]
 
     operations = [
@@ -97,28 +96,4 @@ $$ language 'plpgsql'""",
             """DROP TRIGGER account_Secondaryemail_changetrack_trg""",
         ),
 
-        migrations.RunSQL(
-            """CREATE FUNCTION account_profile_changetrack () RETURNS trigger AS $$
-BEGIN
-   IF NEW.sshkey != OLD.sshkey THEN
-      INSERT INTO account_communityauthchangelog (user_id, site_id, changedat)
-            SELECT NEW.user_id, s.id, CURRENT_TIMESTAMP
-            FROM account_communityauthsite s
-            INNER JOIN account_communityauthlastlogin ll ON ll.site_id=s.id
-            WHERE s.push_changes AND s.push_ssh AND ll.user_id=NEW.user_id
-      ON CONFLICT (user_id, site_id) DO UPDATE SET changedat=greatest(account_communityauthchangelog.changedat, CURRENT_TIMESTAMP);
-      NOTIFY communityauth_changetrack;
-   END IF;
-   RETURN NEW;
-END;
-$$ language 'plpgsql'""",
-            """DROP FUNCTION account_secondaryemail_changetrack""",
-        ),
-
-        migrations.RunSQL(
-            """CREATE TRIGGER account_profile_changetrack_trg
- AFTER DELETE OR UPDATE ON core_userprofile
- FOR EACH ROW EXECUTE FUNCTION account_profile_changetrack()""",
-            """DROP TRIGGER account_profile_changetrack_trg""",
-        ),
     ]

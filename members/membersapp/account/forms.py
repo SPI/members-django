@@ -4,6 +4,8 @@ from django.contrib.auth.forms import AuthenticationForm
 import re
 
 from django.contrib.auth.models import User
+
+from membersapp.app.models import Members
 from .models import SecondaryEmail
 
 from .recaptcha import ReCaptchaField
@@ -118,6 +120,7 @@ class SignupOauthForm(forms.Form):
 class UserProfileForm(forms.ModelForm):
     class Meta:
         model = Members
+        fields = ['email', 'name']
 
 
 class UserForm(forms.ModelForm):
