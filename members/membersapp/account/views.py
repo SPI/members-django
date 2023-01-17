@@ -33,7 +33,7 @@ from membersapp.account.util.markup import pgmarkdown
 from .models import CommunityAuthSite, CommunityAuthConsent, SecondaryEmail
 from .forms import PgwebAuthenticationForm, ConfirmSubmitForm
 from .forms import CommunityAuthConsentForm
-from .forms import SignupForm, SignupOauthForm
+from .forms import SignupForm
 from .forms import UserForm, UserProfileForm
 from .forms import AddEmailForm, PgwebPasswordResetForm
 
@@ -43,10 +43,6 @@ from membersapp.account.util.moderation import get_moderation_model_from_suburl
 from membersapp.account.mailqueue.util import send_simple_mail
 
 log = logging.getLogger(__name__)
-
-# The value we store in user.password for oauth logins. This is
-# a value that must not match any hashers.
-OAUTH_PASSWORD_STORE = 'oauth_signin_account_no_password'
 
 
 def _modobjs(qs):
@@ -313,7 +309,6 @@ def login(request):
     return authviews.LoginView.as_view(template_name='account/login.html',
                                        authentication_form=PgwebAuthenticationForm,
                                        extra_context={
-                                           'oauth_providers': [(k, v) for k, v in sorted(settings.OAUTH.items())],
                                        })(request)
 
 
@@ -322,9 +317,6 @@ def logout(request):
 
 
 def changepwd(request):
-    if hasattr(request.user, 'password') and request.user.password == OAUTH_PASSWORD_STORE:
-        return HttpSimpleResponse(request, "Account error", "This account cannot change password as it's connected to a third party login site.")
-
     log.info("Initiating password change from {0}".format(get_client_ip(request)))
     return authviews.PasswordChangeView.as_view(template_name='account/password_change.html',
                                                 success_url='/account/changepwd/done/')(request)
@@ -337,8 +329,6 @@ def resetpwd(request):
     if request.method == "POST":
         try:
             u = User.objects.get(email__iexact=request.POST['email'])
-            if u.password == OAUTH_PASSWORD_STORE:
-                return HttpSimpleResponse(request, "Account error", "This account cannot change password as it's connected to a third party login site.")
         except User.DoesNotExist:
             log.info("Attempting to reset password of {0}, user not found".format(request.POST['email']))
             return HttpResponseRedirect('/account/reset/done/')
@@ -449,91 +439,6 @@ def signup_complete(request):
     })
 
 
-@script_sources('https://www.google.com/recaptcha/')
-@script_sources('https://www.gstatic.com/recaptcha/')
-@frame_sources('https://www.google.com/')
-@transaction.atomic
-@queryparams('do_abort')
-def signup_oauth(request):
-    if 'oauth_email' not in request.session \
-       or 'oauth_firstname' not in request.session \
-       or 'oauth_lastname' not in request.session:
-        return HttpSimpleResponse(request, "OAuth error", 'Invalid redirect received')
-
-    # Is this email already on a different account as a secondary one?
-    if SecondaryEmail.objects.filter(email=request.session['oauth_email'].lower()).exists():
-        return HttpSimpleResponse(request, "OAuth error", 'This email address is already attached to a different account')
-
-    if request.method == 'POST':
-        # Second stage, so create the account. But verify that the
-        # nonce matches.
-        data = request.POST.copy()
-        data['email'] = request.session['oauth_email'].lower()
-        data['first_name'] = request.session['oauth_firstname']
-        data['last_name'] = request.session['oauth_lastname']
-        form = SignupOauthForm(data=data)
-        if form.is_valid():
-            log.info("Creating user for {0} from {1} from oauth signin of email {2}".format(form.cleaned_data['username'], get_client_ip(request), request.session['oauth_email']))
-
-            user = User.objects.create_user(form.cleaned_data['username'].lower(),
-                                            request.session['oauth_email'].lower(),
-                                            last_login=datetime.now())
-            user.first_name = request.session['oauth_firstname']
-            user.last_name = request.session['oauth_lastname']
-            user.password = OAUTH_PASSWORD_STORE
-            user.save()
-
-            # Clean up our session
-            del request.session['oauth_email']
-            del request.session['oauth_firstname']
-            del request.session['oauth_lastname']
-            request.session.modified = True
-
-            # We can immediately log the user in because their email
-            # is confirmed.
-            user.backend = settings.AUTHENTICATION_BACKENDS[0]
-            django_login(request, user)
-
-            # Redirect to the sessions page, or to the account page
-            # if none was given.
-            return HttpResponseRedirect(request.session.pop('login_next', '/account/'))
-    elif 'do_abort' in request.GET:
-        del request.session['oauth_email']
-        del request.session['oauth_firstname']
-        del request.session['oauth_lastname']
-        request.session.modified = True
-        return HttpResponseRedirect(request.session.pop('login_next', '/'))
-    else:
-        # Generate possible new username
-        suggested_username = request.session['oauth_email'].replace('@', '.')[:30]
-
-        # Auto generation requires firstname and lastname to be specified
-        f = request.session['oauth_firstname'].lower()
-        l = request.session['oauth_lastname'].lower()
-        if f and l:
-            for u in itertools.chain([
-                    "{0}{1}".format(f, l[0]),
-                    "{0}{1}".format(f[0], l),
-            ], ("{0}{1}{2}".format(f, l[0], n) for n in range(100))):
-                if not User.objects.filter(username=u[:30]).exists():
-                    suggested_username = u[:30]
-                    break
-
-        form = SignupOauthForm(initial={
-            'username': suggested_username,
-            'email': request.session['oauth_email'].lower(),
-            'first_name': request.session['oauth_firstname'][:30],
-            'last_name': request.session['oauth_lastname'][:30],
-        })
-
-    return render_pgweb(request, 'account', 'account/signup_oauth.html', {
-        'form': form,
-        'operation': 'New account',
-        'savebutton': 'Sign up for new account',
-        'recaptcha': True,
-    })
-
-
 ####
 # Community authentication endpoint
 ####
@@ -585,7 +490,6 @@ def communityauth(request, siteid):
             extra_context={
                 'sitename': site.name,
                 'next': nexturl,
-                'oauth_providers': [(k, v) for k, v in sorted(settings.OAUTH.items())],
             },
         )(request)
 

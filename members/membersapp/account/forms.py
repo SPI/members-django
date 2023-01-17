@@ -94,29 +94,6 @@ class SignupForm(forms.Form):
         return email
 
 
-class SignupOauthForm(forms.Form):
-    username = forms.CharField(max_length=30)
-    first_name = forms.CharField(max_length=30, required=False)
-    last_name = forms.CharField(max_length=30, required=False)
-    email = forms.EmailField()
-    captcha = ReCaptchaField()
-
-    def __init__(self, *args, **kwargs):
-        super(SignupOauthForm, self).__init__(*args, **kwargs)
-        self.fields['first_name'].widget.attrs['readonly'] = True
-        self.fields['first_name'].widget.attrs['disabled'] = True
-        self.fields['last_name'].widget.attrs['readonly'] = True
-        self.fields['last_name'].widget.attrs['disabled'] = True
-        self.fields['email'].widget.attrs['readonly'] = True
-        self.fields['email'].widget.attrs['disabled'] = True
-
-    def clean_username(self):
-        return _clean_username(self.cleaned_data['username'])
-
-    def clean_email(self):
-        return self.cleaned_data['email'].lower()
-
-
 class UserProfileForm(forms.ModelForm):
     class Meta:
         model = Members

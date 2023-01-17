@@ -10,7 +10,6 @@ import re
 
 from membersapp.account.util.widgets import TemplateRenderWidget
 from membersapp.account.util.db import exec_to_dict
-from membersapp.account.views import OAUTH_PASSWORD_STORE
 
 from .models import CommunityAuthSite, CommunityAuthOrg, SecondaryEmail
 
@@ -89,9 +88,7 @@ class PGUserChangeForm(UserChangeForm):
         )
 
     def password_type(self, obj):
-        if obj.password == OAUTH_PASSWORD_STORE:
-            return "OAuth integrated"
-        elif obj.password.startswith('pbkdf2_'):
+        if obj.password.startswith('pbkdf2_'):
             return "Regular password"
         elif obj.password.startswith('sha1$'):
             return "Old SHA1 password"
