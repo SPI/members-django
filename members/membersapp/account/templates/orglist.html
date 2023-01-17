@@ -1,0 +1,24 @@
+{%extends "base/page.html"%}
+{%block title%}Organisations{%endblock%}
+{%block contents%}
+<h1>Organisations <i class="fa fa-users"></i></h1>
+<p>
+The following organisations are registered in our database.
+</p>
+<table class="table table-striped">
+  <thead class="thead-light">
+    <tr>
+     <th>Organisation</th>
+     <th>Manager</th>
+    </tr>
+  </thead>
+  <tbody>
+    {%for o in orgs%}
+     <tr>
+      <th scope="row">{{o.name}}</th>
+      <td>{%for m in o.managers.all%}{{m.first_name}} {{m.last_name}}{%if not forloop.last%}<br/>{%endif%}{%endfor%}</td>
+     </tr>
+    {%endfor%}
+  </tbody>
+</table>
+{%endblock%}

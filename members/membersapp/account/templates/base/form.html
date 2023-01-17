@@ -1,0 +1,28 @@
+{%extends "base/page.html"%}
+{%load pgfilters%}
+{%block title%}{{operation|default:"Edit"}} {{formitemtype}}{%endblock%}
+{%block contents%}
+{%block pre_form_header%}{%endblock%}
+<h1>{% if formtitle %}{{ formtitle|safe }}{% else %}{{operation|default:"Edit"}} {{formitemtype}}{% endif %}</h1>
+{%if form_intro%}
+<p>
+{{form_intro|safe}}
+</p>
+{%endif%}
+
+{%include "base/form_contents.html" %}
+{%block post_form%}{%endblock%}
+{%endblock%}
+
+{% block extrahead %}
+{{ block.super }}
+<link rel="stylesheet" type="text/css" href="/media/css/markdown_preview.css?{{gitrev}}" />
+{%endblock%}
+
+{%block extrascript%}
+<script type="text/javascript" src="/media/js/markdown_preview.js?{{gitrev}}"></script>
+<script type="text/javascript" src="/media/js/forms.js?{{gitrev}}"></script>
+{%if recaptcha%}
+<script type="text/javascript" src="https://www.google.com/recaptcha/api.js?hl=en" async defer></script>
+{%endif%}
+{%endblock%}

@@ -1,0 +1,54 @@
+{%extends "base/page.html"%}
+{%block contents%}
+<h1>Sign in <i class="fas fa-sign-in-alt"></i></h1>
+<p>
+{%if sitename%}
+The website you are trying to log in to ({{sitename}}) is using the
+postgresql.org community login system. In this system you create a
+central account that is used to log into most postgresql.org services.
+Once you are logged into this account, you will automatically be
+logged in to the associated postgresql.org services.
+{%else%}
+Please log in to your community account to reach this area.
+{%endif%}
+</p>
+<p>
+If you do not already have an account,
+you can either <a href="/account/signup/">create</a>
+a dedicated account, or use one of the third party sign-in systems below.
+</p>
+
+<h2>Community account sign-in</h2>
+<p>
+If you have a postgresql.org community account with a password, please
+use the form below to sign in. If you have one but have lost your
+password, you can use the <a href="/account/reset/">password reset</a> form.
+</p>
+
+{%if form.non_field_errors%}
+{%for err in form.non_field_errors %}
+<div class="alert alert-danger">{{err}}</div>
+{%endfor%}
+{%endif%}
+<form action="." method="post" id="login-form">{% csrf_token %}
+  <div class="form-group">
+    <input type="text" class="form-control" name="username" id="id_username" placeholder="Username or email address" autofocus />
+  </div>
+  <div class="form-group">
+    <input type="password" class="form-control" name="password" id="id_password" placeholder="Password"/>
+    <input type="hidden" name="this_is_the_login_form" value="1" />
+    <input type="hidden" name="next" value="{{next}}" />
+  </div>
+  <div class="submit-row">
+    <input class="btn btn-primary" type="submit" value="Community Sign-In">
+  </div>
+</form>
+
+{%if oauth_providers%}
+<h2>Third party sign in</h2>
+{%for p,d in oauth_providers%}
+<p><a href="/account/login/{{p}}/?next={{next}}"><img src="/media/img/misc/btn_login_{{p}}.png" alt="Sign in with {{p|capfirst}}" /></a></p>
+{%endfor%}
+{%endif%}
+
+{%endblock%}
