@@ -23,14 +23,9 @@ urlpatterns = [
     # Submitted items
     url(r'^(?P<objtype>news)/(?P<item>\d+)/(?P<what>submit|withdraw)/$', membersapp.account.views.submitted_item_submitwithdraw),
     url(r'^(?P<objtype>news|events|products|organisations|services)/(?P<item>\d+|new)/$', membersapp.account.views.submitted_item_form),
-    url(r'^organisations/confirm/([0-9a-f]+)/$', membersapp.account.views.confirm_org_email),
 
     # Markdown preview (silly to have in /account/, but that's where all the markdown forms are so meh)
     url(r'^mdpreview/', membersapp.account.views.markdown_preview),
-
-    # Docs comments
-    url(r'^comments/(new)/([^/]+)/([^/]+)/$', membersapp.docs.views.commentform),
-    url(r'^comments/(new)/([^/]+)/([^/]+)/done/$', membersapp.docs.views.commentform_done),
 
     # Log in, logout, change password etc
     url(r'^login/$', membersapp.account.views.login),

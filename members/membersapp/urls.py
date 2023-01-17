@@ -43,11 +43,12 @@ urlpatterns = [
     path('privatesubs', views.privatesubs, name='privatesubs'),
 
     # Auth system integration
-    url(r'^(?:accounts/)?login/?$', membersapp.auth.login),
-    url(r'^(?:accounts/)?logout/?$', membersapp.auth.logout),
+    # url(r'^(?:account/)?login/?$', membersapp.auth.login),
+    # url(r'^(?:account/)?logout/?$', membersapp.auth.logout),
     url(r'^auth_receive/$', membersapp.auth.auth_receive),
     url(r'^auth_api/$', membersapp.auth.auth_api),
 
+    url(r'^account/', include('membersapp.account.urls')),
 ]
 
 handler404 = 'membersapp.app.views.handler404'

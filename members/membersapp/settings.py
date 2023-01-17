@@ -143,12 +143,13 @@ NOTIFICATION_FROM = "pgweb@{{ domain }}"                    # Address to send no
 NOCAPTCHA = True
 RECAPTCHA_SITE_KEY = ""
 RECAPTCHA_SECRET_KEY = ""
+SITE_ROOT = "http://localhost:8000/"
 
 # Override in local settings
 USE_PG_COMMUNITY_AUTH = True  # Right now we *always* do, but this is used to turn on/off some local features
 PGAUTH_REDIRECT = "http://localhost:8000/account/auth/1/"
 PGAUTH_KEY = "encryption_key"
-LOGIN_URL = "/accounts/login/"
+LOGIN_URL = "/account/login/"
 PGAUTH_REDIRECT_SUCCESS = "http://localhost:8000/"
 PGAUTH_SIGNUP = "https://pgweb.spi-inc.org/account/signup/"
 PGAUTH_ROOT = "https://pgweb.spi-inc.org/"

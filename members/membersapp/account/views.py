@@ -135,7 +135,7 @@ def profile(request):
                     settings.ACCOUNTS_NOREPLY_FROM,
                     sa.email,
                     'Your postgresql.org community account',
-                    'account/email_add_email.txt',
+                    'email_add_email.txt',
                     {'secondaryemail': sa, 'user': request.user, }
                 )
 
@@ -306,7 +306,7 @@ def markdown_preview(request):
 
 
 def login(request):
-    return authviews.LoginView.as_view(template_name='account/login.html',
+    return authviews.LoginView.as_view(template_name='login.html',
                                        authentication_form=PgwebAuthenticationForm,
                                        extra_context={
                                        })(request)
@@ -341,7 +341,7 @@ def resetpwd(request):
                 settings.ACCOUNTS_NOREPLY_FROM,
                 u.email,
                 'Password reset for your postgresql.org account',
-                'account/password_reset_email.txt',
+                'password_reset_email.txt',
                 {
                     'user': u,
                     'uid': urlsafe_base64_encode(force_bytes(u.pk)),
@@ -411,7 +411,7 @@ def signup(request):
             send_template_mail(settings.ACCOUNTS_NOREPLY_FROM,
                                form.cleaned_data['email'],
                                'Your new postgresql.org community account',
-                               'account/new_account_email.txt',
+                               'new_account_email.txt',
                                {'uid': urlsafe_base64_encode(force_bytes(user.id)), 'token': token, 'user': user}
                                )
 
@@ -485,7 +485,7 @@ def communityauth(request, siteid):
         else:
             nexturl = '/account/auth/%s/%s' % (siteid, urldata)
         return authviews.LoginView.as_view(
-            template_name='account/login.html',
+            template_name='login.html',
             authentication_form=PgwebAuthenticationForm,
             extra_context={
                 'sitename': site.name,
