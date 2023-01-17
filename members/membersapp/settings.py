@@ -33,6 +33,7 @@ ALLOWED_HOSTS = ["*"]
 
 INSTALLED_APPS = [
     'membersapp.app.apps.AppAppConfig',
+    'membersapp.account',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -132,6 +133,11 @@ STATIC_URL = '/media/'
 STATICFILES_DIRS = [
     BASE_DIR / "static",
 ]
+
+# account
+ACCOUNTS_NOREPLY_FROM = "pgweb@{{ domain }}"                # Address to send account messages from
+NOTIFICATION_EMAIL = "pgweb@{{ domain }}"                   # Address to send notifications *to*
+NOTIFICATION_FROM = "pgweb@{{ domain }}"                    # Address to send notifications *from*
 
 # Override in local settings
 USE_PG_COMMUNITY_AUTH = True  # Right now we *always* do, but this is used to turn on/off some local features
