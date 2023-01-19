@@ -151,8 +151,8 @@ PGAUTH_REDIRECT = "http://localhost:8000/account/auth/1/"
 PGAUTH_KEY = "encryption_key"
 LOGIN_URL = "/account/login/"
 PGAUTH_REDIRECT_SUCCESS = "http://localhost:8000/"
-PGAUTH_SIGNUP = "https://pgweb.spi-inc.org/account/signup/"
-PGAUTH_ROOT = "https://pgweb.spi-inc.org/"
+PGAUTH_SIGNUP = "https://localhost:8000/account/signup/"
+PGAUTH_ROOT = "https://localhost:8000/"
 PGAUTH_CHANGEPASSWD = "https://pgweb.spi-inc.org/account/changepwd"
 
 # Default primary key field type
