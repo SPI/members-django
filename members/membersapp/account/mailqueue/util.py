@@ -1,4 +1,8 @@
 from django.db import transaction
+from django.core.mail import send_mail
+from django.contrib import messages
+
+from smtplib import SMTPException
 
 from datetime import datetime
 from email.mime.text import MIMEText
@@ -9,7 +13,7 @@ from email.utils import make_msgid
 from email import encoders, charset
 from email.header import Header
 
-from .models import QueuedMail, LastSent
+from .models import LastSent
 
 
 def _encoded_email_header(name, email):
@@ -93,9 +97,9 @@ def send_simple_mail(sender, receiver, subject, msgtxt, attachments=None, userge
             sendat = datetime.now()
 
         # Just write it to the queue, so it will be transactionally rolled back
-        QueuedMail(sender=sender, receiver=receiver, fullmsg=msg.as_string(), usergenerated=usergenerated, sendat=sendat).save()
+        send_mail(subject, msgtxt, sender, [receiver], fail_silently=False)
         if cc:
             # Write a second copy for the cc, wihch will be delivered
             # directly to the recipient. (The sender doesn't parse the
             # message content to extract cc fields).
-            QueuedMail(sender=sender, receiver=cc, fullmsg=msg.as_string(), usergenerated=usergenerated, sendat=sendat).save()
+            send_mail(subject, msgtxt, sender, [cc], fail_silently=False)
