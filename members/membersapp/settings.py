@@ -135,15 +135,15 @@ STATICFILES_DIRS = [
 ]
 
 # account
-ACCOUNTS_NOREPLY_FROM = "pgweb@{{ domain }}"                # Address to send account messages from
-NOTIFICATION_EMAIL = "pgweb@{{ domain }}"                   # Address to send notifications *to*
-NOTIFICATION_FROM = "pgweb@{{ domain }}"                    # Address to send notifications *from*
+ACCOUNTS_NOREPLY_FROM = "pgweb@localhost"                # Address to send account messages from
+NOTIFICATION_EMAIL = "pgweb@localhost"                   # Address to send notifications *to*
+NOTIFICATION_FROM = "pgweb@localhost"                    # Address to send notifications *from*
 # Configure recaptcha. Most details contain keys and are thus handled
 # in settings_local.py. Override NOCAPTCHA to actually use them.
 NOCAPTCHA = True
 RECAPTCHA_SITE_KEY = ""
 RECAPTCHA_SECRET_KEY = ""
-SITE_ROOT = "http://localhost:8000/"
+SITE_ROOT = "http://localhost:8000"
 
 # Override in local settings
 USE_PG_COMMUNITY_AUTH = True  # Right now we *always* do, but this is used to turn on/off some local features
