@@ -43,7 +43,8 @@ INSTALLED_APPS = [
 ]
 
 AUTHENTICATION_BACKENDS = (
-    'membersapp.auth.AuthBackend',
+    # 'membersapp.auth.AuthBackend',
+    'membersapp.account.util.auth.AuthBackend',
 )
 
 MIDDLEWARE = [
