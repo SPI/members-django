@@ -72,7 +72,7 @@ def home(request):
         },
     ]
 
-    return render_pgweb(request, 'account', 'account/index.html', {
+    return render_pgweb(request, 'account', 'index.html', {
         'modobjects': filter(lambda x: any(x['objects']), modobjects),
     })
 
@@ -151,7 +151,7 @@ def profile(request):
         profileform = UserProfileForm(instance=profile)
         secondaryemailform = AddEmailForm(request.user)
 
-    return render_pgweb(request, 'account', 'account/userprofileform.html', {
+    return render_pgweb(request, 'account', 'userprofileform.html', {
         'userform': userform,
         'profileform': profileform,
         'secondaryemailform': secondaryemailform,
@@ -191,7 +191,7 @@ def listobjects(request, objtype):
             'unapproved': o['objects'](request.user).filter(approved=False),
         }
 
-    return render_pgweb(request, 'account', 'account/objectlist.html', {
+    return render_pgweb(request, 'account', 'objectlist.html', {
         'objects': objects,
         'title': o['title'],
         'editapproved': o['editapproved'],
@@ -210,7 +210,7 @@ def submitted_item_form(request, objtype, item):
 
     return simple_form(model, item, request, model.get_formclass(),
                        redirect='/account/edit/{}/'.format(objtype),
-                       formtemplate='account/submit_form.html',
+                       formtemplate='submit_form.html',
                        extracontext=extracontext)
 
 
@@ -243,7 +243,7 @@ def _submitted_item_submit(request, objtype, model, obj):
     else:
         form = ConfirmSubmitForm(obj._meta.verbose_name)
 
-    return render_pgweb(request, 'account', 'account/submit_preview.html', {
+    return render_pgweb(request, 'account', 'submit_preview.html', {
         'obj': obj,
         'form': form,
         'objtype': obj._meta.verbose_name,
@@ -318,7 +318,7 @@ def logout(request):
 
 def changepwd(request):
     log.info("Initiating password change from {0}".format(get_client_ip(request)))
-    return authviews.PasswordChangeView.as_view(template_name='account/password_change.html',
+    return authviews.PasswordChangeView.as_view(template_name='password_change.html',
                                                 success_url='/account/changepwd/done/')(request)
 
 
@@ -352,31 +352,31 @@ def resetpwd(request):
     else:
         form = PgwebPasswordResetForm()
 
-    return render_pgweb(request, 'account', 'account/password_reset.html', {
+    return render_pgweb(request, 'account', 'password_reset.html', {
         'form': form,
     })
 
 
 def change_done(request):
     log.info("Password change done from {0}".format(get_client_ip(request)))
-    return authviews.PasswordChangeDoneView.as_view(template_name='account/password_change_done.html')(request)
+    return authviews.PasswordChangeDoneView.as_view(template_name='password_change_done.html')(request)
 
 
 def reset_done(request):
     log.info("Password reset done from {0}".format(get_client_ip(request)))
-    return authviews.PasswordResetDoneView.as_view(template_name='account/password_reset_done.html')(request)
+    return authviews.PasswordResetDoneView.as_view(template_name='password_reset_done.html')(request)
 
 
 def reset_confirm(request, uidb64, token):
     log.info("Confirming password reset for uidb {0}, token {1} from {2}".format(uidb64, token, get_client_ip(request)))
-    return authviews.PasswordResetConfirmView.as_view(template_name='account/password_reset_confirm.html',
+    return authviews.PasswordResetConfirmView.as_view(template_name='password_reset_confirm.html',
                                                       success_url='/account/reset/complete/')(
                                                           request, uidb64=uidb64, token=token)
 
 
 def reset_complete(request):
     log.info("Password reset completed for user from {0}".format(get_client_ip(request)))
-    return authviews.PasswordResetCompleteView.as_view(template_name='account/password_reset_complete.html')(request)
+    return authviews.PasswordResetCompleteView.as_view(template_name='password_reset_complete.html')(request)
 
 
 @script_sources('https://www.google.com/recaptcha/')
@@ -435,7 +435,7 @@ to the specified address, and once confirmed a password for the new account can 
 
 
 def signup_complete(request):
-    return render_pgweb(request, 'account', 'account/signup_complete.html', {
+    return render_pgweb(request, 'account', 'signup_complete.html', {
     })
 
 
@@ -499,7 +499,7 @@ def communityauth(request, siteid):
     # course, we fill a structure with information about the user.
 
     if request.user.first_name == '' or request.user.last_name == '' or request.user.email == '':
-        return render_pgweb(request, 'account', 'account/communityauth_noinfo.html', {
+        return render_pgweb(request, 'account', 'communityauth_noinfo.html', {
         })
 
     # Check for cooloff period
@@ -507,7 +507,7 @@ def communityauth(request, siteid):
         if (datetime.now() - request.user.date_joined) < timedelta(hours=site.cooloff_hours):
             log.warning("User {0} tried to log in to {1} before cooloff period ended.".format(
                 request.user.username, site.name))
-            return render_pgweb(request, 'account', 'account/communityauth_cooloff.html', {
+            return render_pgweb(request, 'account', 'communityauth_cooloff.html', {
                 'site': site,
             })
 
