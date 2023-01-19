@@ -30,7 +30,6 @@ class Migration(migrations.Migration):
                 ('require_consent', models.BooleanField(default=True)),
             ],
         ),
-        migrations.RunSQL("INSERT INTO account_communityauthorg (orgname, require_consent) VALUES ('PostgreSQL Global Development Group', false)", reverse_sql=migrations.RunSQL.noop),
         migrations.AddField(
             model_name='communityauthconsent',
             name='org',
