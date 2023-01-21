@@ -20,7 +20,7 @@ from Cryptodome.Cipher import AES
 from Cryptodome import Random
 import time
 import json
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
 import itertools
 import hmac
 
@@ -29,6 +29,8 @@ from membersapp.account.util.misc import send_template_mail, generate_random_tok
 from membersapp.account.util.helpers import HttpSimpleResponse, simple_form
 from membersapp.account.util.moderation import ModerationState
 from membersapp.account.util.markup import pgmarkdown
+
+from membersapp.app.models import Members, Applications
 
 from .models import CommunityAuthSite, CommunityAuthConsent, SecondaryEmail
 from .forms import PgwebAuthenticationForm, ConfirmSubmitForm
@@ -394,7 +396,8 @@ def signup(request):
             # XXX: Do we need to validate something else?
             log.info("Creating user for {0} from {1}".format(form.cleaned_data['username'], get_client_ip(request)))
 
-            user = User.objects.create_user(form.cleaned_data['username'].lower(), form.cleaned_data['email'].lower(), last_login=datetime.now())
+            email = form.cleaned_data['email'].lower()
+            user = User.objects.create_user(form.cleaned_data['username'].lower(), email, last_login=datetime.now())
             user.first_name = form.cleaned_data['first_name']
             user.last_name = form.cleaned_data['last_name']
 
@@ -402,6 +405,20 @@ def signup(request):
             # it creates more entropy for the token generator (I think).
             user.password = generate_random_token()
             user.save()
+
+            # Create Member and Application
+            member = Members(pk=user.pk,
+                             name=user.first_name + ' ' + user.last_name,
+                             email=email,
+                             )
+            member.save()
+
+            app = Applications(member=member,
+                               appdate=date.today(),
+                               lastchange=date.today(),
+                               contribapp=False,
+                               contrib=False)
+            app.save()
 
             # Now generate a token
             token = default_token_generator.make_token(user)
