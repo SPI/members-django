@@ -147,10 +147,12 @@ RECAPTCHA_SECRET_KEY = ""
 SITE_ROOT = "http://localhost:8000"
 
 # Override in local settings
-USE_PG_COMMUNITY_AUTH = True  # Right now we *always* do, but this is used to turn on/off some local features
+USE_PG_COMMUNITY_AUTH = False  # Right now we *always* do, but this is used to turn on/off some local features
 PGAUTH_REDIRECT = "http://localhost:8000/account/auth/1/"
 PGAUTH_KEY = "encryption_key"
 LOGIN_URL = "/account/login/"
+LOGIN_REDIRECT_URL = '/'
+LOGOUT_URL = '/account/logout/'
 PGAUTH_REDIRECT_SUCCESS = "http://localhost:8000"
 PGAUTH_SIGNUP = "http://localhost:8000/account/signup/"
 PGAUTH_ROOT = "http://localhost:8000"

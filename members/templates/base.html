@@ -35,7 +35,7 @@
 <li><a href="/vote/create">Create Vote</a></li>
 {% endif %}
 <li><a href="{{ PGAUTH_ROOT }}">Handle account</a></li>
-<li><a href="/logout">Logout</a></li>
+<li><a href="{{ LOGOUT_URL }}">Logout</a></li>
     {% if user.ismanager %}
         <hr />
         <li><a href="/applications/all">All Applications</a></li>
@@ -45,7 +45,7 @@
         <li><a href="/applications/mgr">Application Managers</a></li>
     {% endif %}
 {% else %}
-<li><a href="/login">Login</a></li>
+<li><a href="{{ LOGIN_URL }}">Login</a></li>
 <li><a href="{{ PGAUTH_SIGNUP }}">New Member Application</a></li>
 <li><a href="{{ PGAUTH_CHANGEPASSWD }}">Password Reset</a></li>
 {% endif %}

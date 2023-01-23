@@ -42,12 +42,6 @@ urlpatterns = [
     path('vote/<int:ref>/result', views.voteresult, name='voteresult'),
     path('privatesubs', views.privatesubs, name='privatesubs'),
 
-    # Auth system integration
-    url(r'^(?:account/)?login/?$', membersapp.auth.login),
-    url(r'^(?:account/)?logout/?$', membersapp.auth.logout),
-    url(r'^auth_receive/$', membersapp.auth.auth_receive),
-    url(r'^auth_api/$', membersapp.auth.auth_api),
-
     url(r'^account/', include('membersapp.account.urls')),
 ]
 
