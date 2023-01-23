@@ -35,9 +35,7 @@ def index(request):
     """Handler for main page. Displays users details."""
     if not request.user.is_authenticated:
         template = loader.get_template('index.html')
-        context = {
-            'apply_url': settings.PGAUTH_ROOT + '/account/signup/'
-        }
+        context = {}
         return HttpResponse(template.render(context, request))
     else:
         template = loader.get_template('status.html')
