@@ -150,13 +150,24 @@ SITE_ROOT = "http://localhost:8000"
 USE_PG_COMMUNITY_AUTH = False  # Right now we *always* do, but this is used to turn on/off some local features
 PGAUTH_REDIRECT = "http://localhost:8000/account/auth/1/"
 PGAUTH_KEY = "encryption_key"
-LOGIN_URL = "/account/login/"
-LOGIN_REDIRECT_URL = '/'
-LOGOUT_URL = '/account/logout/'
 PGAUTH_REDIRECT_SUCCESS = "http://localhost:8000"
 PGAUTH_SIGNUP = "http://localhost:8000/account/signup/"
 PGAUTH_ROOT = "http://localhost:8000"
 PGAUTH_CHANGEPASSWD = "http://localhost/account/changepwd"
+LOGIN_URL = "/account/login/"
+LOGIN_REDIRECT_URL = '/'
+LOGOUT_URL = '/account/logout/'
+
+if USE_PG_COMMUNITY_AUTH:
+    SIGNUP_URL = PGAUTH_SIGNUP
+    CHANGEPASSWD_URL = PGAUTH_CHANGEPASSWD
+    RESETPASSWD_URL = PGAUTH_CHANGEPASSWD
+    ACCOUNT_URL = PGAUTH_ROOT
+else:
+    SIGNUP_URL = '/account/signup'
+    CHANGEPASSWD_URL = '/account/changepwd'
+    RESETPASSWD_URL = '/account/reset'
+    ACCOUNT_URL = '/'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
