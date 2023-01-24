@@ -1,7 +1,7 @@
 from django.conf import settings
 
 
-def settings_pgauth(request):
+def settings_auth(request):
     return {
         'LOGIN_URL': settings.LOGIN_URL,
         'LOGOUT_URL': settings.LOGOUT_URL,
