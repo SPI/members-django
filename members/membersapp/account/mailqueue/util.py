@@ -13,8 +13,6 @@ from email.utils import make_msgid
 from email import encoders, charset
 from email.header import Header
 
-from .models import LastSent
-
 
 def _encoded_email_header(name, email):
     if name:
@@ -87,15 +85,6 @@ def send_simple_mail(sender, receiver, subject, msgtxt, attachments=None, userge
             msg.attach(part)
 
     with transaction.atomic():
-        if staggertype and stagger:
-            # Don't send a second one too close after another one of this class.
-            ls, created = LastSent.objects.get_or_create(type=staggertype, defaults={'lastsent': datetime.now()})
-
-            sendat = ls.lastsent = ls.lastsent + stagger
-            ls.save(update_fields=['lastsent'])
-        else:
-            sendat = datetime.now()
-
         # Just write it to the queue, so it will be transactionally rolled back
         send_mail(subject, msgtxt, sender, [receiver], fail_silently=False)
         if cc:
