@@ -158,17 +158,6 @@ LOGIN_URL = "/account/login/"
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_URL = '/account/logout/'
 
-if USE_PG_COMMUNITY_AUTH:
-    SIGNUP_URL = PGAUTH_SIGNUP
-    CHANGEPASSWD_URL = PGAUTH_CHANGEPASSWD
-    RESETPASSWD_URL = PGAUTH_CHANGEPASSWD
-    ACCOUNT_URL = PGAUTH_ROOT
-else:
-    SIGNUP_URL = '/account/signup'
-    CHANGEPASSWD_URL = '/account/changepwd'
-    RESETPASSWD_URL = '/account/reset'
-    ACCOUNT_URL = '/'
-
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 
@@ -185,3 +174,14 @@ try:
     from .local_settings import *
 except ImportError:
     pass
+
+if USE_PG_COMMUNITY_AUTH:
+    SIGNUP_URL = PGAUTH_SIGNUP
+    CHANGEPASSWD_URL = PGAUTH_CHANGEPASSWD
+    RESETPASSWD_URL = PGAUTH_CHANGEPASSWD
+    ACCOUNT_URL = PGAUTH_ROOT
+else:
+    SIGNUP_URL = '/account/signup'
+    CHANGEPASSWD_URL = '/account/changepwd'
+    RESETPASSWD_URL = '/account/reset'
+    ACCOUNT_URL = '/'
