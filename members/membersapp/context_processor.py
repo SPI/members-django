@@ -8,5 +8,6 @@ def settings_auth(request):
         'SIGNUP_URL': settings.SIGNUP_URL,
         'CHANGEPASSWD_URL': settings.CHANGEPASSWD_URL,
         'RESETPASSWD_URL': settings.RESETPASSWD_URL,
-        'ACCOUNT_URL': settings.ACCOUNT_URL
+        'ACCOUNT_URL': settings.ACCOUNT_URL,
+        'PGLISTER_URL': settings.PGLISTER_URL
     }

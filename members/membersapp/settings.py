@@ -158,6 +158,8 @@ LOGIN_URL = "/account/login/"
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_URL = '/account/logout/'
 
+PGLISTER_URL = 'https://pglister.spi-inc.org'
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 
