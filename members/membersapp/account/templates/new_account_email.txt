@@ -1,8 +1,33 @@
-You are receiving this e-mail because you requested a new
-SPI community account.
+Dear {{ user.username }},
+
+Thank you for your interest in becoming a member of Software in the
+Public Interest, Inc. To approve your membership, we first need to be
+able to verify your email address.
 
 Please go to the following page and choose a new password:
 
 {{link_root}}/account/reset/{{uid}}-{{token}}/
 
-Your username, in case you've forgotten, is {{user.username}}.
+Application information:
+Name:              {{ user.username }}
+Email:             {{ user.email }}
+
+You will then be registered as a non-contributing member.
+You can apply for contributing membership on that website. In such case,
+please be patient as your application is processed. We are working the
+list of applicants as quickly as we can.
+
+SPI has several mailing lists dedicated to different topics of
+discussion. We recommend that you at least subscribe to the spi-announce
+list, and suggest subscribing to the spi-general list as well for
+general, SPI related, discussions. Subscribing and
+unsubscribing is most easily done using the
+
+https://www.spi-inc.org/mailing_lists
+
+web page.
+
+Thank you for your application!
+
+Software in the Public Interest, Inc.
+~
