@@ -151,7 +151,7 @@ def auth_receive(request):
 a different username than %s.
 
 This is almost certainly caused by some legacy data in our database.
-Please send an email to webmaster@postgresql.org, indicating the username
+Please send an email to webmaster@spi-inc.org, indicating the username
 and email address from above, and we'll manually merge the two accounts
 for you.
 

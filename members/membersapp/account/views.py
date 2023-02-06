@@ -136,7 +136,7 @@ def profile(request):
                 send_template_mail(
                     settings.ACCOUNTS_NOREPLY_FROM,
                     sa.email,
-                    'Your postgresql.org community account',
+                    'Your SPI community account',
                     'email_add_email.txt',
                     {'secondaryemail': sa, 'user': request.user, }
                 )
@@ -342,7 +342,7 @@ def resetpwd(request):
             send_template_mail(
                 settings.ACCOUNTS_NOREPLY_FROM,
                 u.email,
-                'Password reset for your postgresql.org account',
+                'Password reset for your SPI account',
                 'password_reset_email.txt',
                 {
                     'user': u,
@@ -427,7 +427,7 @@ def signup(request):
             # Generate an outgoing email
             send_template_mail(settings.ACCOUNTS_NOREPLY_FROM,
                                form.cleaned_data['email'],
-                               'Your new postgresql.org community account',
+                               'Your new SPI community account',
                                'new_account_email.txt',
                                {'uid': urlsafe_base64_encode(force_bytes(user.id)), 'token': token, 'user': user}
                                )

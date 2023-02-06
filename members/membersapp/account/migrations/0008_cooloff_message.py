@@ -6,7 +6,7 @@ from django.db import migrations, models
 def set_message(apps, schema_editor):
     m = apps.get_model("account", "CommunityAuthSite")
     m.objects.filter(cooloff_hours__gt=0) \
-             .update(cooloff_message='Please try again later, or contact the postgresql.org webmasters if you have an urgent need to log in.')
+             .update(cooloff_message='Please try again later, or contact the webmasters if you have an urgent need to log in.')
 
 
 def unset_message(apps, schema_editor):

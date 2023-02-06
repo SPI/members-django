@@ -1,5 +1,5 @@
 Somebody, probably you, attempted to add this email address to
-the PostgreSQL community account {{user.username}}.
+the SPI community account {{user.username}}.
 
 To confirm the addition of this email address, please click
 the following link:
