@@ -11,6 +11,7 @@ import datetime
 from django.test import Client, TestCase
 from django.contrib.auth.models import User
 from django.utils import timezone
+from django.contrib import auth
 
 from membersapp.app.models import Members, Applications, VoteElection, VoteVote
 
@@ -333,8 +334,8 @@ class NonLoggedInViewsTests(TestCase):
             self.assertRedirects(response, '/account/login/?next=%s' % case, status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=False)
 
     def test_privatesubs(self):
-        user1 = User(username="isprivate")
-        user2 = User(username="noprivate")
+        user1 = User(username="isprivate", email="isprivate@spi-inc.org")
+        user2 = User(username="noprivate", email='noprivate@spi-inc.org')
         member_private = Members(memid=user1, name="isprivate", email='isprivate@spi-inc.org', sub_private=True, iscontrib=True)
         member_noprivate = Members(memid=user2, name="noprivate", email='noprivate@spi-inc.org', sub_private=False, iscontrib=True)
         user1.save()
@@ -355,9 +356,11 @@ class LoggedInViewsTest(TestCase):
         self.client.force_login(member.memid)
 
     def test_logout(self):
-        # We can't test pgweb from here
-        response = self.client.get('/logout')
-        self.assertEqual(response.status_code, 302)
+        user = auth.get_user(self.client)
+        assert user.is_authenticated
+        response = self.client.get('/account/logout', follow=True)
+        self.assertRedirects(response, '/', status_code=301, target_status_code=200, msg_prefix='', fetch_redirect_response=False)
+        self.assertContains(response, "Welcome to the membership pages")
 
     def test_index_loggedin(self):
         response = self.client.get('/')
