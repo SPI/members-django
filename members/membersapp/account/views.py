@@ -26,9 +26,7 @@ import hmac
 
 from membersapp.account.util.contexts import render_pgweb
 from membersapp.account.util.misc import send_template_mail, generate_random_token, get_client_ip
-from membersapp.account.util.helpers import HttpSimpleResponse, simple_form
-from membersapp.account.util.moderation import ModerationState
-from membersapp.account.util.markup import pgmarkdown
+from membersapp.account.util.helpers import HttpSimpleResponse
 
 from membersapp.app.models import Members, Applications
 
@@ -41,42 +39,9 @@ from .forms import AddEmailForm, PgwebPasswordResetForm
 
 import logging
 
-from membersapp.account.util.moderation import get_moderation_model_from_suburl
 from membersapp.account.mailqueue.util import send_simple_mail
 
 log = logging.getLogger(__name__)
-
-
-def _modobjs(qs):
-    l = list(qs)
-    if l:
-        return {
-            'title': l[0]._meta.verbose_name_plural.capitalize(),
-            'objects': l,
-            'editurl': l[0].account_edit_suburl,
-        }
-    else:
-        return None
-
-
-@login_required
-def home(request):
-    modobjects = [
-        {
-            'title': 'not submitted yet',
-            'objects': [
-            ],
-        },
-        {
-            'title': 'waiting for moderator approval',
-            'objects': [
-            ],
-        },
-    ]
-
-    return render_pgweb(request, 'account', 'index.html', {
-        'modobjects': filter(lambda x: any(x['objects']), modobjects),
-    })
 
 
 objtypes = {
@@ -173,138 +138,6 @@ def confirm_add_email(request, tokenhash):
     addr.token = ''
     addr.save()
     return HttpResponseRedirect('/account/profile/')
-
-
-@login_required
-def listobjects(request, objtype):
-    if objtype not in objtypes:
-        raise Http404("Object type not found")
-    o = objtypes[objtype]
-
-    if o.get('tristate', False):
-        objects = {
-            'approved': o['objects'](request.user).filter(modstate=ModerationState.APPROVED),
-            'unapproved': o['objects'](request.user).filter(modstate=ModerationState.PENDING),
-            'inprogress': o['objects'](request.user).filter(modstate=ModerationState.CREATED),
-        }
-    else:
-        objects = {
-            'approved': o['objects'](request.user).filter(approved=True),
-            'unapproved': o['objects'](request.user).filter(approved=False),
-        }
-
-    return render_pgweb(request, 'account', 'objectlist.html', {
-        'objects': objects,
-        'title': o['title'],
-        'editapproved': o['editapproved'],
-        'submit_header': o.get('submit_header', None),
-        'suburl': objtype,
-        'tristate': o.get('tristate', False),
-    })
-
-
-@login_required
-@transaction.atomic
-def submitted_item_form(request, objtype, item):
-    model = get_moderation_model_from_suburl(objtype)
-
-    extracontext = {}
-
-    return simple_form(model, item, request, model.get_formclass(),
-                       redirect='/account/edit/{}/'.format(objtype),
-                       formtemplate='submit_form.html',
-                       extracontext=extracontext)
-
-
-@content_sources('style', "'unsafe-inline'")
-def _submitted_item_submit(request, objtype, model, obj):
-    if obj.modstate != ModerationState.CREATED:
-        # Can only submit if state is created
-        return HttpResponseRedirect("/account/edit/{}/".format(objtype))
-
-    if request.method == 'POST':
-        form = ConfirmSubmitForm(obj._meta.verbose_name, data=request.POST)
-        if form.is_valid():
-            with transaction.atomic():
-                obj.modstate = ModerationState.PENDING
-                obj.send_notification = False
-                obj.save()
-
-                send_simple_mail(settings.NOTIFICATION_FROM,
-                                 settings.NOTIFICATION_EMAIL,
-                                 "{} '{}' submitted for moderation".format(obj._meta.verbose_name.capitalize(), obj.title),
-                                 "{} {} with title '{}' submitted for moderation by {}\n\nModerate at: {}\n".format(
-                                     obj._meta.verbose_name.capitalize(),
-                                     obj.id,
-                                     obj.title,
-                                     request.user.username,
-                                     '{}/admin/_moderate/{}/{}/'.format(settings.SITE_ROOT, obj._meta.model_name, obj.pk),
-                                 ),
-                                 )
-                return HttpResponseRedirect("/account/edit/{}/".format(objtype))
-    else:
-        form = ConfirmSubmitForm(obj._meta.verbose_name)
-
-    return render_pgweb(request, 'account', 'submit_preview.html', {
-        'obj': obj,
-        'form': form,
-        'objtype': obj._meta.verbose_name,
-        'preview': obj.get_preview_fields(),
-    })
-
-
-def _submitted_item_withdraw(request, objtype, model, obj):
-    if obj.modstate != ModerationState.PENDING:
-        # Can only withdraw if it's in pending state
-        return HttpResponseRedirect("/account/edit/{}/".format(objtype))
-
-    obj.modstate = ModerationState.CREATED
-    obj.send_notification = False
-    if obj.twomoderators:
-        obj.firstmoderator = None
-        obj.save(update_fields=['modstate', 'firstmoderator'])
-    else:
-        obj.save(update_fields=['modstate', ])
-
-    send_simple_mail(
-        settings.NOTIFICATION_FROM,
-        settings.NOTIFICATION_EMAIL,
-        "{} '{}' withdrawn from moderation".format(model._meta.verbose_name.capitalize(), obj.title),
-        "{} {} with title {} withdrawn from moderation by {}".format(
-            model._meta.verbose_name.capitalize(),
-            obj.id,
-            obj.title,
-            request.user.username
-        ),
-    )
-    return HttpResponseRedirect("/account/edit/{}/".format(objtype))
-
-
-@login_required
-@transaction.atomic
-def submitted_item_submitwithdraw(request, objtype, item, what):
-    model = get_moderation_model_from_suburl(objtype)
-
-    obj = get_object_or_404(model, pk=item)
-    if not obj.verify_submitter(request.user):
-        raise PermissionDenied("You are not the owner of this item!")
-
-    if what == 'submit':
-        return _submitted_item_submit(request, objtype, model, obj)
-    else:
-        return _submitted_item_withdraw(request, objtype, model, obj)
-
-
-@login_required
-@csrf_exempt
-def markdown_preview(request):
-    if request.method != 'POST':
-        return HttpResponse("POST only please", status=405)
-
-    if request.headers.get('x-preview', None) != 'md':
-        raise Http404()
-
-    return HttpResponse(pgmarkdown(request.body.decode('utf8', 'ignore')))
 
 
 def login(request):
