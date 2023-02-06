@@ -55,18 +55,6 @@ sudo -u postgres psql spimembers -c 'drop table temp'; sudo -u postgres psql spi
 
 sudo chown $USER:postgres spimembers.sql temp_table.sql
 
-sudo -u postgres psql membersdjango < temp_table.sql
-sudo -u postgres psql --single-transaction membersdjango < applications.sql
-sudo -u postgres psql membersdjango < import_from_members_additional_fixes.sql
-sudo -u postgres psql --single-transaction membersdjango < spimembers.sql
-sudo -u postgres psql membersdjango < import_from_members_additional_fixes.sql
-sudo -u postgres psql -c 'delete from applications where member NOT in (select memid from members);' membersdjango
-```
-
-Import users in pgweb:
-```
-# sudo -u postgres pg_dump --no-owner --no-privileges --serializable-deferrable -t account_communityauthsite -t account_communityauthorg spi_pgweb > communityauth.sql
-
 sudo -u postgres psql spimembers -c "update applications set validemail_date=null where appid = 2067;"  # fix illogical corner case
 sudo -u postgres psql spimembers -c "delete from members where memid = 1641;"  # twice in db with same email address
 sudo -u postgres psql spimembers -c "delete from applications where member = 1641;"
@@ -74,8 +62,14 @@ sudo -u postgres psql spimembers -c "delete from applications where member = 164
 sudo -u postgres psql spimembers -c "\copy (select memid,left(COALESCE(substring(replace(name,',',' ') from '(.*?) '),replace(name,',',' ')),30),COALESCE(left(substring(replace(name,',',' ') from ' (.*)'),30),'.'),lower(email),password,ismanager,emailkey_date from members, applications where applications.member = members.memid and (validemail ='t' or validemail_date is not null)  order by memid) to members.csv with csv delimiter ',';"
 
 utils/convert_members.sh members.csv > members.sql
-sudo -u postgres psql spi_pgweb < members.sql
+sudo -u postgres psql membersdjango < members.sql
 
+sudo -u postgres psql membersdjango < temp_table.sql
+sudo -u postgres psql --single-transaction membersdjango < applications.sql
+sudo -u postgres psql membersdjango < import_from_members_additional_fixes.sql
+sudo -u postgres psql --single-transaction membersdjango < spimembers.sql
+sudo -u postgres psql membersdjango < import_from_members_additional_fixes2.sql
+sudo -u postgres psql -c 'delete from applications where member NOT in (select memid from members);' membersdjango
 ```
 
 ## Tests
