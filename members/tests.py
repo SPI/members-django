@@ -31,14 +31,15 @@ def dump_page(response):
 
 def create_member(manager=False, contrib=False):
     global member
-    user = User()
-    member = Members(memid=user, name=default_name, email='test@spi-inc.org', ismanager=manager, iscontrib=contrib, createvote=manager)
+    email = 'test@spi-inc.org'
+    user = User(email=email)
+    member = Members(memid=user, name=default_name, email=email, ismanager=manager, iscontrib=contrib, createvote=manager)
     user.save()
     member.save()
 
 
 def create_other_member(manager=False, contrib=False, name='Other User', email='other_user@spi-inc.org'):
-    user = User(username=name)
+    user = User(username=name, email=email)
     member = Members(memid=user, name=name, email=email, ismanager=manager, iscontrib=contrib, createvote=manager)
     user.save()
     member.save()
