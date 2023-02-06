@@ -286,29 +286,29 @@ class NonLoggedInViewsTests(TestCase):
         switch_back(self, logged_in=False)
         application = Applications.objects.all()[0]
         response = self.client.get('/application/%d' % application.pk)
-        self.assertRedirects(response, '/accounts/login/?next=/application/%s' % application.pk, status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=False)
+        self.assertRedirects(response, '/account/login/?next=/application/%s' % application.pk, status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=False)
 
     def test_updateactive(self):
         data = {
         }
         response = self.client.post("/updateactive", data=data)
-        self.assertRedirects(response, '/accounts/login/?next=/updateactive', status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=False)
+        self.assertRedirects(response, '/account/login/?next=/updateactive', status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=False)
 
     def test_member(self):
         response = self.client.get('/member/1')
-        self.assertRedirects(response, '/accounts/login/?next=/member/1', status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=False)
+        self.assertRedirects(response, '/account/login/?next=/member/1', status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=False)
 
     def test_memberedit(self):
         data = {
             "sub_private": "on",
         }
         response = self.client.post("/member/edit", data=data)
-        self.assertRedirects(response, '/accounts/login/?next=/member/edit', status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=False)
+        self.assertRedirects(response, '/account/login/?next=/member/edit', status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=False)
 
     def test_applications(self):
         for case in ['all', 'ncm', 'ca', 'cm', 'mgr']:
             response = self.client.get('/applications/%s' % case)
-            self.assertRedirects(response, '/accounts/login/?next=/applications/%s' % case, status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=False)
+            self.assertRedirects(response, '/account/login/?next=/applications/%s' % case, status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=False)
 
     def test_application_edit(self):
         switch_to_other_member(self)
@@ -318,11 +318,11 @@ class NonLoggedInViewsTests(TestCase):
         data = {
         }
         response = self.client.post('/application/%d/edit' % application.pk, data=data)
-        self.assertRedirects(response, '/accounts/login/?next=/application/%d/edit' % application.pk, status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=False)
+        self.assertRedirects(response, '/account/login/?next=/application/%d/edit' % application.pk, status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=False)
 
     def test_apply(self):
         response = create_application_post(self, follow=False)
-        self.assertRedirects(response, '/accounts/login/?next=/apply/contrib', status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=False)
+        self.assertRedirects(response, '/account/login/?next=/apply/contrib', status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=False)
         self.assertEqual(Applications.objects.count(), 0)
 
     def tests_vote_redirect(self):
@@ -330,7 +330,7 @@ class NonLoggedInViewsTests(TestCase):
         vote = VoteElection.objects.all()[0]
         for case in ['/votes', '/vote/create', '/vote/%d' % vote.pk, '/vote/%d/edit' % vote.pk, '/vote/%d/editedit' % vote.pk, '/vote/%d/editoption' % vote.pk, '/vote/%d/vote' % vote.pk, '/vote/%d/result' % vote.pk]:
             response = self.client.get(case)
-            self.assertRedirects(response, '/accounts/login/?next=%s' % case, status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=False)
+            self.assertRedirects(response, '/account/login/?next=%s' % case, status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=False)
 
     def test_privatesubs(self):
         user1 = User(username="isprivate")
