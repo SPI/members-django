@@ -70,6 +70,7 @@ sudo -u postgres psql membersdjango < import_from_members_additional_fixes.sql
 sudo -u postgres psql --single-transaction membersdjango < spimembers.sql
 sudo -u postgres psql membersdjango < import_from_members_additional_fixes2.sql
 sudo -u postgres psql -c 'delete from applications where member NOT in (select memid from members);' membersdjango
+sudo -u postgres psql -c "update auth_user set is_superuser = 't' where id=2054;" membersdjango
 ```
 
 ## Tests
