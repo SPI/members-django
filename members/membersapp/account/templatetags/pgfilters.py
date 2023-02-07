@@ -7,7 +7,6 @@ from django.conf import settings
 import os
 from pathlib import Path
 import json
-import pynliner
 import babel
 
 register = template.Library()
@@ -130,42 +129,3 @@ def languagename(lang):
         return babel.Locale(lang).english_name
     except Exception:
         return lang
-
-
-@register.simple_tag(takes_context=True)
-def git_changes_link(context):
-    return mark_safe('<a href="https://git.postgresql.org/gitweb/?p=pgweb.git;a=history;f=templates/{}">View</a> change history.'.format(context.template_name))
-
-
-# CSS inlining (used for HTML email)
-@register.tag
-class InlineCss(template.Node):
-    def __init__(self, nodes, arg):
-        self.nodes = nodes
-        self.arg = arg
-
-    def render(self, context):
-        contents = self.nodes.render(context)
-        css = ''
-        path = self.arg.resolve(context, True)
-        if path is not None:
-            css = get_template(path).render()
-
-        p = pynliner.Pynliner().from_string(contents)
-        p.with_cssString(css)
-        return p.run()
-
-
-@register.tag
-def inlinecss(parser, token):
-    nodes = parser.parse(('endinlinecss',))
-
-    parser.delete_first_token()
-
-    # First part of token is the tagname itself
-    css = token.split_contents()[1]
-
-    return InlineCss(
-        nodes,
-        parser.compile_filter(css),
-    )
