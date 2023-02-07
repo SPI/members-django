@@ -7,7 +7,7 @@ import difflib
 from membersapp.account.util.middleware import get_current_user
 from membersapp.account.util.misc import varnish_purge, varnish_purge_xkey
 from membersapp.account.util.moderation import ModerationState
-from membersapp.account.mailqueue.util import send_simple_mail
+from membersapp.account.util.mail import send_simple_mail
 
 
 def _build_url(obj):

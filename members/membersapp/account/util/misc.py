@@ -4,7 +4,7 @@ from django.conf import settings
 from Cryptodome.Hash import SHA256
 from Cryptodome import Random
 
-from membersapp.account.mailqueue.util import send_simple_mail
+from membersapp.account.util.mail import send_simple_mail
 from membersapp.account.util.helpers import template_to_string
 import re
 

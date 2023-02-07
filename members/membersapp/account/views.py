@@ -39,7 +39,7 @@ from .forms import AddEmailForm, PgwebPasswordResetForm
 
 import logging
 
-from membersapp.account.mailqueue.util import send_simple_mail
+from membersapp.account.util.mail import send_simple_mail
 
 log = logging.getLogger(__name__)
 

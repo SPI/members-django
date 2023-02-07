@@ -10,7 +10,7 @@ from membersapp.account.util.contexts import render_pgweb
 import io
 import difflib
 
-from membersapp.account.mailqueue.util import send_simple_mail
+from membersapp.account.util.mail import send_simple_mail
 
 
 def template_to_string(templatename, attrs={}):
