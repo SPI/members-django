@@ -14,28 +14,4 @@ To submit a new record, or to edit an existing record, select the
 type of record in the menu on the left.
 </p>
 
-<h2>Permissions model</h2>
-<p>
-News, Events, Products and Professional Services are attached to an
-Organisation. One or more persons can be given permissions to manage
-the data for an organisation. If you do not have permissions for an
-organisation and think you should have, you need to contact the current
-managers for that organisation. You can find a list of organisations
-and managers <a href="orglist/">here</a>.
-</p>
-
-{% for cat in modobjects %}
-<h2>Items {{cat.title}}</h2>
-{%for l in cat.objects %}
-{%if l %}
-<h3><a href="/account/edit/{{l.editurl}}/">{{l.title}}</a></h3>
-{%for o in l.objects %}
-<ul>
-<li>{{o.title}}</li>
-</ul>
-{%endfor%}
-{%endif%}
-{%endfor%}
-{%endfor%}
-
 {%endblock%}
