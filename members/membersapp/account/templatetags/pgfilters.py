@@ -1,20 +1,6 @@
-from django.template.defaultfilters import stringfilter
-from django import template, forms
-from django.utils.safestring import mark_safe
-from django.template.loader import get_template
-from django.conf import settings
-
-import os
-from pathlib import Path
-import json
-import babel
+from django import template
 
 register = template.Library()
-
-
-@register.filter(name='class_name')
-def class_name(ob):
-    return ob.__class__.__name__
 
 
 @register.filter(is_safe=True)
@@ -24,12 +10,6 @@ def field_class(value, arg):
     else:
         c = arg
     return value.as_widget(attrs={"class": c})
-
-
-@register.filter(name='hidemail')
-@stringfilter
-def hidemail(value):
-    return value.replace('@', ' at ')
 
 
 @register.filter(is_safe=True)
@@ -54,20 +34,6 @@ def label_class(value, arg):
     return value.label_tag(attrs={'class': arg})
 
 
-@register.filter()
-def planet_author(obj):
-    # takes a ImportedRSSItem object from a Planet feed and extracts the author
-    # information from the title
-    return obj.title.split(':')[0]
-
-
-@register.filter()
-def planet_title(obj):
-    # takes a ImportedRSSItem object from a Planet feed and extracts the info
-    # specific to the title of the Planet entry
-    return ":".join(obj.title.split(':')[1:])
-
-
 @register.filter(name='dictlookup')
 def dictlookup(value, key):
     if hasattr(key, 'value'):
@@ -81,51 +47,3 @@ def dictlookup(value, key):
 @register.filter(name='keylookup')
 def keylookup(value, key):
     return value[key]
-
-
-@register.filter(name='json')
-def tojson(value):
-    return json.dumps(value)
-
-
-@register.filter()
-def release_notes_pg_minor_version(minor_version, major_version):
-    """Formats the minor version number to the appropriate PostgreSQL version.
-    This is particularly for very old version of PostgreSQL.
-    """
-    if str(major_version) in ['0', '1']:
-        return str(minor_version)[2:4]
-    return minor_version
-
-
-@register.filter()
-def joinandor(value, andor):
-    # Value is a list of objects. Join them on comma, add "and" or "or" before the last.
-    if len(value) == 1:
-        return str(value[0])
-
-    if not isinstance(value, list):
-        # Must have a list to index from the end
-        value = list(value)
-
-    return ", ".join([str(x) for x in value[:-1]]) + ' ' + andor + ' ' + str(value[-1])
-
-
-@register.filter()
-def list_templates(value):
-    for f in Path(os.path.join(settings.PROJECT_ROOT, '../templates/', value)).iterdir():
-        if f.is_file() and f.suffix == '.html':
-            yield f.stem
-
-
-@register.filter()
-def sort_lower(value, reverse=False):
-    return sorted(value, key=lambda x: x.lower(), reverse=reverse)
-
-
-@register.filter()
-def languagename(lang):
-    try:
-        return babel.Locale(lang).english_name
-    except Exception:
-        return lang
