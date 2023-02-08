@@ -28,6 +28,7 @@ from membersapp.account.util.contexts import render_pgweb
 from membersapp.account.util.misc import send_template_mail, generate_random_token, get_client_ip
 from membersapp.account.util.helpers import HttpSimpleResponse
 
+from membersapp.app.utils import get_current_user
 from membersapp.app.models import Members, Applications
 
 from .models import CommunityAuthSite, CommunityAuthConsent, SecondaryEmail
@@ -211,6 +212,9 @@ def reset_confirm(request, uidb64, token):
 
 def reset_complete(request):
     log.info("Password reset completed for user from {0}".format(get_client_ip(request)))
+    user = get_current_user(request)
+    user.ismember = True
+    user.save()
     return authviews.PasswordResetCompleteView.as_view(template_name='password_reset_complete.html')(request)
 
 
