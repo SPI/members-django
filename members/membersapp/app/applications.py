@@ -39,7 +39,9 @@ def process_contrib_application(request, form, application, approve_pre_value):
 
 
 def get_applications_by_type(listtype):
-    if listtype == 'ncm':
+    if listtype == 'nca':
+        applications = Applications.objects.filter(Q(member__ismember=False))
+    elif listtype == 'ncm':
         applications = Applications.objects.filter(Q(member__iscontrib=False) & (Q(contribapp=False) | Q(contribapp__isnull=True)))
     elif listtype == 'ca':
         applications = Applications.objects.filter(Q(approve__isnull=True) & Q(contribapp=True))
