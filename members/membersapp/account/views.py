@@ -171,6 +171,8 @@ def resetpwd(request):
 
         form = PgwebPasswordResetForm(data=request.POST)
         if form.is_valid():
+            u.ismember = True
+            u.save()
             log.info("Initiating password set from {0} for {1}".format(get_client_ip(request), form.cleaned_data['email']))
             token = default_token_generator.make_token(u)
             send_template_mail(
@@ -212,9 +214,6 @@ def reset_confirm(request, uidb64, token):
 
 def reset_complete(request):
     log.info("Password reset completed for user from {0}".format(get_client_ip(request)))
-    user = get_current_user(request)
-    user.ismember = True
-    user.save()
     return authviews.PasswordResetCompleteView.as_view(template_name='password_reset_complete.html')(request)
 
 
