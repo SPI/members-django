@@ -190,7 +190,7 @@ def resetpwd(request):
     else:
         form = PgwebPasswordResetForm()
 
-    return render(request, 'account', 'password_reset.html', {
+    return render(request, 'password_reset.html', {
         'form': form,
     })
 
@@ -288,7 +288,7 @@ to the specified address, and once confirmed a password for the new account can 
 
 
 def signup_complete(request):
-    return render(request, 'account', 'signup_complete.html', {
+    return render(request, 'signup_complete.html', {
     })
 
 
@@ -360,7 +360,7 @@ def communityauth(request, siteid):
         if (datetime.now() - request.user.date_joined) < timedelta(hours=site.cooloff_hours):
             log.warning("User {0} tried to log in to {1} before cooloff period ended.".format(
                 request.user.username, site.name))
-            return render(request, 'account', 'communityauth_cooloff.html', {
+            return render(request, 'communityauth_cooloff.html', {
                 'site': site,
             })
 
