@@ -13,6 +13,7 @@ from django.contrib.auth import logout as django_logout
 from django.conf import settings
 from django.db import transaction, connection
 from django.db.models import Q, Prefetch
+from django.shortcuts import render
 
 import base64
 import urllib.parse
@@ -24,7 +25,6 @@ from datetime import datetime, timedelta, date
 import itertools
 import hmac
 
-from membersapp.account.util.contexts import render_pgweb
 from membersapp.account.util.misc import send_template_mail, generate_random_token, get_client_ip
 from membersapp.account.util.helpers import HttpSimpleResponse
 
@@ -119,7 +119,7 @@ def profile(request):
         profileform = UserProfileForm(instance=profile)
         secondaryemailform = AddEmailForm(request.user)
 
-    return render_pgweb(request, 'account', 'userprofileform.html', {
+    return render(request, 'userprofileform.html', {
         'userform': userform,
         'profileform': profileform,
         'secondaryemailform': secondaryemailform,
@@ -188,7 +188,7 @@ def resetpwd(request):
     else:
         form = PgwebPasswordResetForm()
 
-    return render_pgweb(request, 'account', 'password_reset.html', {
+    return render(request, 'account', 'password_reset.html', {
         'form': form,
     })
 
@@ -273,7 +273,7 @@ def signup(request):
     else:
         form = SignupForm(get_client_ip(request))
 
-    return render_pgweb(request, 'account', 'base/form.html', {
+    return render(request, 'base/form.html', {
         'form': form,
         'formitemtype': 'Account',
         'form_intro': """
@@ -289,7 +289,7 @@ to the specified address, and once confirmed a password for the new account can 
 
 
 def signup_complete(request):
-    return render_pgweb(request, 'account', 'signup_complete.html', {
+    return render(request, 'account', 'signup_complete.html', {
     })
 
 
@@ -353,7 +353,7 @@ def communityauth(request, siteid):
     # course, we fill a structure with information about the user.
 
     if request.user.first_name == '' or request.user.last_name == '' or request.user.email == '':
-        return render_pgweb(request, 'account', 'communityauth_noinfo.html', {
+        return render(request, 'communityauth_noinfo.html', {
         })
 
     # Check for cooloff period
@@ -361,7 +361,7 @@ def communityauth(request, siteid):
         if (datetime.now() - request.user.date_joined) < timedelta(hours=site.cooloff_hours):
             log.warning("User {0} tried to log in to {1} before cooloff period ended.".format(
                 request.user.username, site.name))
-            return render_pgweb(request, 'account', 'communityauth_cooloff.html', {
+            return render(request, 'account', 'communityauth_cooloff.html', {
                 'site': site,
             })
 
@@ -433,7 +433,7 @@ def communityauth_consent(request, siteid):
     else:
         form = CommunityAuthConsentForm(org.orgname, initial={'next': request.GET.get('next', '')})
 
-    return render_pgweb(request, 'account', 'base/form.html', {
+    return render(request, 'base/form.html', {
         'form': form,
         'operation': 'Authentication',
         'form_intro': 'The site you are about to log into is run by {0}. If you choose to proceed with this authentication, your name and email address will be shared with <em>{1}</em>.</p><p>Please confirm that you consent to this sharing.'.format(org.orgname, org.orgname),

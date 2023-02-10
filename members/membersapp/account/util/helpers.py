@@ -5,8 +5,6 @@ from django.template.loader import get_template
 import django.utils.xmlutils
 from django.conf import settings
 
-from membersapp.account.util.contexts import render_pgweb
-
 import io
 import difflib
 
