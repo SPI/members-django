@@ -7,11 +7,13 @@
 # only be attributed to managers)
 
 import datetime
+import re
 
 from django.test import Client, TestCase, override_settings
 from django.contrib.auth.models import User
 from django.utils import timezone
 from django.contrib import auth
+from django.core import mail
 
 from membersapp.app.models import Members, Applications, VoteElection, VoteVote
 
@@ -258,8 +260,8 @@ def register_user(testcase):
         "username": "testregister",
         "first_name": "test",
         "last_name": "test",
-        "email": "test_register@spi-inc.org",
-        "email2": "test_register@spi-inc.org"
+        "email": "testregister@spi-inc.org",
+        "email2": "testregister@spi-inc.org"
     }
     response = testcase.client.post("/account/signup/", data=data, follow=True)
     return response
@@ -362,10 +364,19 @@ class NonLoggedInViewsTests(TestCase):
     @override_settings(NOCAPTCHA=True)
     def test_register(self):
         response = register_user(self)
-        dump_page(response)
         self.assertRedirects(response, '/account/signup/complete/', status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=True)
         self.assertContains(response, "Account created")
         assert User.objects.filter(username="testregister").exists()
+        self.assertEqual(len(mail.outbox), 1)
+
+    @override_settings(NOCAPTCHA=True)
+    def test_validate_registration(self):
+        response = register_user(self)
+        assert Members.objects.get(email="testregister@spi-inc.org").ismember is False
+        user = User.objects.get(email="testregister@spi-inc.org")
+        link = re.search('/account/reset/(.*)\n', mail.outbox[0].body).group(0)
+        response = self.client.get(link, follow=True)
+        self.assertContains(response, "Enter new password")
 
 
 # Non-contrib member
