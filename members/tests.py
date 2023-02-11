@@ -347,6 +347,19 @@ class NonLoggedInViewsTests(TestCase):
         self.assertContains(response, "isprivate")
         self.assertNotContains(response, "noprivate")
 
+    def test_register(self):
+        data = {
+            "username": "test",
+            "first_name": "test",
+            "last_name": "test",
+            "email": "test@cmatte.me",
+            "email2": "test@cmatte.me"
+        }
+        response = testcase.client.post("/account/signup", data=data, follow=follow)
+        self.assertRedirects(response, '/account/signup/complete/', status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=True)
+        self.assertContains(response, "Account created")
+        assert User.object.get(username="test").exists()
+
 
 # Non-contrib member
 class LoggedInViewsTest(TestCase):
