@@ -374,9 +374,18 @@ class NonLoggedInViewsTests(TestCase):
         response = register_user(self)
         assert Members.objects.get(email="testregister@spi-inc.org").ismember is False
         user = User.objects.get(email="testregister@spi-inc.org")
-        link = re.search('/account/reset/(.*)\n', mail.outbox[0].body).group(0)
-        response = self.client.get(link, follow=True)
+        link = re.search('/account/reset/(.*?)-.*\n', mail.outbox[0].body)
+        response = self.client.get(link.group(0), follow=True)
         self.assertContains(response, "Enter new password")
+        data = {
+            "new_password1": "test_password",
+            "new_password2": "test_password"
+        }
+        print("/account/reset/%s-set-password/" % link.group(1))
+        response = self.client.post("/account/reset/%s-set-password/" % link.group(1), data=data, follow=True)
+        dump_page(response)
+        self.assertRedirects(response, '/account/reset/complete/', status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=True)
+        assert Members.objects.get(email="testregister@spi-inc.org").ismember is True
 
 
 # Non-contrib member
