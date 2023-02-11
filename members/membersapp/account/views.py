@@ -14,6 +14,7 @@ from django.conf import settings
 from django.db import transaction, connection
 from django.db.models import Q, Prefetch
 from django.shortcuts import render
+from django.utils import timezone
 
 import base64
 import urllib.parse
@@ -233,7 +234,7 @@ def signup(request):
             log.info("Creating user for {0} from {1}".format(form.cleaned_data['username'], get_client_ip(request)))
 
             email = form.cleaned_data['email'].lower()
-            user = User.objects.create_user(form.cleaned_data['username'].lower(), email, last_login=datetime.now())
+            user = User.objects.create_user(form.cleaned_data['username'].lower(), email, last_login=timezone.now())
             user.first_name = form.cleaned_data['first_name']
             user.last_name = form.cleaned_data['last_name']
 
