@@ -352,8 +352,8 @@ class NonLoggedInViewsTests(TestCase):
             "username": "test",
             "first_name": "test",
             "last_name": "test",
-            "email": "test@cmatte.me",
-            "email2": "test@cmatte.me"
+            "email": "test@spi-inc.org",
+            "email2": "test@spi-inc.org"
         }
         response = testcase.client.post("/account/signup", data=data, follow=follow)
         self.assertRedirects(response, '/account/signup/complete/', status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=True)
