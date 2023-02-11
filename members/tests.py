@@ -8,7 +8,7 @@
 
 import datetime
 
-from django.test import Client, TestCase
+from django.test import Client, TestCase, override_settings
 from django.contrib.auth.models import User
 from django.utils import timezone
 from django.contrib import auth
@@ -253,6 +253,18 @@ def delete_vote(testcase, voteid):
     return response
 
 
+def register_user(testcase):
+    data = {
+        "username": "testregister",
+        "first_name": "test",
+        "last_name": "test",
+        "email": "test_register@spi-inc.org",
+        "email2": "test_register@spi-inc.org"
+    }
+    response = testcase.client.post("/account/signup/", data=data, follow=True)
+    return response
+
+
 class NonLoggedInViewsTests(TestCase):
     def setUp(self):
         create_member(manager=False)
@@ -347,18 +359,13 @@ class NonLoggedInViewsTests(TestCase):
         self.assertContains(response, "isprivate")
         self.assertNotContains(response, "noprivate")
 
+    @override_settings(NOCAPTCHA=True)
     def test_register(self):
-        data = {
-            "username": "test",
-            "first_name": "test",
-            "last_name": "test",
-            "email": "test@spi-inc.org",
-            "email2": "test@spi-inc.org"
-        }
-        response = testcase.client.post("/account/signup", data=data, follow=follow)
+        response = register_user(self)
+        dump_page(response)
         self.assertRedirects(response, '/account/signup/complete/', status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=True)
         self.assertContains(response, "Account created")
-        assert User.object.get(username="test").exists()
+        assert User.objects.filter(username="testregister").exists()
 
 
 # Non-contrib member
