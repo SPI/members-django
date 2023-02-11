@@ -1096,13 +1096,15 @@ class ApplicationWorkflowTests(TestCase):
         self.assertContains(response, "Other User contrib")
 
     def test_applications_nca(self):
-        response = self.client.get('/applications/nca', follow=True)
-        # Disabled because these are stuck to the pgweb validation step
-        # self.assertEqual(response.status_code, 200)
-        # self.assertContains(response, "This page contains a list of all people who have applied for non-contributing membership but have not completed the email verification step.")
-        self.assertRedirects(response, '/', status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=True)
-        self.assertContains(response, "Unknown application type!")
+        response = self.client.get('/applications/nca')
+        dump_page(response)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "This page contains a list of all people who have applied for non-contributing\nmembership but have not completed the email verification step.")
         self.assertContains(response, "All Applications")
+        self.assertNotContains(response, default_name)
+        self.assertNotContains(response, "Other User noncontrib")
+        self.assertNotContains(response, "Other User pending contrib")
+        self.assertNotContains(response, "Other User contrib")
 
     def test_applications_cnm(self):
         response = self.client.get('/applications/ncm')
