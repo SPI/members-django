@@ -1097,7 +1097,6 @@ class ApplicationWorkflowTests(TestCase):
 
     def test_applications_nca(self):
         response = self.client.get('/applications/nca')
-        dump_page(response)
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "This page contains a list of all people who have applied for non-contributing\nmembership but have not completed the email verification step.")
         self.assertContains(response, "All Applications")
