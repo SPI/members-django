@@ -34,14 +34,14 @@ def create_member(manager=False, contrib=False):
     global member
     email = 'test@spi-inc.org'
     user = User(email=email)
-    member = Members(memid=user, name=default_name, email=email, ismanager=manager, iscontrib=contrib, createvote=manager)
+    member = Members(memid=user, name=default_name, email=email, ismember=True, ismanager=manager, iscontrib=contrib, createvote=manager)
     user.save()
     member.save()
 
 
 def create_other_member(manager=False, contrib=False, name='Other User', email='other_user@spi-inc.org'):
     user = User(username=name, email=email)
-    member = Members(memid=user, name=name, email=email, ismanager=manager, iscontrib=contrib, createvote=manager)
+    member = Members(memid=user, name=name, email=email, ismember=True, ismanager=manager, iscontrib=contrib, createvote=manager)
     user.save()
     member.save()
     return member
@@ -50,7 +50,7 @@ def create_other_member(manager=False, contrib=False, name='Other User', email='
 def create_manager():
     global manager
     user = User(username='manager')
-    manager = Members(memid=user, name='manager', email='manager@spi-inc.org', ismanager=True, createvote=True)
+    manager = Members(memid=user, name='manager', email='manager@spi-inc.org', ismember=True, ismanager=True, createvote=True)
     user.save()
     manager.save()
 
