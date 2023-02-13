@@ -37,7 +37,7 @@ from .forms import PgwebAuthenticationForm, ConfirmSubmitForm
 from .forms import CommunityAuthConsentForm
 from .forms import SignupForm
 from .forms import UserForm, UserProfileForm
-from .forms import AddEmailForm, PgwebPasswordResetForm
+from .forms import AddEmailForm, MembersdjangoSetPasswordForm
 
 import logging
 
@@ -172,8 +172,6 @@ def resetpwd(request):
 
         form = PgwebPasswordResetForm(data=request.POST)
         if form.is_valid():
-            u.ismember = True
-            u.save()
             log.info("Initiating password set from {0} for {1}".format(get_client_ip(request), form.cleaned_data['email']))
             token = default_token_generator.make_token(u)
             send_template_mail(
@@ -208,7 +206,8 @@ def reset_done(request):
 
 def reset_confirm(request, uidb64, token):
     log.info("Confirming password reset for uidb {0}, token {1} from {2}".format(uidb64, token, get_client_ip(request)))
-    return authviews.PasswordResetConfirmView.as_view(template_name='password_reset_confirm.html',
+    return authviews.PasswordResetConfirmView.as_view(form_class=MembersdjangoSetPasswordForm,
+                                                      template_name='password_reset_confirm.html',
                                                       success_url='/account/reset/complete/')(
                                                           request, uidb64=uidb64, token=token)
 

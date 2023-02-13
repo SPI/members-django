@@ -1,5 +1,5 @@
 from django import forms
-from django.contrib.auth.forms import AuthenticationForm
+from django.contrib.auth.forms import AuthenticationForm, SetPasswordForm
 
 import re
 
@@ -173,3 +173,14 @@ class ConfirmSubmitForm(forms.Form):
     def __init__(self, objtype, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['confirm'].help_text = 'Confirm that you are ready to submit this {}.'.format(objtype)
+
+
+class MembersdjangoSetPasswordForm(SetPasswordForm):
+    def save(self, *args, commit=True, **kwargs):
+        user = super().save(*args, commit=False, **kwargs)
+        member = Members.object.get(pk=user.id)
+        member.ismember = True
+        if commit:
+            user.save()
+            member.save()
+        return user
