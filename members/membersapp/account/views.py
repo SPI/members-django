@@ -61,7 +61,7 @@ def profile(request):
     # Don't allow users whose accounts were created via oauth to change
     # their email, since that would kill the connection between the
     # accounts.
-    can_change_email = False
+    can_change_email = True
 
     # We may have a contributor record - and we only show that part of the
     # form if we have it for this user.
