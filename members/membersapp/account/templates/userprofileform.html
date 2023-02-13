@@ -6,7 +6,7 @@
 
 <form method="post" action=".">
   {% csrf_token %}
-  {% if userform.errors or profileform.errors or contribform.errors %}
+  {% if userform.errors or contribform.errors %}
     <div class="alert alert-danger" role="alert">
       Please correct the errors below, and re-submit the form.
     </div>
