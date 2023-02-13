@@ -381,7 +381,6 @@ class NonLoggedInViewsTests(TestCase):
             "new_password1": "test_password",
             "new_password2": "test_password"
         }
-        print("/account/reset/%s-set-password/" % link.group(1))
         response = self.client.post("/account/reset/%s-set-password/" % link.group(1), data=data, follow=True)
         self.assertRedirects(response, '/account/reset/complete/', status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=True)
         assert Members.objects.get(email="testregister@spi-inc.org").ismember is True
