@@ -91,6 +91,9 @@ def profile(request):
                 user.save(update_fields=['email', ])
                 # Finally remove the old secondary address, since it can`'t be both primary and secondary at the same time
                 SecondaryEmail.objects.filter(user=user, email=user.email).delete()
+                member = Members.object.get(pk=user.id)
+                member.email = user.email
+                member.save()
                 log.info("User {} changed primary email from {} to {}".format(user.username, oldemail, user.email))
 
             if contrib:
