@@ -36,7 +36,7 @@ from .models import CommunityAuthSite, CommunityAuthConsent, SecondaryEmail
 from .forms import PgwebAuthenticationForm, ConfirmSubmitForm
 from .forms import CommunityAuthConsentForm
 from .forms import SignupForm
-from .forms import UserForm, UserProfileForm
+from .forms import UserForm
 from .forms import AddEmailForm, MembersdjangoSetPasswordForm
 
 import logging
@@ -74,10 +74,9 @@ def profile(request):
     if request.method == 'POST':
         # Process this form
         userform = UserForm(can_change_email, secondaryaddresses, data=request.POST, instance=request.user)
-        profileform = UserProfileForm(data=request.POST, instance=profile)
         secondaryemailform = AddEmailForm(request.user, data=request.POST)
 
-        if userform.is_valid() and profileform.is_valid() and secondaryemailform.is_valid() and (not contrib or contribform.is_valid()):
+        if userform.is_valid() and secondaryemailform.is_valid() and (not contrib or contribform.is_valid()):
             user = userform.save()
 
             # Email takes some magic special handling, since we only allow picking of existing secondary emails, but it's
@@ -94,7 +93,6 @@ def profile(request):
                 SecondaryEmail.objects.filter(user=user, email=user.email).delete()
                 log.info("User {} changed primary email from {} to {}".format(user.username, oldemail, user.email))
 
-            profileform.save()
             if contrib:
                 contribform.save()
             if secondaryemailform.cleaned_data.get('email1', ''):
@@ -117,12 +115,10 @@ def profile(request):
     else:
         # Generate form
         userform = UserForm(can_change_email, secondaryaddresses, instance=request.user)
-        profileform = UserProfileForm(instance=profile)
         secondaryemailform = AddEmailForm(request.user)
 
     return render(request, 'userprofileform.html', {
         'userform': userform,
-        'profileform': profileform,
         'secondaryemailform': secondaryemailform,
         'secondaryaddresses': secondaryaddresses,
         'secondarypending': any(not a.confirmed for a in secondaryaddresses),

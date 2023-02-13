@@ -94,19 +94,11 @@ class SignupForm(forms.Form):
         return email
 
 
-class UserProfileForm(forms.ModelForm):
-    class Meta:
-        model = Members
-        fields = ['email', 'name']
-
-
 class UserForm(forms.ModelForm):
     primaryemail = forms.ChoiceField(choices=[], required=True, label='Primary email address')
 
     def __init__(self, can_change_email, secondaryaddresses, *args, **kwargs):
         super(UserForm, self).__init__(*args, **kwargs)
-        self.fields['first_name'].required = True
-        self.fields['last_name'].required = True
         if can_change_email:
             self.fields['primaryemail'].choices = [(self.instance.email, self.instance.email), ] + [(a.email, a.email) for a in secondaryaddresses if a.confirmed]
             if not secondaryaddresses:
@@ -119,7 +111,7 @@ class UserForm(forms.ModelForm):
 
     class Meta:
         model = User
-        fields = ('primaryemail', 'first_name', 'last_name', )
+        fields = ('primaryemail', )
 
 
 class AddEmailForm(forms.Form):

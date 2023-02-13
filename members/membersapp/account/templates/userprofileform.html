@@ -35,24 +35,6 @@
       </div>
     </div>
   {% endfor %}
-  {% for field in profileform %}
-    <div class="form-group row">
-      {% if field.errors %}
-        {% for e in field.errors %}
-          <div class="col-lg-12 alert alert-danger">{{e}}</div>
-        {% endfor %}
-      {% endif %}
-      <label class="col-form-label col-sm-3" for="{{ field.id }}">
-        {{ field.label }}
-        {% if field.help_text %}
-          <p><small>{{ field.help_text }}</small></p>
-        {% endif %}
-      </label>
-      <div class="col-sm-9">
-        {{ field|field_class:"form-control" }}
-      </div>
-    </div>
-  {% endfor %}
 
     <h2>Secondary email addresses</h2>
     <p>You can add one or more secondary email addresses to your account, which can be used for example to subscribe to mailing lists.</p>
