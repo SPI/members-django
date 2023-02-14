@@ -36,7 +36,7 @@ FROM account_communityauthchangelog cl
 INNER JOIN auth_user u ON u.id=cl.user_id
 LEFT JOIN account_secondaryemail se ON se.user_id=cl.user_id
 WHERE cl.site_id=%(siteid)s
-GROUP BY cl.user_id, cl.changedat, u.id, up.user_id
+GROUP BY cl.user_id, cl.changedat, u.id
 LIMIT 100""",
             {
                 'siteid': siteid,
