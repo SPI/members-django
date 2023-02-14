@@ -214,7 +214,7 @@ def showmember(request, memid):
     if not user.ismanager:
         return render(request, 'manager-only.html')
     template = loader.get_template('member.html')
-    member = Members.object.get(pk=memid)
+    member = get_object_or_404(Members, pk=memid)
     auth_user = User.objects.get(id=memid)
     context = {
         'user': user,
