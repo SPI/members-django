@@ -31,11 +31,10 @@ def process_queue(conn):
 
         # Get all data for this site (well, up to 100 users to not generate packages that are too big... We'll come back for the rest later if there are more.
         curs.execute(
-            """SELECT cl.user_id, changedat, username, first_name, last_name, u.email, sshkey, array_agg(se.email) FILTER (WHERE se.confirmed AND se.email IS NOT NULL)
+            """SELECT cl.user_id, changedat, username, first_name, last_name, u.email, array_agg(se.email) FILTER (WHERE se.confirmed AND se.email IS NOT NULL)
 FROM account_communityauthchangelog cl
 INNER JOIN auth_user u ON u.id=cl.user_id
 LEFT JOIN account_secondaryemail se ON se.user_id=cl.user_id
-LEFT JOIN core_userprofile up ON up.user_id=cl.user_id
 WHERE cl.site_id=%(siteid)s
 GROUP BY cl.user_id, cl.changedat, u.id, up.user_id
 LIMIT 100""",
@@ -55,9 +54,7 @@ LIMIT 100""",
             yield 'firstname', row[3]
             yield 'lastname', row[4]
             yield 'email', row[5]
-            yield 'secondaryemails', row[7] or []
-            if include_ssh:
-                yield 'sshkeys', row[6]
+            yield 'secondaryemails', row[6] or []
 
         pushstruct = {
             'type': 'update',
