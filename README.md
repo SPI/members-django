@@ -55,7 +55,7 @@ sudo -u postgres psql spimembers -c 'drop table temp'; sudo -u postgres psql spi
 
 sudo chown $USER:postgres spimembers.sql temp_table.sql
 
-sudo -u postgres psql spimembers -c "\copy (select memid,left(COALESCE(substring(replace(name,',',' ') from '(.*?) '),replace(name,',',' ')),30),COALESCE(left(substring(replace(name,',',' ') from ' (.*)'),30),'.'),lower(email),password,ismanager,emailkey_date from members, applications where applications.member = members.memid and (validemail ='t' or validemail_date is not null)  order by memid) to members.csv with csv delimiter ',';"
+sudo -u postgres psql spimembers -c "\copy (select memid,left(COALESCE(substring(replace(name,',',' ') from '(.*?) '),replace(name,',',' ')),30),COALESCE(left(substring(replace(name,',',' ') from ' (.*)'),30),'.'),lower(email),password,ismanager,emailkey_date from members, applications where applications.member = members.memid and (validemail is not null or validemail_date is not null)  order by memid) to members.csv with csv delimiter ',';"
 
 utils/convert_members.sh members.csv > members.sql
 sudo -u postgres psql membersdjango < members.sql
