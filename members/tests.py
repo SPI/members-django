@@ -32,6 +32,15 @@ def dump_page(response):
         print(response.content.decode('UTF-8'), file=f)
 
 
+def create_non_member():
+    email = 'notvalidated@spi-inc.org'
+    user = User(username='unvalidateduser', email=email)
+    member = Members(memid=user, name='Unvalidated email user', email=email, ismember=False, ismanager=False, iscontrib=False, createvote=False)
+    user.save()
+    member.save()
+    return member
+
+
 def create_member(manager=False, contrib=False):
     global member
     email = 'test@spi-inc.org'
@@ -1078,6 +1087,8 @@ class ManagerTest(TestCase):
 
 class ApplicationWorkflowTests(TestCase):
     def setUp(self):
+        unvalidated_user = create_non_member()
+        Applications(member=unvalidated_user, contribapp=False, approve=False).save()
         create_member(manager=True, contrib=True)
         # Manager is already contrib, so we can't create an application using POST
         Applications(member=member, contribapp=True, approve=True).save()
@@ -1109,6 +1120,7 @@ class ApplicationWorkflowTests(TestCase):
         self.assertContains(response, "This page contains a list of ALL membership records")
         self.assertContains(response, "All Applications")
         self.assertContains(response, default_name)
+        self.assertContains(response, "Unvalidated email user")
         self.assertContains(response, "Other User pending contrib")
         self.assertContains(response, "Other User noncontrib")
         self.assertContains(response, "Other User contrib")
@@ -1119,6 +1131,7 @@ class ApplicationWorkflowTests(TestCase):
         self.assertContains(response, "This page contains a list of all people who have applied for non-contributing\nmembership but have not completed the email verification step or are no longer members.")
         self.assertContains(response, "All Applications")
         self.assertNotContains(response, default_name)
+        self.assertContains(response, "Unvalidated email user")
         self.assertNotContains(response, "Other User noncontrib")
         self.assertNotContains(response, "Other User pending contrib")
         self.assertNotContains(response, "Other User contrib")
@@ -1129,6 +1142,7 @@ class ApplicationWorkflowTests(TestCase):
         self.assertContains(response, "This page lists all members who have non-contributing status.")
         self.assertContains(response, "All Applications")
         self.assertNotContains(response, default_name)
+        self.assertNotContains(response, "Unvalidated email user")
         self.assertContains(response, "Other User noncontrib")
         self.assertNotContains(response, "Other User pending contrib")
         self.assertNotContains(response, "Other User contrib")
@@ -1139,6 +1153,7 @@ class ApplicationWorkflowTests(TestCase):
         self.assertContains(response, "This page lists all non-contributing members who have filed a contributing")
         self.assertContains(response, "All Applications")
         self.assertNotContains(response, default_name)
+        self.assertNotContains(response, "Unvalidated email user")
         self.assertContains(response, "Other User pending contrib")
         self.assertNotContains(response, "Other User noncontrib")
         self.assertNotContains(response, "Other User contrib")
@@ -1149,6 +1164,7 @@ class ApplicationWorkflowTests(TestCase):
         self.assertContains(response, "This page lists all active contributing members in SPI.")
         self.assertContains(response, "All Applications")
         self.assertContains(response, default_name)
+        self.assertNotContains(response, "Unvalidated email user")
         self.assertNotContains(response, "Other User pending contrib")
         self.assertNotContains(response, "Other User noncontrib")
         self.assertContains(response, "Other User contrib")
@@ -1159,6 +1175,7 @@ class ApplicationWorkflowTests(TestCase):
         self.assertContains(response, "This page lists all members who are application managers.")
         self.assertContains(response, "All Applications")
         self.assertContains(response, default_name)
+        self.assertNotContains(response, "Unvalidated email user")
         self.assertNotContains(response, "Other User pending contrib")
         self.assertNotContains(response, "Other User noncontrib")
         self.assertNotContains(response, "Other User contrib")
