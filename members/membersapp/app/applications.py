@@ -42,9 +42,9 @@ def get_applications_by_type(listtype):
     if listtype == 'nca':
         applications = Applications.objects.filter(Q(member__ismember=False))
     elif listtype == 'ncm':
-        applications = Applications.objects.filter(Q(member__iscontrib=False) & (Q(contribapp=False) | Q(contribapp__isnull=True)))
+        applications = Applications.objects.filter(Q(member__ismember=True) & Q(member__iscontrib=False) & (Q(contribapp=False) | Q(contribapp__isnull=True)))
     elif listtype == 'ca':
-        applications = Applications.objects.filter(Q(approve__isnull=True) & Q(contribapp=True))
+        applications = Applications.objects.filter(Q(member__ismember=True) & Q(approve__isnull=True) & Q(contribapp=True))
     elif listtype == 'cm':
         applications = Applications.objects.filter(Q(member__iscontrib=True) & Q(contribapp=True))
     elif listtype == 'mgr':
