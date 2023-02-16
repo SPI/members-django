@@ -2,10 +2,11 @@ from django import forms
 from django.contrib.auth.forms import AuthenticationForm, SetPasswordForm
 
 import re
+from datetime import datetime
 
 from django.contrib.auth.models import User
 
-from membersapp.app.models import Members
+from membersapp.app.models import Members, Applications
 from .models import SecondaryEmail
 
 from .recaptcha import ReCaptchaField
@@ -172,7 +173,11 @@ class MembersdjangoSetPasswordForm(SetPasswordForm):
         user = super().save(*args, commit=False, **kwargs)
         member = Members.object.get(pk=user.id)
         member.ismember = True
+        application = Applications.object.get(member=member.pk)
+        application.validemail = True
+        application .validemail_date = datetime.today()
         if commit:
             user.save()
             member.save()
+            application.save()
         return user

@@ -41,6 +41,9 @@ class Applications(models.Model):
     approve = models.BooleanField(null=True)
     approve_date = models.DateField(null=True)
     contribapp = models.BooleanField(null=True, default=False)
+    emailcheck_date = models.DateField(null=True)
+    validemail = models.BooleanField(null=True)
+    validemail_date = models.DateField(null=True)
 
     object = models.Manager()
     objects = models.Manager()

@@ -267,6 +267,9 @@ def signup(request):
                                {'uid': urlsafe_base64_encode(force_bytes(user.id)), 'token': token, 'user': user}
                                )
 
+            application = Applications.object.get(member=user.pk)
+            application.emailcheck_date = datetime.today()
+            application.save()
             return HttpResponseRedirect('/account/signup/complete/')
     else:
         form = SignupForm(get_client_ip(request))

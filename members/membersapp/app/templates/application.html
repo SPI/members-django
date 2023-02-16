@@ -36,6 +36,9 @@
             <tr><td>Last Changed</td><td>{{ application.lastchange|date:"Y-m-d" }}</td></tr>
 {% endif %}
         {% else %}
+            <tr><td>Email Check Sent on</td><td>{{ application.emailcheck_date|date:"Y-m-d" }}</td></tr>
+            <tr><td>Valid Email?</td><td>{%if application.validemail %}Yes{% else %}No{% endif %}</td></tr>
+            <tr><td>Email Confirmed on</td><td>{{ application.validemail_date|date:"Y-m-d" }}</td></tr>
             <tr><td>Last Changed</td><td>{{ application.lastchange|date:"Y-m-d" }}</td></tr>
         {% endif %}
     </table>
