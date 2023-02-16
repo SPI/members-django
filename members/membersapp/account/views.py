@@ -37,7 +37,7 @@ from .forms import PgwebAuthenticationForm, ConfirmSubmitForm
 from .forms import CommunityAuthConsentForm
 from .forms import SignupForm
 from .forms import UserForm
-from .forms import AddEmailForm, MembersdjangoSetPasswordForm
+from .forms import AddEmailForm, PgwebPasswordResetForm, MembersdjangoSetPasswordForm
 
 import logging
 
