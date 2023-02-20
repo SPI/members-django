@@ -34,24 +34,11 @@ class PgMiddleware(object):
         # Call the view
         response = self.get_response(request)
 
-        # Set xkey representing the templates that are in use so we can do efficient
-        # varnish purging on commits.
-        tlist = get_all_templates()
-        if 'base/esi.html' in tlist:
-            response['x-do-esi'] = "1"
-            tlist.remove('base/esi.html')
-        if tlist:
-            response['xkey'] = ' '.join(["pgwt_{0}".format(hashlib.md5(t.encode('ascii', errors='replace')).hexdigest()) for t in tlist] + [response.get('xkey', '')])
-
         # Set security headers
         sources = OrderedDict([
             ('default', ["'self'", ]),
             ('img', ['*', 'data:', ]),
-            ('script', ["'unsafe-eval'", "'self'", "www.google-analytics.com", "ssl.google-analytics.com", "www.googletagmanager.com", "tagmanager.google.com", "data:"]),
-            ('connect', ["'self'", "www.google-analytics.com", "ssl.google-analytics.com"]),
             ('media', ["'self'", ]),
-            ('style', ["'self'", "fonts.googleapis.com", "tagmanager.google.com"]),
-            ('font', ["'self'", "fonts.gstatic.com", "data:", ]),
         ])
         if hasattr(response, 'x_allow_extra_sources'):
             for k, v in list(response.x_allow_extra_sources.items()):
