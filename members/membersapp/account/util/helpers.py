@@ -2,7 +2,6 @@ from django.shortcuts import render, get_object_or_404
 from django.core.exceptions import PermissionDenied
 from django.http import HttpResponseRedirect, Http404
 from django.template.loader import get_template
-import django.utils.xmlutils
 from django.conf import settings
 
 import io
@@ -28,16 +27,3 @@ def HttpSimpleResponse(request, title, msg):
         'title': title,
         'message': msg,
     })
-
-
-class PgXmlHelper(django.utils.xmlutils.SimplerXMLGenerator):
-    def __init__(self, outstream, skipempty=False):
-        django.utils.xmlutils.SimplerXMLGenerator.__init__(self, outstream, 'utf-8')
-        self.skipempty = skipempty
-
-    def add_xml_element(self, name, value):
-        if self.skipempty and value == '':
-            return
-        self.startElement(name, {})
-        self.characters(value)
-        self.endElement(name)
