@@ -1,7 +1,7 @@
 from django.conf import settings
 from django.http import QueryDict, HttpResponse
 
-from membersapp.account.util.templateloader import initialize_template_collection, get_all_templates
+from membersapp.account.util.templateloader import initialize_template_collection
 
 from collections import OrderedDict
 import hashlib
