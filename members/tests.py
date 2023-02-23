@@ -276,6 +276,16 @@ def register_user(testcase):
     return response
 
 
+def change_password(testcase):
+    data = {
+        "old_password": "test_password",
+        "new_password1": "test_password2",
+        "new_password2": "test_password2",
+    }
+    response = testcase.client.post('/account/changepwd/')
+    return response
+
+
 class NonLoggedInViewsTests(TestCase):
     def setUp(self):
         create_member(manager=False)
@@ -393,6 +403,12 @@ class NonLoggedInViewsTests(TestCase):
         response = self.client.post("/account/reset/%s-set-password/" % link.group(1), data=data, follow=True)
         self.assertRedirects(response, '/account/reset/complete/', status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=True)
         assert Members.objects.get(email="testregister@spi-inc.org").ismember is True
+
+    def test_changepwd_page(self):
+        response = self.client.get('/account/changepwd/')
+        self.assertRedirects(response, '/account/login/?next=/account/changepwd/', status_code=302, target_status_code=200, msg_prefix='')
+        response = change_password(self)
+        self.assertRedirects(response, '/account/login/?next=/account/changepwd/', status_code=302, target_status_code=200, msg_prefix='')
 
 
 # Non-contrib member
