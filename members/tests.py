@@ -309,6 +309,11 @@ def manual_login(testcase):
     return response
 
 
+def manual_logout(testcase):
+    response = testcase.client.get('/account/logout/', follow=True)
+    return response
+
+
 class NonLoggedInViewsTests(TestCase):
     def setUp(self):
         create_member(manager=False)
@@ -1229,7 +1234,9 @@ class AccountTest(TestCase):
         self.assertContains(response, "Membership status for test test")
 
     def test_logout(self):
-        response = self.client.get('/account/logout/', follow=True)
+        user = register_user_manually_with_validation(self)
+        manual_login(self)
+        response = manual_logout(self)
         self.assertRedirects(response, '/', status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=True)
         self.assertContains(response, "Welcome to the membership pages of Software in the Public Interest")
 
