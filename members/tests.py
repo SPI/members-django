@@ -276,13 +276,36 @@ def register_user(testcase):
     return response
 
 
-def change_password(testcase):
+def register_user_manually_with_validation(testcase):
+    response = register_user(testcase)
+    user = User.objects.get(email="testregister@spi-inc.org")
+    link = re.search('/account/reset/(.*?)-.*\n', mail.outbox[0].body)
+    response = testcase.client.get(link.group(0), follow=True)
+    testcase.assertContains(response, "Enter new password")
     data = {
-        "old_password": "test_password",
+        "new_password1": "test_password",
+        "new_password2": "test_password"
+    }
+    response = testcase.client.post("/account/reset/%s-set-password/" % link.group(1), data=data, follow=True)
+    return user
+
+
+def change_password(testcase, old_pass="test_password"):
+    data = {
+        "old_password": old_pass,
         "new_password1": "test_password2",
         "new_password2": "test_password2",
     }
-    response = testcase.client.post('/account/changepwd/')
+    response = testcase.client.post('/account/changepwd/', data=data, follow=True)
+    return response
+
+
+def manual_login(testcase):
+    data = {
+        "username": "testregister@spi-inc.org",
+        "password": "test_password",
+    }
+    response = testcase.client.post('/account/login/', data=data, follow=True)
     return response
 
 
@@ -1195,3 +1218,20 @@ class ApplicationWorkflowTests(TestCase):
         self.assertNotContains(response, "Other User pending contrib")
         self.assertNotContains(response, "Other User noncontrib")
         self.assertNotContains(response, "Other User contrib")
+
+
+class AccountTest(TestCase):
+
+    def test_login(self):
+        user = register_user_manually_with_validation(self)
+        response = manual_login(self)
+        self.assertRedirects(response, '/', status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=True)
+        self.assertContains(response, "Membership status for test test")
+
+    def test_changepwd(self):
+        user = register_user_manually_with_validation(self)
+        manual_login(self)
+        response = change_password(self, old_pass="wrong_pass")
+        self.assertContains(response, "Your old password was entered incorrectly. Please enter it again.")
+        response = change_password(self)
+        self.assertContains(response, "Your password has been changed.")
