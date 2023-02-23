@@ -300,10 +300,10 @@ def change_password(testcase, old_pass="test_password"):
     return response
 
 
-def manual_login(testcase):
+def manual_login(testcase, password="test_password"):
     data = {
         "username": "testregister@spi-inc.org",
-        "password": "test_password",
+        "password": password,
     }
     response = testcase.client.post('/account/login/', data=data, follow=True)
     return response
@@ -1247,3 +1247,9 @@ class AccountTest(TestCase):
         self.assertContains(response, "Your old password was entered incorrectly. Please enter it again.")
         response = change_password(self)
         self.assertContains(response, "Your password has been changed.")
+        manual_logout(self)
+        response = manual_login(self)
+        self.assertContains(response, "Please enter a correct username and password.")
+        response = manual_login(self, password="test_password2")
+        self.assertRedirects(response, '/', status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=True)
+        self.assertContains(response, "Membership status for test test")
