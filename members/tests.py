@@ -1269,3 +1269,11 @@ class AccountTest(TestCase):
         response = self.client.get(link.group(0), follow=True)
         dump_page(response)
         self.assertContains(response, "<li>changedemail@spi-inc.org (<input")
+        data = {
+            "primaryemail": "changedemail@spi-inc.org",
+            "email1": "",
+            "email2": "",
+        }
+        response = self.client.post('/account/profile/', data=data)
+        response = self.client.get('/', follow=True)
+        self.assertContains(response, "&lt;changedemail@spi-inc.org&gt;")
