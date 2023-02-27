@@ -1253,3 +1253,19 @@ class AccountTest(TestCase):
         response = manual_login(self, password="test_password2")
         self.assertRedirects(response, '/', status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=True)
         self.assertContains(response, "Membership status for test test")
+
+    def test_profile(self):
+        user = register_user_manually_with_validation(self)
+        manual_login(self)
+        data = {
+            "primaryemail": "testregister@spi-inc.org",
+            "email1": "changedemail@spi-inc.org",
+            "email2": "changedemail@spi-inc.org",
+        }
+        mail.outbox = []
+        response = self.client.post('/account/profile/', data=data, follow=True)
+        self.assertContains(response, "changedemail@spi-inc.org <em>(awaiting confirmation")
+        link = re.search('/account/profile/add_email/(.*?)/', mail.outbox[0].body)
+        response = self.client.get(link.group(0), follow=True)
+        dump_page(response)
+        self.assertContains(response, "<li>changedemail@spi-inc.org (<input")
