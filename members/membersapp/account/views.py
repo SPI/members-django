@@ -120,12 +120,14 @@ def profile(request):
         userform = UserForm(can_change_email, secondaryaddresses, instance=request.user)
         secondaryemailform = AddEmailForm(request.user)
 
+    user = get_current_user(request)
     return render(request, 'userprofileform.html', {
         'userform': userform,
         'secondaryemailform': secondaryemailform,
         'secondaryaddresses': secondaryaddresses,
         'secondarypending': any(not a.confirmed for a in secondaryaddresses),
         'contribform': contribform,
+        'user': user,
     })
 
 
