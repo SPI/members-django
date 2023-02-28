@@ -11,14 +11,15 @@
       Please correct the errors below, and re-submit the form.
     </div>
   {% endif %}
-  <div class="form-group row">
-    <label class="col-form-label col-sm-3">Username:</label>
-    <div class="col-sm-9">
-      {{ user.username }}
-    </div>
-  </div>
+    <table>
+      <tr>
+        <td>Username:</td>
+        <td>{{ user.username }}</td>
+      </tr>
   {% for field in userform %}
     <div class="form-group row">
+      <tr>
+        <td>
       {% if field.errors %}
         {% for e in field.errors %}
           <div class="col-lg-12 alert alert-danger">{{e}}</div>
@@ -26,14 +27,19 @@
       {% endif %}
       <label class="col-form-label col-sm-3" for="{{ field.id }}">
         {{ field.label|title }}
-        {% if field.help_text %}
-          <p><small>{{ field.help_text }}</small></p>
-        {% endif %}
       </label>
-      <div class="col-sm-9">
+      </td>
+      <td>
         {{ field|field_class:"form-control" }}
-      </div>
+      </td>
+      </tr>
     </div>
+    </table>
+  {% endfor %}
+  {% for field in userform %}
+    {% if field.help_text %}
+      <p><small>{{ field.help_text }}</small></p>
+    {% endif %}
   {% endfor %}
 
     <h2>Secondary email addresses</h2>
