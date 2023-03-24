@@ -64,6 +64,14 @@ pip packages:
 
 ## Install
 
+This is a role to deploy members in SPI's (currently private) [ansible repository](https://gitlab.com/spi-inc/ansible).
+
+To redeploy, use:
+
+```
+ansible-playbook -e @config.yml -e @credentials.yml --vault-password-file .vault_pass.txt playbooks/althea.yml --tags members-django
+```
+
 ## Dev environment
 
 Install venv:
