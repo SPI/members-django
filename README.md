@@ -104,28 +104,22 @@ In the right venv, they can then be run using:
 PYTHONPATH=membersapp/app/OpenSTV/openstv python manage.py test
 ```
 
-# Relationship between Membersdjango, PGWeb and PGLister
-
-Membersdjango is the membership web application. PGWeb handles the centralized login system. PGLister handles mailing lists. For the installation of PGWeb and PGLister, see [here](https://gitlab.com/cmatte/pglister/-/blob/master/INSTALL.md).
-
-## Link between Membersdjango, PGLister and PGArchives
+# Link between Membersdjango, PGLister and PGArchives
 
 To authenticate users in PGLister and PGArchives-private, a community auth site must be created in Membersdjango. First, create a community org auth in [/admin/account/communityauthorg/](https://members.spi-inc.org/admin/account/communityauthorg/). Then create the auth site in [/admin/account/communityauthsite/](https://members.spi-inc.org/admin/account/communityauthsite/).
 
 Use the following parameters:
-- Redirecturl: https://your_membersjango_address.tld/auth_receive/
-- Apiurl: https://your_pgweb_address.tld/account/auth/1/
+- Redirecturl: https://lists.spi-inc.org/auth_receive/
+- Apiurl: https://members.spi-inc.org/account/auth/1/
 - Cryptkey: a random password that you can create using `python tools/communityauth/generate_cryptkey.py`
 - Org: the org site you just created
 
 Then add the correct information in membersdjango's `settings.py` (or `local_settings.py`):
 ```
 USE_PG_COMMUNITY_AUTH = True
-PGAUTH_REDIRECT = "https://your_pgweb_address.tld/account/auth/1/"
+PGAUTH_REDIRECT = "https://members.spi-inc.org/account/auth/1/""
 PGAUTH_KEY = "YOUR_CRYPTKEY"
-PGAUTH_REDIRECT_SUCCESS = "http://your_membersjango_address.tld/"
-PGAUTH_SIGNUP = "https://your_pgweb_address.tld/account/signup/"
-PGAUTH_ROOT = "https://your_pgweb_address.tld/"
+LOGIN_URL = "/accounts/login/"
 ```
 
 ## Scripts
