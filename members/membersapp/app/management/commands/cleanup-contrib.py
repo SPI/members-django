@@ -26,6 +26,8 @@ class Command(BaseCommand):
 
     def clean_contrib(self, dryrun):
         downgradable_members = self.get_concerned_members()
+        if dryrun and len(downgradable_members) > 0:
+            print("***** Dry run *****")
         for member in downgradable_members:
             print("Downgrading %s to non-contributing" % member.name)
             if dryrun is False:
@@ -35,6 +37,8 @@ class Command(BaseCommand):
     def send_ping(self, dryrun):
         pingable_members = self.get_concerned_members()
         template = loader.get_template('activity-ping-email.txt')
+        if dryrun and len(pingable_members) > 0:
+            print("***** Dry run *****")
         for member in pingable_members:
             print("Sending ping to %s" % member.name)
             context = {
