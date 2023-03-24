@@ -1,8 +1,42 @@
 # Members-django
 
-Rewriting of the (Flask-based) Members app in Django.
+This is the SPI membership web application, which lives at:
 
-URL: https://members.spi-inc.org
+https://members.spi-inc.org/
+
+It enables the following actions:
+
+ * New member registration
+
+  Non-contributing members just need to apply for a new account and
+  verify their email address.
+
+ * Contributing member application
+
+  Once a user is a valid non-contributing member they can submit an
+  application for contributing membership, providing details of why they
+  meet the criteria.
+
+ * Management of member applications
+
+  Users who are marked as application managers can review outstanding
+  applications for contributing membership and approve or deny them
+  as appropriate.
+
+The app is written in Python using the Django frame work and designed to
+run on a Debian 10 (Buster) host.
+
+The official code repository for the site lives within the SPI
+infrastructure and can be browsed at:
+
+https://gitlab.com/spi-inc/members-django
+
+There is also an unofficial mirrors in GitHub:
+
+https://github.com/SPI/members-django
+
+Patches can be emailed to webmaster@spi-inc.org or submitted via the
+pull request feature on these sites.
 
 ## Dependencies
 
