@@ -92,9 +92,9 @@ PYTHONPATH=membersapp/app/OpenSTV/openstv python manage.py test
 
 Membersdjango is the membership web application. PGWeb handles the centralized login system. PGLister handles mailing lists. For the installation of PGWeb and PGLister, see [here](https://gitlab.com/cmatte/pglister/-/blob/master/INSTALL.md).
 
-## Link between PGWeb and Membersdjango
+## Link between Membersdjango, PGLister and PGArchives
 
-Similarly to PGLister, a community auth site must be created in PGWeb. First, create a community org auth in [/admin/account/communityauthorg/](https://pgweb.spi-inc.org/admin/account/communityauthorg/). Then create the auth site in [/admin/account/communityauthsite/](https://pgweb.spi-inc.org/admin/account/communityauthsite/).
+To authenticate users in PGLister and PGArchives-private, a community auth site must be created in Membersdjango. First, create a community org auth in [/admin/account/communityauthorg/](https://members.spi-inc.org/admin/account/communityauthorg/). Then create the auth site in [/admin/account/communityauthsite/](https://members.spi-inc.org/admin/account/communityauthsite/).
 
 Use the following parameters:
 - Redirecturl: https://your_membersjango_address.tld/auth_receive/
