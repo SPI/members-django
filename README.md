@@ -23,6 +23,14 @@ It enables the following actions:
   applications for contributing membership and approve or deny them
   as appropriate.
 
+ * Centralized authentication system
+
+  The members applications acts as a centralized authentication system
+  for [SPI's mailing list system](https://lists.spi-inc.org) based on
+  [PGLister](https://gitlab.com/cmatte/pglister)
+  and [its private archives](https://archives-private.spi-inc.org)
+  based on [PGArchives](https://gitlab.com/cmatte/pgarchives)
+
 The app is written in Python using the Django frame work and designed to
 run on a Debian 10 (Buster) host.
 
