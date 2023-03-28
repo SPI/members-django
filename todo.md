@@ -1,0 +1,2 @@
+Known issues:
+- `django/local/members/membersapp/lib/python3.7/site-packages/django/db/models/fields/__init__.py:1419: RuntimeWarning: DateTimeField CommunityAuthConsent.consentgiven received a naive datetime (2023-03-22 18:05:19.599333) while time zone support is active.` -> this is because we set USE_TZ = True in members, but False in pglister. Fixing this would require reverting back to not using timezones in membersdjango
