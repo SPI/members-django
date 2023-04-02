@@ -438,6 +438,25 @@ class NonLoggedInViewsTests(TestCase):
         response = change_password(self)
         self.assertRedirects(response, '/account/login/?next=/account/changepwd/', status_code=302, target_status_code=200, msg_prefix='')
 
+    @override_settings(NOCAPTCHA=True)
+    def test_reset_password_2apps(self):
+        response = register_user(self)
+        user = User.objects.get(email="testregister@spi-inc.org")
+        member = Members.object.get(memid=user.pk)
+        application = Applications(member=member, contrib=True)
+        application.save()
+        self.assertEqual(len(Applications.objects.filter(member=member)), 2)
+        link = re.search('/account/reset/(.*?)-.*\n', mail.outbox[0].body)
+        response = self.client.get(link.group(0), follow=True)
+        self.assertContains(response, "Enter new password")
+        data = {
+            "new_password1": "test_password",
+            "new_password2": "test_password"
+        }
+        response = self.client.post("/account/reset/%s-set-password/" % link.group(1), data=data, follow=True)
+        self.assertRedirects(response, '/account/reset/complete/', status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=True)
+        assert Members.objects.get(email="testregister@spi-inc.org").ismember is True
+
 
 # Non-contrib member
 class LoggedInViewsTest(TestCase):
