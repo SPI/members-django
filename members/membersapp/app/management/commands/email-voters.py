@@ -36,7 +36,7 @@ class Command(BaseCommand):
         msg = template.render(context)
         if not dryrun:
             try:
-                send_mail(subject, msg, 'SPI Membership Committee <membership@spi-inc.org>', user.email, fail_silently=False)
+                send_mail(subject, msg, 'SPI Membership Committee <membership@spi-inc.org>', [user.email], fail_silently=False)
             except (SMTPException, ConnectionRefusedError):
                 raise CommandError('Unable to send voting information email to user %s (%s) regarding vote %s.' % (user.name, user.email, vote.ref))
 
