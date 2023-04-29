@@ -46,7 +46,7 @@ class Command(BaseCommand):
             }
             msg = template.render(context)
             if not dryrun:
-                send_mail('SPI activity ping for %s' % member.name, msg, 'SPI Membership Committee <membership@spi-inc.org>', user.email, fail_silently=False)
+                send_mail('SPI activity ping for %s' % member.name, msg, 'SPI Membership Committee <membership@spi-inc.org>', member.email, fail_silently=False)
 
     def handle(self, *args, **options):
         if options['action'] == 'clean':
