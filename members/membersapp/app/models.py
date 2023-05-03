@@ -34,7 +34,7 @@ class Applications(models.Model):
     appdate = models.DateField(null=True)
     member = models.ForeignKey(Members, null=False, blank=False, db_column='member', on_delete=models.DO_NOTHING, related_name='app2member', db_constraint=False)
     contrib = models.TextField(null=True, verbose_name='Contributions')
-    comment = models.TextField(null=True, verbose_name='Mgr Comments')
+    comment = models.TextField(null=True, verbose_name='Manager Comments')
     lastchange = models.DateField(null=True)
     manager = models.ForeignKey(Members, null=True, blank=True, db_column='manager', on_delete=models.RESTRICT, related_name='app2manager', limit_choices_to={'ismanager': True})
     manager_date = models.DateField(null=True, verbose_name='Date Assigned')
