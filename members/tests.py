@@ -491,6 +491,7 @@ class LoggedInViewsTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Application #%d status" % application.pk)
         self.assertContains(response, "Member Name</td><td>%s" % default_name)
+        self.assertContains(response, "Contributions")
 
     def test_application_other_view(self):
         switch_to_other_member(self)

@@ -66,7 +66,12 @@ def application(request, appid):
         return render(request, 'manager-only.html')
     member = Members.object.get(memid=application.member_id)
     memberform = MemberForm(instance=member)
-    applicationform = ApplicationForm(instance=application)
+    if user.ismanager:
+        # Manager view of the contrib application
+        applicationform = ApplicationForm(instance=application)
+    else:
+        # user view of the contrib application
+        applicationform = ContribApplicationForm(instance=application)
     context = {
         'application': application,
         'member': member,
