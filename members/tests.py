@@ -506,12 +506,11 @@ class LoggedInViewsTest(TestCase):
         application = Applications.objects.all()[0]
         data = {
             "contrib": "modified contrib",
-            "sub_private": "off"
         }
         response = self.client.post('/application/%d/edit' % application.pk, data=data, follow=True)
         self.assertRedirects(response, '/application/%d' % application.pk, status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=False)
         self.assertNotContains(response, "This page is only accessible to application managers.")
-        # self.assertContains(response, "selected>No")
+        self.assertNotContains(response, "checked")
         self.assertContains(response, "modified contrib")
 
     def test_updateactive(self):
