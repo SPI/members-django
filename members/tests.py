@@ -509,7 +509,6 @@ class LoggedInViewsTest(TestCase):
             "sub_private": "off"
         }
         response = self.client.post('/application/%d/edit' % application.pk, data=data, follow=True)
-        application = Applications.objects.all()[0]
         self.assertRedirects(response, '/application/%d' % application.pk, status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=False)
         self.assertNotContains(response, "This page is only accessible to application managers.")
         # self.assertContains(response, "selected>No")
