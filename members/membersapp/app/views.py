@@ -305,6 +305,17 @@ def contribapplication(request):
             contribapp.save()
             user.last_active = datetime.date.today()
             user.save()
+            if settings.SEND_NOTIFICATION_EMAILS:
+                try:
+                    template = loader.get_template('contribapp_new.txt')
+                    context = {
+                        'username': user.name,
+                        'appid': contribapp.appid
+                    }
+                    msg = template.render(context)
+                    send_mail('New contributing application', msg, 'SPI Membership Committee <membership@spi-inc.org>', [settings.NOTIFICATION_EMAILS_DESTINATION], fail_silently=False)
+                except (SMTPException, ConnectionRefusedError):
+                    raise CommandError('Unable to send email to membership committee.')
         else:
             print(memberform.errors.as_data(), contribappform.errors.as_data())
         return HttpResponseRedirect(reverse('index'))
