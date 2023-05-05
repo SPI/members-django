@@ -245,20 +245,25 @@ def memberedit(request):
 def applicationedit(request, appid):
     """Handler for non-contributing membership application."""
     user = get_current_user(request)
-    if not user.ismanager:
-        return render(request, 'manager-only.html')
     if request.method == 'POST':
         application = Applications.objects.get(pk=appid)
-        application_pre_value = application.approve
         memberform = MemberForm(request.POST, instance=application.member)
-        applicationform = ApplicationForm(request.POST, instance=application)
-        # caution: is_valid() modifies objects
-        if memberform.is_valid() and applicationform.is_valid():
-            memberform.save()
-            applicationform.save()
-            # This step must be done after others, otherwise changes on user
-            # will be reverted
-            process_contrib_application(request, applicationform, application, application_pre_value)
+        if user.ismanager:
+            application_pre_value = application.approve
+            applicationform = ApplicationForm(request.POST, instance=application)
+            # caution: is_valid() modifies objects
+            if memberform.is_valid() and applicationform.is_valid():
+                memberform.save()
+                applicationform.save()
+                # This step must be done after others, otherwise changes on user
+                # will be reverted
+                process_contrib_application(request, applicationform, application, application_pre_value)
+        else:
+            # todo: test if user owns the application
+            applicationform = ContribApplicationForm(request.POST, instance=application)
+            if memberform.is_valid() and applicationform.is_valid():
+                memberform.save()
+                applicationform.save()
     return HttpResponseRedirect(reverse('application', args=[appid]))
 
 
