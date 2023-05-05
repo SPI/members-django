@@ -153,6 +153,10 @@ NOCAPTCHA = True
 RECAPTCHA_SITE_KEY = ""
 RECAPTCHA_SECRET_KEY = ""
 SITE_ROOT = "http://localhost:8000"
+# Notification emails when a members sends a new contributing application
+# or updates an existing one
+SEND_NOTIFICATION_EMAILS = True
+NOTIFICATION_EMAILS_DESTINATION = "membership@spi-inc.org"
 
 # Override in local settings
 USE_PG_COMMUNITY_AUTH = False  # Right now we *always* do, but this is used to turn on/off some local features

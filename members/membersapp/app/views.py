@@ -13,6 +13,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib import messages
 from django.urls import reverse
 from django.utils import timezone
+from django.core.mail import send_mail
 
 from membersapp.app.stats import get_stats
 from membersapp.app.applications import *
@@ -263,6 +264,17 @@ def applicationedit(request, appid):
             if memberform.is_valid() and applicationform.is_valid() and application.member == user:
                 memberform.save()
                 applicationform.save()
+                if settings.SEND_NOTIFICATION_EMAILS:
+                    try:
+                        template = loader.get_template('contribapp_updated.txt')
+                        context = {
+                            'username': user.name,
+                            'appid': application.appid
+                        }
+                        msg = template.render(context)
+                        send_mail('Contributing application updated', msg, 'SPI Membership Committee <membership@spi-inc.org>', [settings.NOTIFICATION_EMAILS_DESTINATION], fail_silently=False)
+                    except (SMTPException, ConnectionRefusedError):
+                        raise CommandError('Unable to send email to membership committee.')
     return HttpResponseRedirect(reverse('application', args=[appid]))
 
 

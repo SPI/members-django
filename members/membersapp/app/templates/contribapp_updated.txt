@@ -1,0 +1,2 @@
+User {{ username }} has updated their contributing application.
+You can see it at https://members.spi-inc.org/application/{{ appid }}.
