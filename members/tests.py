@@ -513,6 +513,21 @@ class LoggedInViewsTest(TestCase):
         self.assertNotContains(response, "checked")
         self.assertContains(response, "modified contrib")
 
+    def test_contribapplication_other_edit(self):
+        response = create_application_post(self)
+        application = Applications.objects.all()[0]
+        switch_to_other_member(self)
+        data = {
+            "contrib": "modified contrib",
+        }
+        response = self.client.post('/application/%d/edit' % application.pk, data=data, follow=True)
+        switch_back(self)
+        self.assertRedirects(response, '/application/%d' % application.pk, status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=False)
+        self.assertContains(response, "This page is only accessible to application managers.")
+        application = Applications.objects.all()[0]
+        self.assertNotEqual(application.contrib, "modified contrib")
+        self.assertEqual(application.contrib, "Hello world create_application_post")
+
     def test_updateactive(self):
         data = {
         }

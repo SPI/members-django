@@ -259,9 +259,8 @@ def applicationedit(request, appid):
                 # will be reverted
                 process_contrib_application(request, applicationform, application, application_pre_value)
         else:
-            # todo: test if user owns the application
             applicationform = ContribApplicationForm(request.POST, instance=application)
-            if memberform.is_valid() and applicationform.is_valid():
+            if memberform.is_valid() and applicationform.is_valid() and application.member == user:
                 memberform.save()
                 applicationform.save()
     return HttpResponseRedirect(reverse('application', args=[appid]))
