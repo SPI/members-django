@@ -512,6 +512,7 @@ class LoggedInViewsTest(TestCase):
         self.assertNotContains(response, "This page is only accessible to application managers.")
         self.assertNotContains(response, "checked")
         self.assertContains(response, "modified contrib")
+        self.assertEqual(len(mail.outbox), 2)
 
     def test_contribapplication_other_edit(self):
         response = create_application_post(self)
@@ -560,6 +561,7 @@ class LoggedInViewsTest(TestCase):
         response = create_application_post(self)
         self.assertRedirects(response, '/', status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=False)
         self.assertEqual(Applications.objects.count(), 1)
+        self.assertEqual(len(mail.outbox), 1)
 
     def test_apply_twice(self):
         response = create_application_post(self)
