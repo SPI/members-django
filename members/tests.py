@@ -1267,12 +1267,14 @@ class ApplicationWorkflowTests(TestCase):
 
 class AccountTest(TestCase):
 
+    @override_settings(NOCAPTCHA=True)
     def test_login(self):
         user = register_user_manually_with_validation(self)
         response = manual_login(self)
         self.assertRedirects(response, '/', status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=True)
         self.assertContains(response, "Membership status for test test")
 
+    @override_settings(NOCAPTCHA=True)
     def test_logout(self):
         user = register_user_manually_with_validation(self)
         manual_login(self)
@@ -1280,6 +1282,7 @@ class AccountTest(TestCase):
         self.assertRedirects(response, '/', status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=True)
         self.assertContains(response, "Welcome to the membership pages of Software in the Public Interest")
 
+    @override_settings(NOCAPTCHA=True)
     def test_changepwd(self):
         user = register_user_manually_with_validation(self)
         manual_login(self)
@@ -1294,6 +1297,7 @@ class AccountTest(TestCase):
         self.assertRedirects(response, '/', status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=True)
         self.assertContains(response, "Membership status for test test")
 
+    @override_settings(NOCAPTCHA=True)
     def test_profile(self):
         user = register_user_manually_with_validation(self)
         manual_login(self)
