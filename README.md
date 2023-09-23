@@ -106,7 +106,7 @@ PYTHONPATH=membersapp/app/OpenSTV/openstv python manage.py test
 
 # Link between Membersdjango, PGLister and PGArchives
 
-To authenticate users in PGLister and PGArchives-private, a community auth site must be created in Membersdjango. First, create a community org auth in [/admin/account/communityauthorg/](https://members.spi-inc.org/admin/account/communityauthorg/). Then create the auth site in [/admin/account/communityauthsite/](https://members.spi-inc.org/admin/account/communityauthsite/).
+To authenticate users in PGLister and PGArchives-private, a community auth site must be created in Membersdjango. First, create a community org auth in [/admin/account/communityauthorg/](https://members.spi-inc.org/admin/account/communityauthorg/). Then, create the auth site in [/admin/account/communityauthsite/](https://members.spi-inc.org/admin/account/communityauthsite/).
 
 Use the following parameters:
 - Redirecturl: https://lists.spi-inc.org/auth_receive/
