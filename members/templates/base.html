@@ -25,6 +25,10 @@
 
 <div class="sidebar">
 <ul>
+<li><a href="https://www.spi-inc.org/">Main SPI Website</a></li>
+<li><a href="{{ PGLISTER_URL }}">Mailing Lists</a></li>
+<li><a href="{{ REIMBURSEMENTS_URL }}">Reimbursements</a></li>
+<hr />
 {% if request.user.is_authenticated %}
 <li><a href="/">Membership Info</a></li>
 <li><a href="/account/profile/">Profile</a></li>
@@ -36,10 +40,6 @@
 {% endif %}
 <li><a href="{{ CHANGEPASSWD_URL }}">Change Password</a></li>
 <li><a href="{{ LOGOUT_URL }}">Logout</a></li>
-<hr />
-<li><a href="https://www.spi-inc.org/">Main SPI Website</a></li>
-<li><a href="{{ PGLISTER_URL }}">Mailing Lists</a></li>
-<li><a href="{{ REIMBURSEMENTS_URL }}">Reimbursements</a></li>
     {% if user.ismanager %}
         <hr />
         <li><a href="/applications/all">All Applications</a></li>
