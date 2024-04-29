@@ -80,6 +80,7 @@ WSGI_APPLICATION = 'membersapp.wsgi.application'
 
 # Adding Crypt to default hashers to allow import from previous members app
 PASSWORD_HASHERS = [
+    'django.contrib.auth.hashers.ScryptPasswordHasher',
     'django.contrib.auth.hashers.PBKDF2PasswordHasher',
     'django.contrib.auth.hashers.PBKDF2SHA1PasswordHasher',
     'django.contrib.auth.hashers.Argon2PasswordHasher',
