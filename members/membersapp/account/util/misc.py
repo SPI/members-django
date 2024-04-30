@@ -31,11 +31,11 @@ def get_client_ip(request):
     or behind one of our SSL proxies, make sure to get the *actual* client IP,
     and not the IP of the cache/proxy.
     """
-    if 'HTTP_X_FORWARDED_FOR' in request.META:
+    if 'x-forwarded-for' in request.headers:
         # There is a x-forwarded-for header, so trust it but only if the actual connection
         # is coming in from one of our frontends.
         if request.META['REMOTE_ADDR'] in settings.FRONTEND_SERVERS:
-            return request.META['HTTP_X_FORWARDED_FOR']
+            return request.headers['x-forwarded-for']
 
     # Else fall back and return the actual IP of the connection
     return request.META['REMOTE_ADDR']
