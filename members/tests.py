@@ -280,7 +280,7 @@ def register_user_manually_with_validation(testcase):
     response = register_user(testcase)
     user = User.objects.get(email="testregister@spi-inc.org")
     link = re.search('/account/reset/(.*?)-.*\n', mail.outbox[0].body)
-    response = testcase.client.get(link.group(0), follow=True)
+    response = testcase.client.get(link.group(0).strip(), follow=True)
     testcase.assertContains(response, "Enter new password")
     data = {
         "new_password1": "test_password",
