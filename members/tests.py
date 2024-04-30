@@ -280,7 +280,7 @@ def register_user_manually_with_validation(testcase):
     response = register_user(testcase)
     user = User.objects.get(email="testregister@spi-inc.org")
     link = re.search('/account/reset/(.*?)-.*\n', mail.outbox[0].body)
-    response = testcase.client.get(link.group(0), follow=True)
+    response = testcase.client.get(link.group(0).strip(), follow=True)
     testcase.assertContains(response, "Enter new password")
     data = {
         "new_password1": "test_password",
@@ -422,7 +422,7 @@ class NonLoggedInViewsTests(TestCase):
         assert Members.objects.get(email="testregister@spi-inc.org").ismember is False
         user = User.objects.get(email="testregister@spi-inc.org")
         link = re.search('/account/reset/(.*?)-.*\n', mail.outbox[0].body)
-        response = self.client.get(link.group(0), follow=True)
+        response = self.client.get(link.group(0).strip(), follow=True)
         self.assertContains(response, "Enter new password")
         data = {
             "new_password1": "test_password",
@@ -447,7 +447,7 @@ class NonLoggedInViewsTests(TestCase):
         application.save()
         self.assertEqual(len(Applications.objects.filter(member=member)), 2)
         link = re.search('/account/reset/(.*?)-.*\n', mail.outbox[0].body)
-        response = self.client.get(link.group(0), follow=True)
+        response = self.client.get(link.group(0).strip(), follow=True)
         self.assertContains(response, "Enter new password")
         data = {
             "new_password1": "test_password",

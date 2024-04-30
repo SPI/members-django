@@ -32,10 +32,12 @@ class PgwebAdmin(admin.ModelAdmin):
     # notifications. Manually calling delete() on each one will be slightly
     # slower, but will send proper notifications - and it's not like this
     # is something that happens often enough that we care about performance.
+    @admin.action(
+        description="Delete selected items"
+    )
     def custom_delete_selected(self, request, queryset):
         for x in queryset:
             x.delete()
-    custom_delete_selected.short_description = "Delete selected items"
     actions = ['custom_delete_selected']
 
 

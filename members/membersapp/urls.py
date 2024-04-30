@@ -1,7 +1,7 @@
 """members URL Configuration
 
 The `urlpatterns` list routes URLs to views. For more information please see:
-    https://docs.djangoproject.com/en/3.2/topics/http/urls/
+    https://docs.djangoproject.com/en/4.2/topics/http/urls/
 Examples:
 Function views
     1. Add an import:  from my_app import views
@@ -14,7 +14,7 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.conf.urls import url, include
+from django.urls import include, path
 from django.urls import path
 from django.contrib.auth.decorators import login_required
 
@@ -42,7 +42,7 @@ urlpatterns = [
     path('vote/<int:ref>/result', views.voteresult, name='voteresult'),
     path('privatesubs', views.privatesubs, name='privatesubs'),
 
-    url(r'^account/', include('membersapp.account.urls')),
+    path('account/', include('membersapp.account.urls')),
 ]
 
 handler404 = 'membersapp.app.views.handler404'
