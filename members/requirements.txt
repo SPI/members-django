@@ -1,11 +1,4 @@
-asgiref==3.8.1
-certifi==2024.2.2
-charset-normalizer==3.3.2
 Django==4.2
-idna==3.7
 psycopg2-binary==2.9.9
 pycryptodomex==3.20.0
 requests==2.31.0
-sqlparse==0.5.0
-typing-extensions==4.11.0
-urllib3==2.2.1
