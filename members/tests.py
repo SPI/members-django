@@ -778,6 +778,34 @@ class ContribUserTest(TestCase):
     # voting results tests here
 
 
+# When a contributing user gets downgraded to non-contributing
+class DowngradedUserTest(TestCase):
+    def setUp(self):
+        create_member(manager=False, contrib=False)
+        noncontrib_application = Applications(member=member)
+        noncontrib_application.save()
+        contrib_application = Applications(member=member, contrib=True, approve=True)
+        contrib_application.save()
+        create_manager()
+        self.client.force_login(member.memid)
+
+    def test_downgrade_message(self):
+        response = self.client.get('/')
+        self.assertContains(response, "You are no longer a contributing member due to inactivity")
+        self.assertContains(response, "updateactive")
+
+    # Clicking on the updateactive button should be enough to give user back their contrib status
+    def test_updateactive_after_downgrade(self):
+        data = {
+        }
+        response = self.client.post("/updateactive", data=data)
+        user = Members.object.get(pk=member)  # get updated user
+        self.assertEqual(user.lastactive, datetime.date.today())
+        self.assertRedirects(response, '/', status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=True)
+        self.assertContains(response, "You regained your contributing member status.")
+        self.assertEqual(user.iscontrib, True)
+
+
 class ManagerTest(TestCase):
     def setUp(self):
         create_member(manager=True, contrib=True)
