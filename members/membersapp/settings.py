@@ -144,7 +144,6 @@ STATICFILES_DIRS = [
 
 # account
 ACCOUNTS_NOREPLY_FROM = "pgweb@localhost"                # Address to send account messages from
-NOTIFICATION_EMAIL = "pgweb@localhost"                   # Address to send notifications *to*
 NOTIFICATION_FROM = "pgweb@localhost"                    # Address to send notifications *from*
 # Configure recaptcha. Most details contain keys and are thus handled
 # in settings_local.py. Override NOCAPTCHA to actually use them.
