@@ -477,6 +477,7 @@ class LoggedInViewsTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Membership status for %s" % default_name)
         self.assertContains(response, "Apply</a> for contributing membership")
+        self.assertNotContains(response, "You are no longer a contributing member due to inactivity")
 
     def test_stats(self):
         response = self.client.get('/stats/')
@@ -626,6 +627,7 @@ class ContribUserTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Membership status for")
         self.assertContains(response, "Yes")
+        self.assertNotContains(response, "You are no longer a contributing member due to inactivity")
 
     def test_stats(self):
         response = self.client.get('/stats/')
