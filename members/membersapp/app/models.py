@@ -28,6 +28,12 @@ class Members(models.Model):
     class Meta:
         db_table = 'members'
 
+    @property
+    def downgraded_user(self):
+        if self.iscontrib:
+            return False
+        return (len(Applications.objects.filter(Q(member=self) & Q(contribapp=True) & Q(approve=True))) > 0)
+
 
 class Applications(models.Model):
     appid = models.AutoField(null=False, primary_key=True)

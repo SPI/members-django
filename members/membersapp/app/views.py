@@ -44,12 +44,14 @@ def index(request):
         auth_user = User.objects.get(id=user.memid_id)
         form = MemberForm(instance=user)
         contribapp = (len(Applications.objects.filter(Q(member=user) & Q(contribapp=True))) > 0)
+        downgraded_user = user.downgraded_user
         context = {
             'active_votes': VoteElection.objects.filter(Q(period_start__lte=timezone.now()) & Q(period_stop__gte=timezone.now())),
             'user_votes': VoteElection.objects.filter(owner=user),
             'applications': Applications.objects.filter(member=user),
             'applicants': Applications.objects.filter(manager=user),
             'contribapp': contribapp,
+            'downgraded_user': downgraded_user,
             'user': user,
             'auth_user': auth_user,
             'form': form
@@ -88,6 +90,8 @@ def updateactive(request):
     """Update a users most recently active date and redirect to main page"""
     user = get_current_user(request)
     user.lastactive = datetime.date.today()
+    if user.downgraded_user:
+        user.iscontrib = True
     user.save()
     return HttpResponseRedirect("/")
 
@@ -250,7 +254,6 @@ def applicationedit(request, appid):
         application = Applications.objects.get(pk=appid)
         memberform = MemberForm(request.POST, instance=application.member)
         if user.ismanager:
-            application_pre_value = application.approve
             applicationform = ApplicationForm(request.POST, instance=application)
             # caution: is_valid() modifies objects
             if memberform.is_valid() and applicationform.is_valid():
@@ -258,7 +261,7 @@ def applicationedit(request, appid):
                 applicationform.save()
                 # This step must be done after others, otherwise changes on user
                 # will be reverted
-                process_contrib_application(request, applicationform, application, application_pre_value)
+                process_contrib_application(request, applicationform, application)
         else:
             applicationform = ContribApplicationForm(request.POST, instance=application)
             if memberform.is_valid() and applicationform.is_valid() and application.member == user:

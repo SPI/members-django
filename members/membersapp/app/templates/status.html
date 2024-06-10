@@ -23,6 +23,8 @@
         </td></tr>
         <tr><td>Last active</td><td>{{ user.lastactive|date:"Y-m-d" }} (<a href="/updateactive">Update</a>)</td></tr>
         <tr><td colspan="2"><input type="submit" value="Update Details" /></td></tr>
+{% elif downgraded_user %}
+        <p>You are no longer a contributing member due to inactivity. Click <a href="/updateactive">here</a> to regain your contributing member status.</p>
 {% endif %}
     </table>
     </form>

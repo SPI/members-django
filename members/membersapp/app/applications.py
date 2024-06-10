@@ -14,11 +14,11 @@ from .models import Members, Applications
 from .utils import *
 
 
-def process_contrib_application(request, form, application, approve_pre_value):
+def process_contrib_application(request, form, application):
     """Deals with changes to a contributing application by a manager"""
     user = Members.object.get(pk=application.member)
 
-    if form["approve"].data and not approve_pre_value:
+    if form["approve"].data and not user.iscontrib:
         user.iscontrib = True
         user.lastactive = datetime.date.today()
         user.save()
