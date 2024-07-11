@@ -34,6 +34,16 @@ class Members(models.Model):
             return False
         return (len(Applications.objects.filter(Q(member=self) & Q(contribapp=True) & Q(approve=True))) > 0)
 
+    @property
+    def get_status(self):
+        """Return the member status"""
+        if not self.ismember:
+            return 'NM'
+        elif not self.iscontrib:
+            return 'NCM'
+        else:
+            return 'CM'
+
 
 class Applications(models.Model):
     appid = models.AutoField(null=False, primary_key=True)
