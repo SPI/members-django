@@ -38,11 +38,11 @@ class Members(models.Model):
     def get_status(self):
         """Return the member status"""
         if not self.ismember:
-            return 'NM'
+            return 'nm'
         elif not self.iscontrib:
-            return 'NCM'
+            return 'ncm'
         else:
-            return 'CM'
+            return 'cm'
 
 
 class Applications(models.Model):
