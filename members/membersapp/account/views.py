@@ -389,6 +389,7 @@ def communityauth(request, siteid):
         'l': request.user.last_name.encode('utf-8'),
         'e': request.user.email.encode('utf-8'),
         'se': ','.join([a.email for a in SecondaryEmail.objects.filter(user=request.user, confirmed=True).order_by('email')]).encode('utf8'),
+        's': Members.object.get(pk=request.user.pk).get_status.encode('utf-8'),
     }
     if d:
         info['d'] = d.encode('utf-8')
