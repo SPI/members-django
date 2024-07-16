@@ -15,6 +15,7 @@ from django.db import transaction, connection
 from django.db.models import Q, Prefetch
 from django.shortcuts import render
 from django.utils import timezone
+from django.contrib import messages
 
 import base64
 import urllib.parse
@@ -95,6 +96,7 @@ def profile(request):
                 member.email = user.email
                 member.save()
                 log.info("User {} changed primary email from {} to {}".format(user.username, oldemail, user.email))
+                messages.success(request, "Primary email address changed. You may need to log out and in to associated applications once for changes to take effect.")
 
             if contrib:
                 contribform.save()
