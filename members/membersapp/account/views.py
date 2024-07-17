@@ -98,7 +98,7 @@ def profile(request):
                 member.save()
                 log.info("User {} changed primary email from {} to {}".format(user.username, oldemail, user.email))
                 send_change_to_apps(user)
-                messages.success(request, "Primary email address changed. You may need to log out and in to associated applications once for changes to take effect.")
+                messages.success(request, "Primary email address changed.")
 
             if contrib:
                 contribform.save()
