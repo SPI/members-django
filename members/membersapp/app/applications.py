@@ -12,6 +12,7 @@ from django.core.mail import send_mail
 
 from .models import Members, Applications
 from .utils import *
+from membersapp.account.util.propagate import send_change_to_apps
 
 
 def process_contrib_application(request, form, application):
@@ -36,6 +37,7 @@ def process_contrib_application(request, form, application):
             send_mail(subject, msg, from_field, [user.email], fail_silently=False)
         except (SMTPException, ConnectionRefusedError):
             messages.error(request, 'Unable to send contributing member confirmation email.')
+        send_change_to_apps(user, status=True)
 
 
 def get_applications_by_type(listtype):

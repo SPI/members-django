@@ -5,8 +5,10 @@ from django.template import loader
 from django.conf import settings
 from django.core.mail import send_mail
 from django.db.models import Q, Max
+from django.contrib.auth.models import User
 
 from membersapp.app.models import Members, VoteElection
+from membersapp.account.util.propagate import send_change_to_apps
 
 
 class Command(BaseCommand):
@@ -33,6 +35,7 @@ class Command(BaseCommand):
             if dryrun is False:
                 member.iscontrib = False
                 member.save()
+                send_change_to_apps(User.objects.get(pk=member.pk), status=True)
 
     def send_ping(self, dryrun):
         pingable_members = self.get_concerned_members()

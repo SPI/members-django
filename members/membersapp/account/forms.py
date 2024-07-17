@@ -8,6 +8,7 @@ from django.contrib.auth.models import User
 
 from membersapp.app.models import Members, Applications
 from .models import SecondaryEmail
+from membersapp.account.util.propagate import send_change_to_apps
 
 from .recaptcha import ReCaptchaField
 
@@ -190,4 +191,5 @@ class MembersdjangoSetPasswordForm(SetPasswordForm):
             member.save()
             for application in applications:
                 application.save()
+            send_change_to_apps(user, status=True)
         return user

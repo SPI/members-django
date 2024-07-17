@@ -20,6 +20,7 @@ from membersapp.app.applications import *
 from .models import Members, Applications, VoteElection, VoteOption, VoteVote, VoteVoteOption
 from .forms import *
 from .votes import *
+from membersapp.account.util.propagate import send_change_to_apps
 
 
 def handler404(request, exception):
@@ -93,6 +94,7 @@ def updateactive(request):
     if user.downgraded_user:
         user.iscontrib = True
     user.save()
+    send_change_to_apps(user, status=True)
     return HttpResponseRedirect("/")
 
 
