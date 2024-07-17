@@ -29,6 +29,7 @@ import hmac
 
 from membersapp.account.util.misc import send_template_mail, generate_random_token, get_client_ip
 from membersapp.account.util.helpers import HttpSimpleResponse
+from membersapp.account.util.propagate import send_change_to_apps
 
 from membersapp.app.utils import get_current_user
 from membersapp.app.models import Members, Applications
@@ -96,6 +97,7 @@ def profile(request):
                 member.email = user.email
                 member.save()
                 log.info("User {} changed primary email from {} to {}".format(user.username, oldemail, user.email))
+                send_change_to_apps(user)
                 messages.success(request, "Primary email address changed. You may need to log out and in to associated applications once for changes to take effect.")
 
             if contrib:
