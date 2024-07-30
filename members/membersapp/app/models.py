@@ -200,33 +200,3 @@ class VoteVoteOption(models.Model):
     class Meta:
         unique_together = (('vote_ref', 'option_ref'), )
         db_table = 'vote_voteoption'
-
-
-# These tables do not seem to be used, even though they exist in production
-
-# class VoteLog(models.Model):
-#     ref = models.AutoField(null=False, primary_key=True)
-#     time = models.DateTimeField(auto_now_add=True, null=False)
-#     source_ip = models.CharField(max_length=255, null=True)
-#     vote_caset = models.CharField(max_length=255, null=True)
-#     vote_ref = models.ForeignKey(VoteVote, null=False, blank=False, db_column='vote_ref', on_delete=models.RESTRICT)
-#     who = models.ForeignKey(VoteVoter, null=False, blank=False, db_column='who', on_delete=models.RESTRICT)
-
-#     class Meta:
-#         db_table = 'vote_log'
-
-# class VoteSession(models.Model):
-#     ref = models.AutoField(null=False, primary_key=True)
-#     vote_session_id = models.CharField(max_length=256, null=False, unique=True, db_column='id')  # todo: merge with ref?
-#     data = models.BinaryField(null=True)
-#     last_seen = models.DateTimeField(auto_now=True)
-
-#     class Meta:
-#         db_table = 'vote_session'
-
-# class VoteVoter(models.Model):
-#     ref = models.ForeignKey(Members, null=False, blank=False, db_column='ref', on_delete=models.RESTRICT)
-#     session_ref = models.IntegerField(null=True)
-
-#     class Meta:
-#         db_table = 'vote_voter'
