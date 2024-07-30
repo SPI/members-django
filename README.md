@@ -32,7 +32,7 @@ It enables the following actions:
   based on [PGArchives](https://gitlab.com/cmatte/pgarchives).
 
 The app is written in Python using the Django frame work and designed to
-run on a Debian 10 (Buster) host.
+run on a Debian 12 (Bookworm) host.
 
 The official code repository for the site lives within the SPI
 infrastructure and can be browsed at:
@@ -48,19 +48,15 @@ pull request feature on these sites.
 
 ## Dependencies
 
-- python3.7.3
+- python3
 - python3-django
 - postgresql
-- python-psycopg2
+- python3-psycopg2
 - pyenv
 - python-virtualenv
 - python-wxgtk3.0  # for OpenSTV
 
-pip packages:
-- django==3.2
-- psycopg2-binary
-- requests
-- pycryptodomex
+pip packages: see [requirements.txt](members/requirements.txt)
 
 ## Install
 
@@ -76,11 +72,11 @@ ansible-playbook -e @config.yml -e @credentials.yml --vault-password-file .vault
 
 Install venv:
 ```bash
-CC=clang pyenv install 3.7.3
-virtualenv -p ~/.pyenv/versions/3.7.3/bin/python3 venv
+CC=clang pyenv install 3.11.2
+virtualenv -p ~/.pyenv/versions/3.11.2/bin/python3 venv
 source ./venv/bin/activate
-pip install django==3.2
-python -m django --version  # Should be 3.2
+pip install django==4.2
+python -m django --version  # Should be 4.2
 pip install psycopg2-binary requests pycryptodomex
 ```
 
