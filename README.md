@@ -106,7 +106,7 @@ To authenticate users in PGLister and PGArchives-private, a community auth site 
 
 Use the following parameters:
 - Redirecturl: https://lists.spi-inc.org/auth_receive/
-- Apiurl: https://members.spi-inc.org/account/auth/1/
+- Apiurl: https://lists.spi-inc.org/auth_api/
 - Cryptkey: a random password that you can create using `python tools/communityauth/generate_cryptkey.py`
 - Org: the org site you just created
 
