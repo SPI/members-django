@@ -113,11 +113,15 @@ def profile(request):
                     {'secondaryemail': sa, 'user': request.user, }
                 )
 
+            change = False
             for k, v in request.POST.items():
                 if k.startswith('deladdr_') and v == '1':
                     ii = int(k[len('deladdr_'):])
                     SecondaryEmail.objects.filter(user=request.user, id=ii).delete()
+                    change = True
 
+            if change:
+                send_change_to_apps(user)
             return HttpResponseRedirect(".")
     else:
         # Generate form
@@ -144,6 +148,7 @@ def confirm_add_email(request, tokenhash):
     addr.confirmed = True
     addr.token = ''
     addr.save()
+    send_change_to_apps(request.user)
     return HttpResponseRedirect('/account/profile/')
 
 
