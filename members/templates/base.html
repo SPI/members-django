@@ -27,7 +27,9 @@
 <ul>
 <li><a href="https://www.spi-inc.org/">Main SPI Website</a></li>
 <li><a href="{{ PGLISTER_URL }}">Mailing Lists</a></li>
+{% if REIMBURSEMENTS_URL %}
 <li><a href="{{ REIMBURSEMENTS_URL }}">Reimbursements</a></li>
+{% endif %}
 <hr />
 {% if request.user.is_authenticated %}
 <li><a href="/">Membership Info</a></li>
