@@ -19,7 +19,7 @@ def send_change_to_apps(user, status=False):
                 data = {
                     "type": "update",
                     "status": [{
-                        "email": user.email,
+                        "username": user.username,
                         "status": Members.object.get(pk=user.pk).get_status,
                     }]
                 }
