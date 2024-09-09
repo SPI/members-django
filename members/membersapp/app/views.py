@@ -94,7 +94,7 @@ def updateactive(request):
     if user.downgraded_user:
         user.iscontrib = True
     user.save()
-    send_change_to_apps(user, status=True)
+    send_change_to_apps(User.objects.get(pk=user .pk), status=True)
     return HttpResponseRedirect("/")
 
 

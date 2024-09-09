@@ -3,6 +3,7 @@ import email
 import email.header
 from smtplib import SMTPException
 
+from django.contrib.auth.models import User
 from django.db import connection
 from django.db.models import Q
 from django.contrib import messages
@@ -37,7 +38,7 @@ def process_contrib_application(request, form, application):
             send_mail(subject, msg, from_field, [user.email], fail_silently=False)
         except (SMTPException, ConnectionRefusedError):
             messages.error(request, 'Unable to send contributing member confirmation email.')
-        send_change_to_apps(user, status=True)
+        send_change_to_apps(User.objects.get(pk=user.pk), status=True)
 
 
 def get_applications_by_type(listtype):
