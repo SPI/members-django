@@ -65,7 +65,7 @@ This is a role to deploy members in SPI's (currently private) [ansible repositor
 To redeploy, use:
 
 ```
-ansible-playbook -e @config.yml -e @credentials.yml --vault-password-file .vault_pass.txt playbooks/althea.yml --tags members-django
+ansible-playbook --vault-password-file .vault_pass.txt playbooks/leslie_jess.yml --tags members-django
 ```
 
 ## Dev environment
