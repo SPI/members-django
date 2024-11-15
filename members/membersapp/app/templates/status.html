@@ -7,6 +7,9 @@
     <table>
         <tr><td>Name</td><td>{{ user.name }}</td></tr>
         <tr><td>Email address</td><td>{{ user.email }}</td></tr>
+        {% if other_email_addresses %}
+        <tr><td>Other address(es)</td><td>{% for email in other_email_addresses%}{{ email }} {% endfor %}</td></tr>
+        {% endif %}
         <tr><td>Member Since</td><td>{{ auth_user.date_joined|date:"Y-m-d" }}</td></tr>
         <tr><td>Current Member</td><td>
             {% if user.ismember %} Yes {% else %} No {% endif %}

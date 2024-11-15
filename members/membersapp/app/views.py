@@ -21,6 +21,7 @@ from .models import Members, Applications, VoteElection, VoteOption, VoteVote, V
 from .forms import *
 from .votes import *
 from membersapp.account.util.propagate import send_change_to_apps
+from membersapp.account.models import SecondaryEmail
 
 
 def handler404(request, exception):
@@ -55,7 +56,8 @@ def index(request):
             'downgraded_user': downgraded_user,
             'user': user,
             'auth_user': auth_user,
-            'form': form
+            'form': form,
+            'other_email_addresses': SecondaryEmail.objects.filter(user=user.pk).values_list('email', flat=True)
         }
         return HttpResponse(template.render(context, request))
 
@@ -232,7 +234,8 @@ def showmember(request, memid):
         'member': member,
         'auth_user': auth_user,
         'applications': Applications.objects.filter(member=member),
-        'applicants': Applications.objects.filter(manager=member).order_by('appid')
+        'applicants': Applications.objects.filter(manager=member).order_by('appid'),
+        'other_email_addresses': SecondaryEmail.objects.filter(user=member.pk).values_list('email', flat=True)
     }
     return HttpResponse(template.render(context, request))
 
