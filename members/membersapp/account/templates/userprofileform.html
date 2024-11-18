@@ -110,4 +110,7 @@
     <input class="btn btn-primary" type="submit" value="Save" />
   </div>
 </form>
+{%if recaptcha%}
+  <script type="text/javascript" src="https://www.google.com/recaptcha/api.js?hl=en" async defer></script>
+{%endif%}
 {%endblock%}

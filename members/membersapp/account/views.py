@@ -54,6 +54,9 @@ objtypes = {
 
 @login_required
 @transaction.atomic
+@script_sources('https://www.google.com/recaptcha/')
+@script_sources('https://www.gstatic.com/recaptcha/')
+@frame_sources('https://www.google.com/')
 def profile(request):
     # We always have the user, but not always the profile. And we need a bit
     # of a hack around the normal forms code since we have two different
@@ -76,7 +79,7 @@ def profile(request):
     if request.method == 'POST':
         # Process this form
         userform = UserForm(can_change_email, secondaryaddresses, data=request.POST, instance=request.user)
-        secondaryemailform = AddEmailForm(request.user, data=request.POST)
+        secondaryemailform = AddEmailForm(request.user, get_client_ip(request), data=request.POST)
 
         if userform.is_valid() and secondaryemailform.is_valid() and (not contrib or contribform.is_valid()):
             user = userform.save()
@@ -126,7 +129,7 @@ def profile(request):
     else:
         # Generate form
         userform = UserForm(can_change_email, secondaryaddresses, instance=request.user)
-        secondaryemailform = AddEmailForm(request.user)
+        secondaryemailform = AddEmailForm(request.user, get_client_ip(request))
 
     user = get_current_user(request)
     return render(request, 'userprofileform.html', {
@@ -136,6 +139,7 @@ def profile(request):
         'secondarypending': any(not a.confirmed for a in secondaryaddresses),
         'contribform': contribform,
         'user': user,
+        'recaptcha': True,
     })
 
 

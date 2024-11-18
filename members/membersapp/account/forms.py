@@ -127,10 +127,12 @@ class UserForm(forms.ModelForm):
 class AddEmailForm(forms.Form):
     email1 = forms.EmailField(label="New email", required=False)
     email2 = forms.EmailField(label="Repeat email", required=False)
+    captcha = ReCaptchaField()
 
-    def __init__(self, user, *args, **kwargs):
+    def __init__(self, user, remoteip, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.user = user
+        self.fields['captcha'].set_ip(remoteip)
 
     def clean_email1(self):
         email = self.cleaned_data['email1'].lower()
