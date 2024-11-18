@@ -16,7 +16,7 @@ from django.contrib import auth
 from django.core import mail
 
 from membersapp.app.models import Members, Applications, VoteElection, VoteVote
-
+from membersapp.account.models import SecondaryEmail
 
 member = None
 default_name = 'testuser'
@@ -852,10 +852,22 @@ class ManagerTest(TestCase):
         self.assertEqual(user.lastactive, datetime.date.today())
         self.assertRedirects(response, '/', status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=False)
 
-    def test_member(self):
+    def test_member_singleemail(self):
         response = self.client.get('/member/%d' % member.pk)
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Membership status for %s" % default_name)
+        self.assertNotContains(response, "Other address(es)")
+
+    def test_member_secondemail(self):
+        other_address = 'secondaryemail@spi-inc.org'
+        secondary_email = SecondaryEmail(
+            user_id=member.pk,
+            email=other_address)
+        secondary_email.save()
+        response = self.client.get('/member/%d' % member.pk)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Membership status for %s" % default_name)
+        self.assertContains(response, "Other address(es)</td><td>%s" % other_address)
 
     def test_memberedit(self):
         data = {
