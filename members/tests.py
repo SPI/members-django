@@ -478,6 +478,17 @@ class LoggedInViewsTest(TestCase):
         self.assertContains(response, "Membership status for %s" % default_name)
         self.assertContains(response, "Apply</a> for contributing membership")
         self.assertNotContains(response, "You are no longer a contributing member due to inactivity")
+        self.assertNotContains(response, "Other address(es)")
+
+    def test_index_loggedin_secondemail(self):
+        other_address = 'secondaryemail@spi-inc.org'
+        secondary_email = SecondaryEmail(
+            user_id=member.pk,
+            email=other_address)
+        secondary_email.save()
+        response = self.client.get('/')
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Other address(es)</td><td>%s" % other_address)
 
     def test_stats(self):
         response = self.client.get('/stats/')
