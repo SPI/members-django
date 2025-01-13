@@ -1,5 +1,8 @@
 #!/usr/bin/python
 
+from datetime import datetime, timezone
+from dateutil.relativedelta import relativedelta
+
 from django.core.management.base import BaseCommand, CommandError
 from django.template import loader
 from django.conf import settings
@@ -22,7 +25,8 @@ class Command(BaseCommand):
                             action='store_const', const=True, default=False)
 
     def get_concerned_members(self):
-        max_date = VoteElection.objects.aggregate(Max('period_start'))['period_start__max']
+        max_date = max(VoteElection.objects.aggregate(Max('period_start'))['period_start__max'],
+                       datetime.now(timezone.utc) - relativedelta(years=1))
         concerned_members = Members.objects.filter(Q(iscontrib=True) & Q(lastactive__lt=max_date))
         return concerned_members
 
