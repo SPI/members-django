@@ -51,7 +51,7 @@ def get_applications_by_type(listtype):
     elif listtype == 'cm':
         applications = Applications.objects.filter(Q(member__iscontrib=True) & Q(contribapp=True))
     elif listtype == 'mgr':
-        applications = Applications.objects.filter(Q(member__ismanager=True))
+        applications = Applications.objects.filter(Q(member__ismanager=True) & Q(contribapp=False))
     elif listtype == 'all':
         applications = Applications.objects.all()
     else:
