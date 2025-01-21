@@ -1225,6 +1225,7 @@ class ApplicationWorkflowTests(TestCase):
         Applications(member=unvalidated_user, contribapp=False, approve=False).save()
         create_member(manager=True, contrib=True)
         # Manager is already contrib, so we can't create an application using POST
+        Applications(member=member, contribapp=False).save()
         Applications(member=member, contribapp=True, approve=True).save()
         member_noncontrib = create_other_member(contrib=False, name='Other User noncontrib')
         # This application is created upon importing user from pgweb
