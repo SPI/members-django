@@ -9,7 +9,7 @@ from django.db.models import Q
 
 
 class Members(models.Model):
-    memid = models.OneToOneField(User, null=False, blank=False, primary_key=True, on_delete=models.RESTRICT, db_column='memid', db_constraint=False)
+    memid = models.OneToOneField(User, null=False, blank=False, primary_key=True, on_delete=models.RESTRICT, db_column='memid')
     email = models.CharField(max_length=50, null=False, unique=True)  # for linking with pgweb
     name = models.CharField(max_length=50, null=False)
     ismember = models.BooleanField(null=False, blank=False, default=False)
@@ -48,7 +48,7 @@ class Members(models.Model):
 class Applications(models.Model):
     appid = models.AutoField(null=False, primary_key=True)
     appdate = models.DateField(null=True)
-    member = models.ForeignKey(Members, null=False, blank=False, db_column='member', on_delete=models.DO_NOTHING, related_name='app2member', db_constraint=False)
+    member = models.ForeignKey(Members, null=False, blank=False, db_column='member', on_delete=models.RESTRICT, related_name='app2member')
     contrib = models.TextField(null=True, verbose_name='Contributions')
     comment = models.TextField(null=True, verbose_name='Manager Comments')
     lastchange = models.DateField(null=True)
