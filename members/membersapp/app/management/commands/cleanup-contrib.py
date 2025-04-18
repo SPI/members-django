@@ -14,8 +14,19 @@ from membersapp.app.models import Members, VoteElection
 from membersapp.account.util.propagate import send_change_to_apps
 
 
+NO_VOTE = 0
+VOTE = 1
+
+
 class Command(BaseCommand):
     help = 'Deal with sending notifications to or cleaning up inactive SPI contributing members'
+    vote_case = None
+
+    def get_case(self):
+        if (datetime.now(timezone.utc) - relativedelta(years=1) > VoteElection.objects.aggregate(Max('period_start'))['period_start__max']):
+            self.vote_case = NO_VOTE
+        else:
+            self.vote_case = VOTE
 
     def add_arguments(self, parser):
         parser.add_argument('action', choices=['clean', 'ping'],
@@ -25,8 +36,10 @@ class Command(BaseCommand):
                             action='store_const', const=True, default=False)
 
     def get_concerned_members(self):
-        max_date = max(VoteElection.objects.aggregate(Max('period_start'))['period_start__max'],
-                       datetime.now(timezone.utc) - relativedelta(years=1))
+        if self.vote_case == VOTE:
+            max_date = VoteElection.objects.aggregate(Max('period_start'))['period_start__max']
+        else:
+            max_date = datetime.now(timezone.utc) - relativedelta(years=1)
         concerned_members = Members.objects.filter(Q(iscontrib=True) & Q(lastactive__lt=max_date))
         return concerned_members
 
@@ -43,7 +56,10 @@ class Command(BaseCommand):
 
     def send_ping(self, dryrun):
         pingable_members = self.get_concerned_members()
-        template = loader.get_template('activity-ping-email.txt')
+        if self.vote_case == VOTE:
+            template = loader.get_template('activity-ping-email.txt')
+        else:
+            template = loader.get_template('activity-ping-email-novote.txt')
         if dryrun and len(pingable_members) > 0:
             print("***** Dry run *****")
         for member in pingable_members:
@@ -56,6 +72,7 @@ class Command(BaseCommand):
                 send_mail('SPI activity ping for %s' % member.name, msg, 'SPI Membership Committee <membership@spi-inc.org>', [member.email], fail_silently=False)
 
     def handle(self, *args, **options):
+        self.get_case()
         if options['action'] == 'clean':
             self. clean_contrib(options['dryrun'])
         elif options['action'] == 'ping':
