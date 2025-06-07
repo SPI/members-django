@@ -95,7 +95,9 @@ def updateactive(request):
     user.lastactive = datetime.date.today()
     if user.downgraded_user:
         user.iscontrib = True
+        messages.success(request, 'Retrieved contributing member status!')
     user.save()
+    messages.success(request, '"Last active" date set to current date')
     send_change_to_apps(User.objects.get(pk=user .pk), status=True)
     return HttpResponseRedirect("/")
 
