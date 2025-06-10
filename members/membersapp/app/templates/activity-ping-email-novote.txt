@@ -2,11 +2,11 @@ Dear {{ name }},
 
 This email is sent as part of the process of ensuring that SPI
 contributing members wish to maintain their membership status. As no
-vote happened in the last year, manual update of activity on the
-members website is used as an initial data point to indicate that a
-member should potentially be considered inactive.
+vote happened in the last year, manual update of activity by clicking
+the "Update" link on the members website is used as an initial data
+point to indicate that a member should potentially be considered active.
 
-We have not seen an activity from you in 12 months. If you consider
+We have not seen such an update from you in 12 months. If you consider
 yourself an active contributing SPI member and wish to retain this
 status please let us know by updating your activity using the
 following link within the next 4 weeks:
