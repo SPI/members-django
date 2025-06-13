@@ -976,6 +976,14 @@ class ManagerTest(TestCase):
         self.assertRedirects(response, '/vote/%d/edit' % vote.pk, status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=True)
         self.assertContains(response, "Edited vote")
 
+    def test_vote_edit_error(self):
+        create_vote(self)
+        vote = VoteElection.objects.all()[0]
+        response = create_vote(self, title="Edited vote", past=True, target="/vote/%d/editedit" % vote.pk)
+        self.assertRedirects(response, '/vote/%d/edit' % vote.pk, status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=True)
+        self.assertContains(response, "Error")
+        self.assertNotContains(response, "Edited vote")
+
     def test_vote_delete(self):
         create_vote(self)
         vote = VoteElection.objects.all()[0]
