@@ -1171,6 +1171,16 @@ class ManagerTest(TestCase):
         response = vote_vote(self, vote.pk, correct=True)
         self.assertRedirects(response, '/vote/%d' % vote.pk, status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=True)
         self.assertContains(response, "Your vote is as follows:")
+        # Multiple votes
+        create_vote(self)
+        vote2 = VoteElection.objects.all()[1]
+        # We can't add vote on current test
+        create_vote_option(self, vote2.pk)
+        create_vote_option2(self, vote2.pk)
+        set_vote_current(vote2)
+        response = vote_vote(self, vote2.pk, correct=True)
+        self.assertRedirects(response, '/vote/%d' % vote2.pk, status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=True)
+        self.assertContains(response, "Your vote is as follows:")
 
     def test_votevote_incorrect(self):
         create_vote(self)
