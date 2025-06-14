@@ -248,6 +248,32 @@ div.recentchanges {
     white-space: nowrap;
 }
 
+/* Vote result page */
+
+.beat, .pairwise {
+    border-collapse: collapse;
+}
+
+.beat th, .pairwise th {
+    background: gray;
+    color: white;
+}
+
+.beat th, .beat td, .pairwise th, .pairwise td {
+    border: 1px solid black;
+    padding: 5px;
+    text-align: center;
+}
+
+.pairwise th:last-child {
+    background: #9999ff;
+}
+
+.pairwise td:last-child {
+    background: #9999ff;
+}
+
+
 /* media-query for mobile */
 
 @media(max-width:640px) {

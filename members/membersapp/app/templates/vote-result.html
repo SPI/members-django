@@ -29,7 +29,7 @@
     {% if vote.system == 0 or vote.system == 1 %}
     {# Condorcet specific output. #}
     <h2>Beats matrix</h2>
-    <table border="1">
+    <table border="1" class="beat">
         <tr>
             <th></th>
     {% for col in options %}
@@ -53,7 +53,7 @@
     </table>
 
     <h2>Pairwise wins</h2>
-    <table border="1">
+    <table border="1" class="pairwise">
         <tr>
             <th></th>
     {% for col in options %}
