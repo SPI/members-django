@@ -273,6 +273,9 @@ div.recentchanges {
     background: #9999ff;
 }
 
+td.win {
+	background: lightgreen;
+}
 
 /* media-query for mobile */
 

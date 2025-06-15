@@ -65,13 +65,15 @@
         <tr>
             <th>{{ row.option_character }}</th>
         {% for col in options %}
-            <td>
             {% if col == row %}
+                <td>
                 -
             {% else %}
                 {% if votesystem.wincount|index:row.ref|index:col.ref > 0 %}
+                    <td class="win">
                     <b>{{ votesystem.wincount|index:row.ref|index:col.ref }}</b>
                 {% else %}
+                    <td>
                     {{ votesystem.wincount|index:row.ref|index:col.ref }}
                 {% endif %}
             {% endif %}
