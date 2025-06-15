@@ -75,7 +75,7 @@ def create_application_post(testcase, follow=True):
     return response
 
 
-def create_vote(testcase, current=False, past=False, title="Test vote", target="/vote/create", system="2"):
+def create_vote(testcase, current=False, past=False, title="Test vote", target="/vote/create", system="2", allow_blank=True):
     if current:
         data = {
             "title": title,
@@ -106,6 +106,8 @@ def create_vote(testcase, current=False, past=False, title="Test vote", target="
             "winners": "1",
             "vote-btn": "Edit"
         }
+    if allow_blank:
+        data["allow_blank"] = "on"
     response = testcase.client.post(target, data=data, follow=True)
     return response
 
@@ -968,6 +970,24 @@ class ManagerTest(TestCase):
         self.assertEqual(VoteElection.objects.count(), 0)
         self.assertRedirects(response, '/', status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=True)
         self.assertContains(response, "You are not allowed to create new votes")
+
+    def test_votecreate_allowblank(self):
+        create_vote(self, allow_blank=True)
+        vote = VoteElection.objects.all()[0]
+        create_vote_option(self, vote.pk)
+        create_vote_option2(self, vote.pk)
+        set_vote_current(vote)
+        response = self.client.get('/vote/%d' % vote.pk, follow=True)
+        self.assertContains(response, "Blank votes are allowed")
+
+    def test_votecreate_notallowblank(self):
+        create_vote(self, allow_blank=False)
+        vote = VoteElection.objects.all()[0]
+        create_vote_option(self, vote.pk)
+        create_vote_option2(self, vote.pk)
+        set_vote_current(vote)
+        response = self.client.get('/vote/%d' % vote.pk, follow=True)
+        self.assertContains(response, "Blank votes are not allowed")
 
     def test_vote_edit(self):
         create_vote(self)
