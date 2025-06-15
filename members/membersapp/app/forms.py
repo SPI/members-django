@@ -35,7 +35,7 @@ class ContribApplicationForm(ModelForm):
 class CreateVoteForm(ModelForm):
     class Meta:
         model = VoteElection
-        fields = ['title', 'description', 'period_start', 'period_stop', 'system']
+        fields = ['title', 'description', 'period_start', 'period_stop', 'system', 'allow_blank']
         widgets = {
             'period_start': DateInput(),
             'period_stop': DateInput()
@@ -77,3 +77,9 @@ class VoteOptionForm(ModelForm):
 
 class VoteVoteForm(Form):
     vote = CharField(required=False)
+
+    def __init__(self, *args, **kwargs):
+        super(VoteVoteForm, self).__init__(*args, **kwargs)
+        initial = kwargs.get('initial')
+        if initial is not None and initial['allow_blank'] is not None:
+            self.fields['vote'].required = not initial['allow_blank']

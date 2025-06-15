@@ -157,7 +157,7 @@ def showvote(request, ref):
         messages.error(request, 'Error: vote does not have enough options to run.')
         return HttpResponseRedirect("/")
     template = loader.get_template('vote.html')
-    form = VoteVoteForm()
+    form = VoteVoteForm(initial={'allow_blank': vote.allow_blank})
     try:
         membervote = VoteVote.object.get(voter_ref=user, election_ref=vote)
     except VoteVote.DoesNotExist:

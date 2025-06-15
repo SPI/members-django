@@ -90,6 +90,7 @@ class VoteElection(models.Model):
     owner = models.ForeignKey(Members, null=False, blank=False, db_column='owner', on_delete=models.RESTRICT)
     winners = models.IntegerField(null=False, default=1)
     system = models.IntegerField(null=False, verbose_name='Voting system')
+    allow_blank = models.BooleanField(default=True, verbose_name='Allow blank votes')
 
     object = models.Manager()
     objects = models.Manager()

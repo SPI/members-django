@@ -34,6 +34,13 @@
         {% endfor %}
     {% endif %}
 
+    <br />
+    {% if vote.allow_blank %}
+        Blank votes are allowed.
+    {% else %}
+        Blank votes are not allowed.
+    {% endif %}
+
     <h1>Vote</h1>
     {% if vote.is_over %}
         <p>The voting period ended {{ vote.period_stop|date:"Y-m-d H:i:s" }}. You can no longer change
