@@ -41,9 +41,13 @@
     {% endif %}
     {% if membervote %}
         <p>Your vote is as follows:</p>
-        {% for vote in membervote.votes %}
-            (<b>{{ vote.option_character }}</b>) {{ vote.description }}<br />
-        {% endfor %}
+        {% if membervote.votes %}
+            {% for vote in membervote.votes %}
+                (<b>{{ vote.option_character }}</b>) {{ vote.description }}<br />
+            {% endfor %}
+        {% else %}
+            (Blank vote)
+        {% endif %}
     {% else %}
         {% if vote.is_pending %}
             <p>Voting has not yet opened.</p>
