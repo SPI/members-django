@@ -76,4 +76,4 @@ class VoteOptionForm(ModelForm):
 
 
 class VoteVoteForm(Form):
-    vote = CharField(required=True)
+    vote = CharField(required=False)
