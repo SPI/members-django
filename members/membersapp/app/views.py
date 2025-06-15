@@ -483,7 +483,8 @@ def voteresult(request, ref):
         messages.error(request, 'Vote must be finished to view results.')
         return HttpResponseRedirect("/")
 
-    membervotes = sorted(VoteVote.objects.filter(election_ref=ref), key=lambda x: x.voter_ref.name)
+    membervotes = sorted(VoteVote.objects.filter(election_ref=ref),
+                         key=lambda x: x.voter_ref.name if x.voter_ref else '')
     blank_votes_count = sum(1 for mv in membervotes if not mv.votestr.strip())
     options = VoteOption.objects.filter(election_ref=ref)
 
