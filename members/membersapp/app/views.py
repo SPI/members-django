@@ -484,6 +484,7 @@ def voteresult(request, ref):
         return HttpResponseRedirect("/")
 
     membervotes = sorted(VoteVote.objects.filter(election_ref=ref), key=lambda x: x.voter_ref.name)
+    blank_votes_count = sum(1 for mv in membervotes if not mv.votestr.strip())
     options = VoteOption.objects.filter(election_ref=ref)
 
     if len(options) < 2:
@@ -505,7 +506,8 @@ def voteresult(request, ref):
         'vote': vote,
         'options': options,
         'membervotes': membervotes,
-        'votesystem': votesystem
+        'votesystem': votesystem,
+        'blank_votes_count': blank_votes_count
     }
     return HttpResponse(template.render(context, request))
 

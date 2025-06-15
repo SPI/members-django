@@ -26,6 +26,10 @@
     {% endfor %}
     </code>
 
+    {% if blank_votes_count > 0 %}
+      Blank votes: {{ blank_votes_count }}<br />
+    {% endif %}
+
     {% if vote.system == 0 or vote.system == 1 %}
     {# Condorcet specific output. #}
     <h2>Beats matrix</h2>
