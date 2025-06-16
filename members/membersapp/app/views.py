@@ -151,15 +151,15 @@ def showvote(request, ref):
     user = get_current_user(request)
     if not user.iscontrib:
         return render(request, 'contrib-only.html')
-    vote = get_object_or_404(VoteElection, ref=ref)
-    options = VoteOption.objects.filter(election_ref=ref)
+    vote = get_object_or_404(VoteBallot, ref=ref)
+    options = VoteOption.objects.filter(ballot_ref=ref)
     if len(options) < 2:
         messages.error(request, 'Error: vote does not have enough options to run.')
         return HttpResponseRedirect("/")
     template = loader.get_template('vote.html')
     form = VoteVoteForm(initial={'allow_blank': vote.allow_blank})
     try:
-        membervote = VoteVote.object.get(voter_ref=user, election_ref=vote)
+        membervote = VoteVote.object.get(voter_ref=user, ballot_ref=vote)
     except VoteVote.DoesNotExist:
         membervote = None
     context = {
@@ -345,8 +345,10 @@ def votecreate(request):
             # match behaviour of previous application by setting end date to
             # end of the day
             form.instance.period_stop += datetime.timedelta(hours=23, minutes=59, seconds=59)
-            form_ballot.save()
             new_vote = form.save()
+            ballot = form_ballot.save(commit=False)
+            ballot.election_ref = new_vote
+            form_ballot.save()
             return HttpResponseRedirect(reverse('voteedit', args=(new_vote.pk,)))
         else:
             messages.error(request, "Error while filling the form:")
@@ -426,7 +428,7 @@ def voteedit(request, ref):
     editvoteform = EditVoteForm(instance=vote)
     editvoteformballot = EditVoteFormBallot(instance=vote)
     existingvoteoptions = []
-    voteoptions = VoteOption.objects.filter(election_ref=ref)
+    voteoptions = VoteOption.objects.filter(ballot_ref=ref)
     existingvoteorders = set()
     for voteoption in voteoptions:
         voteoptionform = VoteOptionForm(instance=voteoption)
@@ -436,7 +438,7 @@ def voteedit(request, ref):
         sort = 1
     else:
         sort = max(existingvoteorders) + 1
-    newvoteoptionform = VoteOptionForm(initial={'sort': sort, 'election_ref': ref})
+    newvoteoptionform = VoteOptionForm(initial={'sort': sort, 'ballot_ref': ref})
     context = {
         'user': user,
         'editvoteform': editvoteform,
