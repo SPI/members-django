@@ -2,7 +2,7 @@ import datetime
 
 from django.forms import Form, CharField, IntegerField, ModelForm, DateInput, ChoiceField
 
-from .models import Members, Applications, VoteElection, VoteOption
+from .models import Members, Applications, VoteElection, VoteBallot, VoteOption
 from .votes import VOTE_SYSTEMS
 
 
@@ -35,14 +35,20 @@ class ContribApplicationForm(ModelForm):
 class CreateVoteForm(ModelForm):
     class Meta:
         model = VoteElection
-        fields = ['title', 'description', 'period_start', 'period_stop', 'system', 'allow_blank']
+        fields = ['title', 'period_start', 'period_stop']
         widgets = {
             'period_start': DateInput(),
             'period_stop': DateInput()
         }
 
+
+class CreateVoteFormBallot(ModelForm):
+    class Meta:
+        model = VoteBallot
+        fields = ['title', 'description', 'system', 'allow_blank']
+
     def __init__(self, *args, **kwargs):
-        super(CreateVoteForm, self).__init__(*args, **kwargs)
+        super(CreateVoteFormBallot, self).__init__(*args, **kwargs)
         limited_choices = [(choice[0], choice[1]) for choice in VOTE_SYSTEMS]
         self.fields['system'] = ChoiceField(choices=limited_choices)
 
@@ -50,24 +56,30 @@ class CreateVoteForm(ModelForm):
 class EditVoteForm(CreateVoteForm):
     class Meta:
         model = VoteElection
-        fields = ['title', 'description', 'period_start', 'period_stop', 'system', 'winners']
+        fields = ['title', 'period_start', 'period_stop']
         widgets = {
             'period_start': DateInput(),
             'period_stop': DateInput()
         }
 
 
+class EditVoteFormBallot(CreateVoteFormBallot):
+    class Meta:
+        model = VoteBallot
+        fields = ['title', 'description', 'system', 'winners']
+
+
 class VoteOptionForm(ModelForm):
     class Meta:
         model = VoteOption
         fields = ['option_character', 'description', 'sort']
-        exclude = ['election_ref']
+        exclude = ['ballot_ref']
 
     def __init__(self, *args, **kwargs):
         super(VoteOptionForm, self).__init__(*args, **kwargs)
         initial = kwargs.get('initial')
         if initial is not None:
-            voteoptions = VoteOption.objects.filter(election_ref=initial['election_ref'])
+            voteoptions = VoteOption.objects.filter(ballot_ref=initial['ballot_ref'])
             if len(voteoptions) == 0:
                 self.fields['option_character'].initial = 'A'
             else:

@@ -84,16 +84,12 @@ class Applications(models.Model):
 class VoteElection(models.Model):
     ref = models.AutoField(null=False, primary_key=True)
     title = models.CharField(max_length=256, null=False, verbose_name='Vote title')
-    description = models.TextField(null=True)
     period_start = models.DateTimeField(null=True, verbose_name='Start date', validators=[MinValueValidator(timezone.now)])
     period_stop = models.DateTimeField(null=True, verbose_name='End date', validators=[MinValueValidator(timezone.now)])
     owner = models.ForeignKey(Members, null=False, blank=False, db_column='owner', on_delete=models.RESTRICT)
-    winners = models.IntegerField(null=False, default=1)
-    system = models.IntegerField(null=False, verbose_name='Voting system')
-    allow_blank = models.BooleanField(default=True, verbose_name='Allow blank votes')
 
-    object = models.Manager()
-    objects = models.Manager()
+#    object = models.Manager()
+#    objects = models.Manager()
 
     def __str__(self):
         return self.title
@@ -120,9 +116,25 @@ class VoteElection(models.Model):
         return now < self.period_start
 
 
+class VoteBallot(models.Model):
+    ref = models.AutoField(primary_key=True)
+    election_ref = models.ForeignKey(VoteElection, db_column='election_ref', on_delete=models.RESTRICT)
+    title = models.CharField(max_length=256, null=False, verbose_name='Ballot title')
+    description = models.TextField(null=True)
+    winners = models.IntegerField(null=False, default=1)
+    system = models.IntegerField(null=False, verbose_name='Voting system')
+    allow_blank = models.BooleanField(default=True, verbose_name='Allow blank votes')
+
+    class Meta:
+        db_table = 'vote_ballot'
+
+    def __str__(self):
+        return self.title
+
+
 class VoteOption(models.Model):
     ref = models.AutoField(null=False, primary_key=True)
-    election_ref = models.ForeignKey(VoteElection, null=False, blank=False, db_column='election_ref', on_delete=models.RESTRICT)
+    ballot_ref = models.ForeignKey(VoteBallot, null=True, blank=False, db_column='ballot_ref', on_delete=models.RESTRICT)
     description = models.TextField(null=True)
     sort = models.IntegerField(null=False)
     option_character = models.CharField(max_length=1, null=False)
@@ -134,14 +146,14 @@ class VoteOption(models.Model):
         return self.description
 
     class Meta:
-        unique_together = (('election_ref', 'sort'), ('election_ref', 'option_character'))
+        unique_together = (('ballot_ref', 'sort'), ('ballot_ref', 'option_character'))
         db_table = 'vote_option'
 
 
 class VoteVote(models.Model):
     ref = models.AutoField(null=False, primary_key=True)
     voter_ref = models.ForeignKey(Members, null=True, blank=False, db_column='voter_ref', on_delete=models.RESTRICT)
-    election_ref = models.ForeignKey(VoteElection, null=False, blank=False, db_column='election_ref', on_delete=models.RESTRICT)
+    ballot_ref = models.ForeignKey(VoteBallot, null=True, blank=False, db_column='ballot_ref', on_delete=models.RESTRICT)
     private_secret = models.CharField(max_length=32, null=True)
     late_updated = models.DateTimeField(auto_now=True, null=True)  # missing: with time zone
     sent_notify = models.BooleanField(null=False, default=False)
@@ -151,7 +163,7 @@ class VoteVote(models.Model):
     objects = models.Manager()
 
     class Meta:
-        unique_together = (('voter_ref', 'election_ref'), )
+        unique_together = (('voter_ref', 'ballot_ref'), )
         db_table = 'vote_vote'
 
     def __init__(self, *args, **kwargs):
@@ -183,7 +195,7 @@ class VoteVote(models.Model):
         newvotes = []
         for char in votestr:
             try:
-                option = VoteOption.object.get(Q(option_character=char) & Q(election_ref=self.election_ref))
+                option = VoteOption.object.get(Q(option_character=char) & Q(ballot_ref=self.ballot_ref))
             except VoteOption.DoesNotExist:
                 return "Invalid vote option " + char
             if option in newvotes:

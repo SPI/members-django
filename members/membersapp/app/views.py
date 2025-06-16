@@ -17,7 +17,7 @@ from django.core.mail import send_mail
 
 from membersapp.app.stats import get_stats
 from membersapp.app.applications import *
-from .models import Members, Applications, VoteElection, VoteOption, VoteVote, VoteVoteOption
+from .models import Members, Applications, VoteElection, VoteBallot, VoteOption, VoteVote, VoteVoteOption
 from .forms import *
 from .votes import *
 from membersapp.account.util.propagate import send_change_to_apps
@@ -339,23 +339,30 @@ def votecreate(request):
     if request.method == 'POST':
         user = get_current_user(request)
         form = CreateVoteForm(request.POST)
-        if form.is_valid():
+        form_ballot = CreateVoteFormBallot(request.POST)
+        if form.is_valid() and form_ballot.is_valid():
             form.instance.owner = user
             # match behaviour of previous application by setting end date to
             # end of the day
             form.instance.period_stop += datetime.timedelta(hours=23, minutes=59, seconds=59)
+            form_ballot.save()
             new_vote = form.save()
             return HttpResponseRedirect(reverse('voteedit', args=(new_vote.pk,)))
         else:
             messages.error(request, "Error while filling the form:")
-            messages.error(request, form.errors)
+            if not form.is_valid():
+                messages.error(request, form.errors)
+            if not form_ballot.is_valid():
+                messages.error(request, form_ballot.errors)
             # Fall back to showing regular create page
 
     template = loader.get_template('vote-create.html')
     createvoteform = CreateVoteForm()
+    createvoteformballot = CreateVoteFormBallot()
     context = {
         'user': user,
-        'createvoteform': createvoteform
+        'createvoteform': createvoteform,
+        'createvoteformballot': createvoteformballot
     }
     return HttpResponse(template.render(context, request))
 
@@ -386,12 +393,17 @@ def voteeditedit(request, ref):
     if request.method == 'POST':
         if request.POST['vote-btn'] == "Edit":
             form = EditVoteForm(request.POST, instance=vote)
-            if form.is_valid():
+            form_ballot = EditVoteFormBallot(request.POST, instance=vote)
+            if form.is_valid() and form_ballot.is_valid():
                 form.instance.owner = user
                 form.save()
+                form_ballot.save()
             else:
                 messages.error(request, "Error while filling the form:")
-                messages.error(request, form.errors)
+                if not form.is_valid():
+                    messages.error(request, form.errors)
+                if not form_ballot.is_valid():
+                    messages.error(request, form_ballot.errors)
             return HttpResponseRedirect(reverse('voteedit', args=(ref,)))
         elif request.POST['vote-btn'] == "Delete":
             VoteOption.objects.filter(election_ref=vote).delete()
@@ -412,6 +424,7 @@ def voteedit(request, ref):
 
     template = loader.get_template('vote-edit.html')
     editvoteform = EditVoteForm(instance=vote)
+    editvoteformballot = EditVoteFormBallot(instance=vote)
     existingvoteoptions = []
     voteoptions = VoteOption.objects.filter(election_ref=ref)
     existingvoteorders = set()
@@ -427,6 +440,7 @@ def voteedit(request, ref):
     context = {
         'user': user,
         'editvoteform': editvoteform,
+        'editvoteformballot': editvoteformballot,
         'existingvoteoptions': existingvoteoptions,
         'voteoptionform': newvoteoptionform,
         'vote_ref': ref
