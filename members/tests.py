@@ -150,8 +150,9 @@ def create_vote_with_manager(testcase):
     response = create_vote(testcase)
     testcase.assertEqual(VoteElection.objects.count(), 1)
     vote = VoteElection.objects.all()[0]
-    create_vote_option(testcase, vote.pk)
-    create_vote_option2(testcase, vote.pk)
+    ballot = VoteBallot.objects.filter(election_ref=vote)[0]
+    create_vote_option(testcase, ballot.pk)
+    create_vote_option2(testcase, ballot.pk)
     # relog as non-manager
     switch_back(testcase)
     return vote
@@ -177,14 +178,14 @@ def switch_back(testcase, logged_in=True):
         testcase.client.force_login(member.memid)
 
 
-def create_vote_option(testcase, voteid):
+def create_vote_option(testcase, ballotid):
     data = {
         "option_character": "A",
         "description": "Hello world voteoption",
         "sort": 1,
         "obtn": "Add"
     }
-    response = testcase.client.post("/vote/%s/editoption" % voteid, data=data, follow=True)
+    response = testcase.client.post("/vote/%s/editoption" % ballotid, data=data, follow=True)
     return response
 
 
@@ -209,14 +210,14 @@ def delete_vote_option(testcase, voteid):
     return response
 
 
-def edit_vote_option(testcase, voteid):
+def edit_vote_option(testcase, ballotid):
     data = {
         "option_character": "A",
         "description": "Hello world voteoption edited",
         "sort": 1,
         "obtn": "Edit"
     }
-    response = testcase.client.post("/vote/%s/editoption" % voteid, data=data, follow=True)
+    response = testcase.client.post("/vote/%s/editoption" % ballotid, data=data, follow=True)
     return response
 
 
@@ -982,17 +983,20 @@ class ManagerTest(TestCase):
     def test_votecreate_allowblank(self):
         create_vote(self, allow_blank=True)
         vote = VoteElection.objects.all()[0]
-        create_vote_option(self, vote.pk)
-        create_vote_option2(self, vote.pk)
+        ballot = VoteBallot.objects.filter(election_ref=vote)[0]
+        create_vote_option(self, ballot.pk)
+        create_vote_option2(self, ballot.pk)
         set_vote_current(vote)
         response = self.client.get('/vote/%d' % vote.pk, follow=True)
+        dump_page(response)
         self.assertContains(response, "Blank votes are allowed")
 
     def test_votecreate_notallowblank(self):
         create_vote(self, allow_blank=False)
         vote = VoteElection.objects.all()[0]
-        create_vote_option(self, vote.pk)
-        create_vote_option2(self, vote.pk)
+        ballot = VoteBallot.objects.filter(election_ref=vote)[0]
+        create_vote_option(self, ballot.pk)
+        create_vote_option2(self, ballot.pk)
         set_vote_current(vote)
         response = self.client.get('/vote/%d' % vote.pk, follow=True)
         self.assertContains(response, "Blank votes are not allowed")
@@ -1036,8 +1040,9 @@ class ManagerTest(TestCase):
     def test_viewcurrentvote(self):
         create_vote(self)
         vote = VoteElection.objects.all()[0]
-        create_vote_option(self, vote.pk)
-        create_vote_option2(self, vote.pk)
+        ballot = VoteBallot.objects.filter(election_ref=vote)[0]
+        create_vote_option(self, ballot.pk)
+        create_vote_option2(self, ballot.pk)
         set_vote_current(vote)
         response = self.client.get('/vote/%d' % vote.pk)
         self.assertEqual(response.status_code, 200)
@@ -1048,8 +1053,9 @@ class ManagerTest(TestCase):
     def test_viewpastvote(self):
         create_vote(self)
         vote = VoteElection.objects.all()[0]
-        create_vote_option(self, vote.pk)
-        create_vote_option2(self, vote.pk)
+        ballot = VoteBallot.objects.filter(election_ref=vote)[0]
+        create_vote_option(self, ballot.pk)
+        create_vote_option2(self, ballot.pk)
         set_vote_past(vote)
         response = self.client.get('/vote/%d' % vote.pk)
         self.assertEqual(response.status_code, 200)
@@ -1058,8 +1064,9 @@ class ManagerTest(TestCase):
     def test_viewfuturevote(self):
         create_vote(self)
         vote = VoteElection.objects.all()[0]
-        create_vote_option(self, vote.pk)
-        create_vote_option2(self, vote.pk)
+        ballot = VoteBallot.objects.filter(election_ref=vote)[0]
+        create_vote_option(self, ballot.pk)
+        create_vote_option2(self, ballot.pk)
         response = self.client.get('/vote/%d' % vote.pk)
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Voting has not yet opened")
@@ -1067,8 +1074,9 @@ class ManagerTest(TestCase):
     def test_viewvoteedit(self):
         create_vote(self)
         vote = VoteElection.objects.all()[0]
-        create_vote_option(self, vote.pk)
-        create_vote_option2(self, vote.pk)
+        ballot = VoteBallot.objects.filter(election_ref=vote)[0]
+        create_vote_option(self, ballot.pk)
+        create_vote_option2(self, ballot.pk)
         response = self.client.get('/vote/%d/edit' % vote.pk)
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Edit Vote")
@@ -1076,8 +1084,9 @@ class ManagerTest(TestCase):
     def test_viewvoteedit_current_vote(self):
         create_vote(self)
         vote = VoteElection.objects.all()[0]
-        create_vote_option(self, vote.pk)
-        create_vote_option2(self, vote.pk)
+        ballot = VoteBallot.objects.filter(election_ref=vote)[0]
+        create_vote_option(self, ballot.pk)
+        create_vote_option2(self, ballot.pk)
         set_vote_current(vote)
         response = self.client.get('/vote/%d/edit' % vote.pk, follow=True)
         self.assertRedirects(response, '/', status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=True)
@@ -1086,8 +1095,9 @@ class ManagerTest(TestCase):
     def test_viewvoteedit_past_vote(self):
         create_vote(self)
         vote = VoteElection.objects.all()[0]
-        create_vote_option(self, vote.pk)
-        create_vote_option2(self, vote.pk)
+        ballot = VoteBallot.objects.filter(election_ref=vote)[0]
+        create_vote_option(self, ballot.pk)
+        create_vote_option2(self, ballot.pk)
         set_vote_past(vote)
         response = self.client.get('/vote/%d/edit' % vote.pk, follow=True)
         self.assertRedirects(response, '/', status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=True)
@@ -1098,8 +1108,9 @@ class ManagerTest(TestCase):
         switch_to_other_member(self, switch_to_manager=True, new_manager=True)
         create_vote(self)
         vote = VoteElection.objects.all()[0]
-        create_vote_option(self, vote.pk)
-        create_vote_option2(self, vote.pk)
+        ballot = VoteBallot.objects.filter(election_ref=vote)[0]
+        create_vote_option(self, ballot.pk)
+        create_vote_option2(self, ballot.pk)
         switch_back(self)
         response = self.client.get('/vote/%d' % vote.pk, follow=True)
         self.assertEqual(response.status_code, 200)
@@ -1109,8 +1120,9 @@ class ManagerTest(TestCase):
         switch_to_other_member(self, switch_to_manager=True, new_manager=True)
         create_vote(self)
         vote = VoteElection.objects.all()[0]
-        create_vote_option(self, vote.pk)
-        create_vote_option2(self, vote.pk)
+        ballot = VoteBallot.objects.filter(election_ref=vote)[0]
+        create_vote_option(self, ballot.pk)
+        create_vote_option2(self, ballot.pk)
         switch_back(self)
         for case in ['/vote/%d/edit' % vote.pk, '/vote/%d/editedit' % vote.pk, '/vote/%d/editoption' % vote.pk]:
             response = self.client.get(case, follow=True)
@@ -1120,34 +1132,38 @@ class ManagerTest(TestCase):
     def test_addoptionform(self):
         create_vote(self)
         vote = VoteElection.objects.all()[0]
-        response = create_vote_option(self, vote.pk)
+        ballot = VoteBallot.objects.filter(election_ref=vote)[0]
+        response = create_vote_option(self, ballot.pk)
         self.assertRedirects(response, "/vote/%s/edit" % vote.pk, status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=True)
         self.assertContains(response, "Hello world voteoption")
 
     def test_deletevoteoptionform(self):
         create_vote(self)
         vote = VoteElection.objects.all()[0]
-        response = create_vote_option(self, vote.pk)
+        ballot = VoteBallot.objects.filter(election_ref=vote)[0]
+        response = create_vote_option(self, ballot.pk)
         self.assertContains(response, "Hello world voteoption")
-        response = delete_vote_option(self, vote.pk)
+        response = delete_vote_option(self, ballot.pk)
         self.assertRedirects(response, "/vote/%s/edit" % vote.pk, status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=True)
         self.assertNotContains(response, "Hello world voteoption")
 
     def test_editoptionform(self):
         create_vote(self)
         vote = VoteElection.objects.all()[0]
-        create_vote_option(self, vote.pk)
-        response = edit_vote_option(self, vote.pk)
+        ballot = VoteBallot.objects.filter(election_ref=vote)[0]
+        create_vote_option(self, ballot.pk)
+        response = edit_vote_option(self, ballot.pk)
         self.assertRedirects(response, "/vote/%s/edit" % vote.pk, status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=True)
         self.assertContains(response, "Hello world voteoption edited")
 
     def test_addoptionform_multiple(self):
         create_vote(self)
         vote = VoteElection.objects.all()[0]
-        response = create_vote_option(self, vote.pk)
+        ballot = VoteBallot.objects.filter(election_ref=vote)[0]
+        response = create_vote_option(self, ballot.pk)
         self.assertRedirects(response, "/vote/%s/edit" % vote.pk, status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=True)
         self.assertContains(response, "Hello world voteoption")
-        response = create_vote_option2(self, vote.pk)
+        response = create_vote_option2(self, ballot.pk)
         self.assertRedirects(response, "/vote/%s/edit" % vote.pk, status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=True)
         self.assertContains(response, "Hello world voteoption")
         self.assertContains(response, "Hello world 2 voteoption")
@@ -1155,13 +1171,14 @@ class ManagerTest(TestCase):
     def test_editoptionform_multiple(self):
         create_vote(self)
         vote = VoteElection.objects.all()[0]
-        create_vote_option(self, vote.pk)
-        create_vote_option2(self, vote.pk)
-        response = edit_vote_option(self, vote.pk)
+        ballot = VoteBallot.objects.filter(election_ref=vote)[0]
+        create_vote_option(self, ballot.pk)
+        create_vote_option2(self, ballot.pk)
+        response = edit_vote_option(self, ballot.pk)
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Hello world voteoption edited")
         self.assertContains(response, "Hello world 2 voteoption")
-        response = edit_vote_option2(self, vote.pk)
+        response = edit_vote_option2(self, ballot.pk)
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Hello world voteoption edited")
         self.assertContains(response, "Hello world 2 voteoption edited")
@@ -1192,9 +1209,10 @@ class ManagerTest(TestCase):
     def test_votevote(self):
         create_vote(self)
         vote = VoteElection.objects.all()[0]
+        ballot = VoteBallot.objects.filter(election_ref=vote)[0]
         # We can't add vote on current test
-        create_vote_option(self, vote.pk)
-        create_vote_option2(self, vote.pk)
+        create_vote_option(self, ballot.pk)
+        create_vote_option2(self, ballot.pk)
         set_vote_current(vote)
         response = vote_vote(self, vote.pk, correct=True)
         self.assertRedirects(response, '/vote/%d' % vote.pk, status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=True)
@@ -1202,9 +1220,10 @@ class ManagerTest(TestCase):
         # Multiple votes
         create_vote(self)
         vote2 = VoteElection.objects.all()[1]
+        ballot2 = VoteBallot.objects.filter(election_ref=vote2)[0]
         # We can't add vote on current test
-        create_vote_option(self, vote2.pk)
-        create_vote_option2(self, vote2.pk)
+        create_vote_option(self, ballot2.pk)
+        create_vote_option2(self, ballot2.pk)
         set_vote_current(vote2)
         response = vote_vote(self, vote2.pk, correct=True)
         self.assertRedirects(response, '/vote/%d' % vote2.pk, status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=True)
@@ -1213,9 +1232,10 @@ class ManagerTest(TestCase):
     def test_votevote_incorrect(self):
         create_vote(self)
         vote = VoteElection.objects.all()[0]
+        ballot = VoteBallot.objects.filter(election_ref=vote)[0]
         # We can't add vote on current test
-        create_vote_option(self, vote.pk)
-        create_vote_option2(self, vote.pk)
+        create_vote_option(self, ballot.pk)
+        create_vote_option2(self, ballot.pk)
         set_vote_current(vote)
         response = vote_vote(self, vote.pk, correct=False)
         self.assertRedirects(response, '/vote/%d' % vote.pk, status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=True)
@@ -1231,8 +1251,9 @@ class ManagerTest(TestCase):
     def test_viewvoteresult_STV(self):
         create_vote(self, system="2")
         vote = VoteElection.objects.all()[0]
-        response = create_vote_option(self, vote.pk)
-        response = create_vote_option2(self, vote.pk)
+        ballot = VoteBallot.objects.filter(election_ref=vote)[0]
+        response = create_vote_option(self, ballot.pk)
+        response = create_vote_option2(self, ballot.pk)
         set_vote_current(vote)
         response = vote_vote(self, vote.pk, correct=True)
         response = vote_vote_other_member(self, vote.pk)
@@ -1243,8 +1264,9 @@ class ManagerTest(TestCase):
     def test_viewvoteresult_Condorcet(self):
         create_vote(self, system="0")
         vote = VoteElection.objects.all()[0]
-        response = create_vote_option(self, vote.pk)
-        response = create_vote_option2(self, vote.pk)
+        ballot = VoteBallot.objects.filter(election_ref=vote)[0]
+        response = create_vote_option(self, ballot.pk)
+        response = create_vote_option2(self, ballot.pk)
         set_vote_current(vote)
         response = vote_vote(self, vote.pk, correct=True)
         response = vote_vote_other_member(self, vote.pk)
@@ -1255,8 +1277,9 @@ class ManagerTest(TestCase):
     def test_viewvoteresult_Condorcet2(self):
         create_vote(self, system="1")
         vote = VoteElection.objects.all()[0]
-        response = create_vote_option(self, vote.pk)
-        response = create_vote_option2(self, vote.pk)
+        ballot = VoteBallot.objects.filter(election_ref=vote)[0]
+        response = create_vote_option(self, ballot.pk)
+        response = create_vote_option2(self, ballot.pk)
         set_vote_current(vote)
         response = vote_vote(self, vote.pk, correct=True)
         response = vote_vote_other_member(self, vote.pk)
