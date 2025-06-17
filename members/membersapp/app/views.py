@@ -410,7 +410,10 @@ def voteeditedit(request, ref):
                 messages.error(request, form.errors)
             return HttpResponseRedirect(reverse('voteedit', args=(ref,)))
         elif request.POST['vote-btn'] == "Delete":
-            VoteOption.objects.filter(election_ref=vote).delete()
+            ballots = VoteBallot.objects.filter(election_ref=ref)
+            for ballot in ballots:
+                VoteOption.objects.filter(ballot_ref=ballot).delete()
+                ballot.delete()
             vote.delete()
             messages.success(request, 'Vote deleted')
         if request.POST['vote-btn'] == "Create ballot":
