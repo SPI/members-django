@@ -446,7 +446,6 @@ def voteeditballot(request, ref):
             messages.success(request, 'Ballot deleted')
             return HttpResponseRedirect(reverse('voteedit', args=(vote.pk,)))
 
-
     return HttpResponseRedirect("/")
 
 
@@ -461,26 +460,35 @@ def voteedit(request, ref):
 
     template = loader.get_template('vote-edit.html')
     editvoteform = EditVoteForm(instance=vote)
-    editvoteformballot = EditVoteFormBallot(instance=vote)
-    existingvoteoptions = []
-    voteoptions = VoteOption.objects.filter(ballot_ref=ref)
-    existingvoteorders = set()
-    for voteoption in voteoptions:
-        voteoptionform = VoteOptionForm(instance=voteoption)
-        existingvoteoptions.append(voteoptionform)
-        existingvoteorders.add(voteoption.sort)
-    if len(existingvoteorders) == 0:
-        sort = 1
-    else:
-        sort = max(existingvoteorders) + 1
-    newvoteoptionform = VoteOptionForm(initial={'sort': sort, 'ballot_ref': ref})
+    ballots = VoteBallot.objects.filter(election_ref=ref)
+    createvoteformballot = CreateVoteFormBallot()
+    editvoteformballots = []
+    for ballot in ballots:
+        existingvoteoptions = []
+        existingvoteorders = set()
+        voteoptions = VoteOption.objects.filter(ballot_ref=ballot.ref)
+        for voteoption in voteoptions:
+            voteoptionform = VoteOptionForm(instance=voteoption)
+            existingvoteoptions.append(voteoptionform)
+            existingvoteorders.add(voteoption.sort)
+        if len(existingvoteorders) == 0:
+            sort = 1
+        else:
+            sort = max(existingvoteorders) + 1
+        newvoteoptionform = VoteOptionForm(initial={'sort': sort, 'ballot_ref': ballot.ref})
+        editvoteformballot = {
+            'ballot_ref': ballot.ref,
+            'form': EditVoteFormBallot(instance=ballot),
+            'existingvoteoptions': existingvoteoptions,
+            'voteoptionform': newvoteoptionform,
+        }
+        editvoteformballots.append(editvoteformballot)
     context = {
         'user': user,
         'editvoteform': editvoteform,
-        'editvoteformballot': editvoteformballot,
-        'existingvoteoptions': existingvoteoptions,
-        'voteoptionform': newvoteoptionform,
-        'vote_ref': ref
+        'editvoteformballots': editvoteformballots,
+        'createvoteformballot': createvoteformballot,
+        'vote_ref': ref,
     }
     return HttpResponse(template.render(context, request))
 
@@ -489,20 +497,21 @@ def voteedit(request, ref):
 def voteeditoption(request, ref):
     """Handler for editing options of a vote."""
     user = get_current_user(request)
-    vote = get_object_or_404(VoteElection, ref=ref)
+    ballot = get_object_or_404(VoteBallot, ref=ref)
+    vote = VoteElection.objects.get(ref=ballot.election_ref.pk)
 
     if not tests_vote(request, user, vote):
         return HttpResponseRedirect("/")
 
     if request.method == 'POST':
-        voteoption = VoteOption.objects.filter(Q(sort=request.POST['sort']) & Q(election_ref=vote))
+        voteoption = VoteOption.objects.filter(Q(sort=request.POST['sort']) & Q(ballot_ref=ballot))
         if request.POST['obtn'] == "Add":
             if voteoption:
                 messages.error(request, "Error: selection character already used")
             else:
                 form = VoteOptionForm(request.POST)
                 if form.is_valid():
-                    form.instance.election_ref = vote
+                    form.instance.ballot_ref = ballot
                     form.save()
                 else:
                     messages.error(request, "Error while filling the form:")
@@ -517,7 +526,7 @@ def voteeditoption(request, ref):
         elif request.POST['obtn'] == "Delete":
             form = VoteOptionForm(request.POST)
             voteoption.delete()
-    return HttpResponseRedirect(reverse('voteedit', args=(ref,)))
+    return HttpResponseRedirect(reverse('voteedit', args=(vote.pk,)))
 
 
 @login_required
