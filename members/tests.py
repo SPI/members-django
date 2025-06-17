@@ -15,7 +15,7 @@ from django.utils import timezone
 from django.contrib import auth
 from django.core import mail
 
-from membersapp.app.models import Members, Applications, VoteElection, VoteVote
+from membersapp.app.models import Members, Applications, VoteElection, VoteVote, VoteBallot
 from membersapp.account.models import SecondaryEmail
 
 member = None
@@ -78,33 +78,33 @@ def create_application_post(testcase, follow=True):
 def create_vote(testcase, current=False, past=False, title="Test vote", target="/vote/create", system="2", allow_blank=True):
     if current:
         data = {
-            "title": title,
-            "description": "Hello world create_vote",
-            "period_start": (timezone.now() + datetime.timedelta(days=-1)).strftime("%Y-%m-%d"),
-            "period_stop": (timezone.now() + datetime.timedelta(days=7)).strftime("%Y-%m-%d"),
-            "system": system,
-            "winners": "1",
-            "vote-btn": "Edit"
+            "election-title": title,
+            "election-period_start": (timezone.now() + datetime.timedelta(days=-1)).strftime("%Y-%m-%d"),
+            "election-period_stop": (timezone.now() + datetime.timedelta(days=7)).strftime("%Y-%m-%d"),
+            "ballot-title": "ballot",
+            "ballot-description": "Hello world create_vote",
+            "ballot-system": system,
+            "ballot-winners": "1"
         }
     elif past:
         data = {
-            "title": title,
-            "description": "Hello world create_vote",
-            "period_start": (timezone.now() + datetime.timedelta(days=-7)).strftime("%Y-%m-%d"),
-            "period_stop": (timezone.now() + datetime.timedelta(days=-1)).strftime("%Y-%m-%d"),
-            "system": system,
-            "winners": "1",
-            "vote-btn": "Edit"
+            "election-title": title,
+            "election-period_start": (timezone.now() + datetime.timedelta(days=-7)).strftime("%Y-%m-%d"),
+            "election-period_stop": (timezone.now() + datetime.timedelta(days=-1)).strftime("%Y-%m-%d"),
+            "ballot-title": "ballot",
+            "ballot-description": "Hello world create_vote",
+            "ballot-system": system,
+            "ballot-winners": "1"
         }
     else:
         data = {
-            "title": title,
-            "description": "Hello world create_vote",
-            "period_start": (timezone.now() + datetime.timedelta(days=1)).strftime("%Y-%m-%d"),
-            "period_stop": (timezone.now() + datetime.timedelta(days=7)).strftime("%Y-%m-%d"),
-            "system": system,
-            "winners": "1",
-            "vote-btn": "Edit"
+            "election-title": title,
+            "election-period_start": (timezone.now() + datetime.timedelta(days=1)).strftime("%Y-%m-%d"),
+            "election-period_stop": (timezone.now() + datetime.timedelta(days=7)).strftime("%Y-%m-%d"),
+            "ballot-title": "ballot",
+            "ballot-description": "Hello world create_vote",
+            "ballot-system": system,
+            "ballot-winners": "1"
         }
     if allow_blank:
         data["allow_blank"] = "on"
@@ -118,23 +118,31 @@ def create_vote_manually(current=False, past=False, owner=None):
         owner = member
     if current:
         vote = VoteElection(title="Test vote",
-                            description="Hello world voteelection",
                             period_start=(timezone.now() + datetime.timedelta(days=-1)),
                             period_stop=(timezone.now() + datetime.timedelta(days=7)),
-                            system=2,
                             owner=owner
                             )
         vote.save()
+        ballot = VoteBallot(election_ref=vote,
+                            title="Test ballot",
+                            description="Hello world voteballot",
+                            system=2
+                            )
+        ballot.save()
     elif past:
         vote = VoteElection(title="Test vote",
-                            description="Hello world voteelection",
                             period_start=(timezone.now() + datetime.timedelta(days=-7)),
                             period_stop=(timezone.now() + datetime.timedelta(days=-1)),
-                            system=2,
                             owner=owner
                             )
         vote.save()
-    return vote
+        ballot = VoteBallot(election_ref=vote,
+                            title="Test ballot",
+                            description="Hello world voteballot",
+                            system=2
+                            )
+        ballot.save()
+    return vote, ballot
 
 
 def create_vote_with_manager(testcase):
