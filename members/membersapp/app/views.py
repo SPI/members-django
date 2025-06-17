@@ -152,22 +152,28 @@ def showvote(request, ref):
     if not user.iscontrib:
         return render(request, 'contrib-only.html')
     vote = get_object_or_404(VoteElection, ref=ref)
-    options = VoteOption.objects.filter(ballot_ref=ref)
-    if len(options) < 2:
-        messages.error(request, 'Error: vote does not have enough options to run.')
+    ballots = VoteBallot.objects.filter(election_ref=ref)
+    if len(ballots) == 0:
+        messages.error(request, 'Error: election does not have any configured ballot.')
         return HttpResponseRedirect("/")
+    for ballot in ballots:
+        options = VoteOption.objects.filter(ballot_ref=ballot)
+        ballot.options = options
+        if len(options) < 2:
+            messages.error(request, 'Error: vote does not have enough options to run.')
+            return HttpResponseRedirect("/")
+        form = VoteVoteForm(initial={'allow_blank': ballot.allow_blank})
+        ballot.form = form
+        try:
+            ballot.membervote = VoteVote.object.get(voter_ref=user, ballot_ref=ballot)
+        except VoteVote.DoesNotExist:
+            ballot.membervote = None
+
     template = loader.get_template('vote.html')
-    form = VoteVoteForm(initial={'allow_blank': vote.allow_blank})
-    try:
-        membervote = VoteVote.object.get(voter_ref=user, ballot_ref=vote)
-    except VoteVote.DoesNotExist:
-        membervote = None
     context = {
         'user': user,
         'vote': vote,
-        'options': options,
-        'form': form,
-        'membervote': membervote
+        'ballots': ballots
     }
     return HttpResponse(template.render(context, request))
 
@@ -176,15 +182,16 @@ def showvote(request, ref):
 def votevote(request, ref):
     """Handler for registering a vote."""
     user = get_current_user(request)
-    vote = get_object_or_404(VoteElection, ref=ref)
+    ballot = get_object_or_404(VoteBallot, ref=ref)
+    vote = VoteElection.objects.get(ref=ballot.election_ref.pk)
     if not user.iscontrib:
         return render(request, 'contrib-only.html')
     if not vote.is_active:
         messages.error(request, 'Vote is not currently running.')
-        return HttpResponseRedirect(reverse('vote', args=[ref]))
+        return HttpResponseRedirect(reverse('vote', args=[vote.ref]))
     if request.method == 'POST':
         form = VoteVoteForm(request.POST)
-        membervote, created = VoteVote.object.get_or_create(voter_ref=user, election_ref=vote)
+        membervote, created = VoteVote.object.get_or_create(voter_ref=user, ballot_ref=ballot)
         if created:
             md5 = hashlib.md5()
             md5.update(vote.title.encode('utf-8'))
@@ -206,7 +213,7 @@ def votevote(request, ref):
                         membervote.save()
                         user.lastactive = datetime.date.today()
                         user.save()
-    return HttpResponseRedirect(reverse('vote', args=[ref]))
+    return HttpResponseRedirect(reverse('vote', args=[vote.ref]))
 
 
 @login_required
