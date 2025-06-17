@@ -1,6 +1,6 @@
 import datetime
 
-from django.forms import Form, CharField, IntegerField, ModelForm, DateInput, ChoiceField
+from django.forms import Form, CharField, IntegerField, ModelForm, DateInput, ChoiceField, HiddenInput
 
 from .models import Members, Applications, VoteElection, VoteBallot, VoteOption
 from .votes import VOTE_SYSTEMS
@@ -64,9 +64,11 @@ class EditVoteForm(CreateVoteForm):
 
 
 class EditVoteFormBallot(CreateVoteFormBallot):
+    ref = IntegerField(required=True, widget=HiddenInput())
+
     class Meta:
         model = VoteBallot
-        fields = ['title', 'description', 'system', 'winners']
+        fields = ['ref', 'title', 'description', 'system', 'winners']
 
 
 class VoteOptionForm(ModelForm):

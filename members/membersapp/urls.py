@@ -37,6 +37,7 @@ urlpatterns = [
     path('vote/<int:ref>', views.showvote, name='vote'),
     path('vote/<int:ref>/edit', views.voteedit, name='voteedit'),
     path('vote/<int:ref>/editedit', views.voteeditedit, name='voteeditedit'),
+    path('vote/<int:ref>/editballot', views.voteeditballot, name='voteeditballot'),
     path('vote/<int:ref>/editoption', views.voteeditoption, name='voteeditoption'),
     path('vote/<int:ref>/vote', views.votevote, name='votevote'),
     path('vote/<int:ref>/result', views.voteresult, name='voteresult'),

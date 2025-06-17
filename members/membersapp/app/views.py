@@ -395,22 +395,46 @@ def voteeditedit(request, ref):
     if request.method == 'POST':
         if request.POST['vote-btn'] == "Edit":
             form = EditVoteForm(request.POST, instance=vote)
-            form_ballot = EditVoteFormBallot(request.POST, instance=vote)
-            if form.is_valid() and form_ballot.is_valid():
+            if form.is_valid():
                 form.instance.owner = user
                 form.save()
-                form_ballot.save()
             else:
                 messages.error(request, "Error while filling the form:")
-                if not form.is_valid():
-                    messages.error(request, form.errors)
-                if not form_ballot.is_valid():
-                    messages.error(request, form_ballot.errors)
+                messages.error(request, form.errors)
             return HttpResponseRedirect(reverse('voteedit', args=(ref,)))
         elif request.POST['vote-btn'] == "Delete":
+            # @todo: delete ballots
+            # @todo: add delete button for ballots
             VoteOption.objects.filter(election_ref=vote).delete()
             vote.delete()
             messages.success(request, 'Vote deleted')
+
+    return HttpResponseRedirect("/")
+
+
+@login_required
+def voteeditballot(request, ref):
+    """Handler for editing a ballot."""
+    user = get_current_user(request)
+    ballot = get_object_or_404(VoteBallot, ref=ref)
+    vote = VoteElection.objects.get(ref=ballot.election_ref.pk)
+
+    if not tests_vote(request, user, vote):
+        return HttpResponseRedirect("/")
+
+    if request.method == 'POST':
+        if request.POST['ballot-btn'] == "Edit":
+            form = EditVoteFormBallot(request.POST, instance=ballot)
+            if form.is_valid():
+                form.save()
+            else:
+                messages.error(request, "Error while filling the form:")
+                messages.error(request, form.errors)
+            return HttpResponseRedirect(reverse('voteedit', args=(ref,)))
+        elif request.POST['ballot-btn'] == "Delete":
+            VoteOption.objects.filter(ballot_ref=ballot).delete()
+            ballot.delete()
+            messages.success(request, 'Ballot deleted')
 
     return HttpResponseRedirect("/")
 

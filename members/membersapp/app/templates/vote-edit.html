@@ -8,42 +8,26 @@
 
     <table>
     {{ editvoteform.as_table }}
-    {{ editvoteformballot.as_table }}
     </table>
 
     <input type="submit" name="vote-btn" value="Edit" />
     <input type="submit" name="vote-btn" value="Delete" />
     </form>
 
+    <h2>Edit Ballots</h2>
 
+    {% for editvoteformballot in editvoteformballots %}
+    <form method="post" action="{% url 'voteeditballot' editvoteformballot.ballot_ref %}">
+    {% csrf_token %}
     <table>
-    <tr><th>Selection character</th><th>Option text</th><th></th></tr>
-    {% for of in existingvoteoptions %}
-    <form method="post" action="{% url 'voteeditoption' vote_ref %}">
-    {% csrf_token %}
-    <tr>
-      <td><span class="voteoptioncharacter">{{ of.option_character }}</span></td>
-      <td><span class="voteoptiondescription">{{ of.description }}</span></td>
-      <td>{{ of.sort.as_hidden }}</td>
-      <td>
-        <input type="submit" name="obtn" value="Edit" />
-        <input type="submit" name="obtn" value="Delete" />
-      </td>
-    </tr>
-    </form>
-    {% endfor %}
-    <form method="post" action="{% url 'voteeditoption' vote_ref %}">
-    {% csrf_token %}
-    <tr>
-      <td><span class="voteoptioncharacter">{{ voteoptionform.option_character }}</span></td>
-      <td><span class="voteoptiondescription">{{ voteoptionform.description }}</span></td>
-      <td>{{ voteoptionform.sort.as_hidden }}</td>
-      <td><input type="submit" name="obtn" value="Add" /></td>
-    {# Last entry is for creating a new option #}
-    </tr>
-    </form>
-
+      {{ editvoteformballot.form.as_table }}
+      <tr>
+        <td>
+          <button type="submit" name="ballot-btn" value="Edit">Edit ballot</button>
+        </td>
+      </tr>
     </table>
     </form>
+    {% endfor %}
 
 {% endblock %}
