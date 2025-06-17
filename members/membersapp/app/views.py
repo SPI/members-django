@@ -338,8 +338,8 @@ def votecreate(request):
 
     if request.method == 'POST':
         user = get_current_user(request)
-        form = CreateVoteForm(request.POST)
-        form_ballot = CreateVoteFormBallot(request.POST)
+        form = CreateVoteForm(request.POST, prefix='election')
+        form_ballot = CreateVoteFormBallot(request.POST, prefix='ballot')
         if form.is_valid() and form_ballot.is_valid():
             form.instance.owner = user
             # match behaviour of previous application by setting end date to
@@ -359,8 +359,8 @@ def votecreate(request):
             # Fall back to showing regular create page
 
     template = loader.get_template('vote-create.html')
-    createvoteform = CreateVoteForm()
-    createvoteformballot = CreateVoteFormBallot()
+    createvoteform = CreateVoteForm(prefix='election')
+    createvoteformballot = CreateVoteFormBallot(prefix='ballot')
     context = {
         'user': user,
         'createvoteform': createvoteform,
