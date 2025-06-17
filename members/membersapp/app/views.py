@@ -439,7 +439,7 @@ def voteeditballot(request, ref):
             else:
                 messages.error(request, "Error while filling the form:")
                 messages.error(request, form.errors)
-            return HttpResponseRedirect(reverse('voteedit', args=(ref,)))
+            return HttpResponseRedirect(reverse('voteedit', args=(vote.pk,)))
         elif request.POST['ballot-btn'] == "Delete":
             VoteOption.objects.filter(ballot_ref=ballot).delete()
             ballot.delete()
