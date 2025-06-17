@@ -84,7 +84,8 @@ def create_vote(testcase, current=False, past=False, title="Test vote", target="
             "ballot-title": "ballot",
             "ballot-description": "Hello world create_vote",
             "ballot-system": system,
-            "ballot-winners": "1"
+            "ballot-winners": "1",
+            "vote-btn": "Edit"
         }
     elif past:
         data = {
@@ -94,7 +95,8 @@ def create_vote(testcase, current=False, past=False, title="Test vote", target="
             "ballot-title": "ballot",
             "ballot-description": "Hello world create_vote",
             "ballot-system": system,
-            "ballot-winners": "1"
+            "ballot-winners": "1",
+            "vote-btn": "Edit"
         }
     else:
         data = {
@@ -104,7 +106,8 @@ def create_vote(testcase, current=False, past=False, title="Test vote", target="
             "ballot-title": "ballot",
             "ballot-description": "Hello world create_vote",
             "ballot-system": system,
-            "ballot-winners": "1"
+            "ballot-winners": "1",
+            "vote-btn": "Edit"
         }
     if allow_blank:
         data["ballot-allow_blank"] = "on"
@@ -988,7 +991,6 @@ class ManagerTest(TestCase):
         create_vote_option2(self, ballot.pk)
         set_vote_current(vote)
         response = self.client.get('/vote/%d' % vote.pk, follow=True)
-        dump_page(response)
         self.assertContains(response, "Blank votes are allowed")
 
     def test_votecreate_notallowblank(self):
@@ -1005,6 +1007,7 @@ class ManagerTest(TestCase):
         create_vote(self)
         vote = VoteElection.objects.all()[0]
         response = create_vote(self, title="Edited vote", target="/vote/%d/editedit" % vote.pk)
+        dump_page(response)
         self.assertRedirects(response, '/vote/%d/edit' % vote.pk, status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=True)
         self.assertContains(response, "Edited vote")
 
@@ -1032,7 +1035,7 @@ class ManagerTest(TestCase):
         self.assertContains(response, "Vote must not have run to be edited")
 
     def test_viewvotenotenoughoptions(self):
-        vote = create_vote_manually(current=True)
+        vote, ballot = create_vote_manually(current=True)
         response = self.client.get('/vote/%d' % vote.pk, follow=True)
         self.assertRedirects(response, '/', status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=True)
         self.assertContains(response, "Error: vote does not have enough options to run.")
@@ -1431,7 +1434,6 @@ class AccountTest(TestCase):
         self.assertContains(response, "changedemail@spi-inc.org <em>(awaiting confirmation")
         link = re.search('/account/profile/add_email/(.*?)/', mail.outbox[0].body)
         response = self.client.get(link.group(0), follow=True)
-        dump_page(response)
         self.assertContains(response, "<li>changedemail@spi-inc.org (<input")
         data = {
             "primaryemail": "changedemail@spi-inc.org",
