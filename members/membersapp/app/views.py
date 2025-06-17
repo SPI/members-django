@@ -406,6 +406,17 @@ def voteeditedit(request, ref):
             VoteOption.objects.filter(election_ref=vote).delete()
             vote.delete()
             messages.success(request, 'Vote deleted')
+        if request.POST['vote-btn'] == "Create ballot":
+            form = CreateVoteFormBallot(request.POST)
+            if form.is_valid():
+                ballot = form.save(commit=False)
+                ballot.election_ref = vote
+                form.save()
+                messages.success(request, 'Ballot created')
+            else:
+                messages.error(request, "Error while filling the form:")
+                messages.error(request, form.errors)
+            return HttpResponseRedirect(reverse('voteedit', args=(ref,)))
 
     return HttpResponseRedirect("/")
 
