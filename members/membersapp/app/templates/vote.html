@@ -4,6 +4,12 @@
 
     <h1>{{ vote.title }}</h1>
 
+    {% if ballots|length > 1 %}
+      There are <b>{{ ballots|length }}</b> ballots in this election. Please make sure you don't miss one by reading the whole page!
+    {% else %}
+      There is one ballot in this election.
+    {% endif %}
+
     {% for ballot in ballots %}
 
         <h1>
