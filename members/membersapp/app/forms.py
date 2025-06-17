@@ -45,7 +45,7 @@ class CreateVoteForm(ModelForm):
 class CreateVoteFormBallot(ModelForm):
     class Meta:
         model = VoteBallot
-        fields = ['title', 'description', 'system', 'allow_blank']
+        fields = ['title', 'description', 'system', 'winners', 'allow_blank']
 
     def __init__(self, *args, **kwargs):
         super(CreateVoteFormBallot, self).__init__(*args, **kwargs)
@@ -68,7 +68,7 @@ class EditVoteFormBallot(CreateVoteFormBallot):
 
     class Meta:
         model = VoteBallot
-        fields = ['ref', 'title', 'description', 'system', 'winners']
+        fields = ['ref', 'title', 'description', 'system', 'winners', 'allow_blank']
 
 
 class VoteOptionForm(ModelForm):
