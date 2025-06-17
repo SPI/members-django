@@ -134,7 +134,7 @@ class VoteBallot(models.Model):
 
 class VoteOption(models.Model):
     ref = models.AutoField(null=False, primary_key=True)
-    ballot_ref = models.ForeignKey(VoteBallot, null=True, blank=False, db_column='ballot_ref', on_delete=models.RESTRICT)
+    ballot_ref = models.ForeignKey(VoteBallot, null=False, blank=False, db_column='ballot_ref', on_delete=models.RESTRICT)
     description = models.TextField(null=True)
     sort = models.IntegerField(null=False)
     option_character = models.CharField(max_length=1, null=False)
@@ -153,7 +153,7 @@ class VoteOption(models.Model):
 class VoteVote(models.Model):
     ref = models.AutoField(null=False, primary_key=True)
     voter_ref = models.ForeignKey(Members, null=True, blank=False, db_column='voter_ref', on_delete=models.RESTRICT)
-    ballot_ref = models.ForeignKey(VoteBallot, null=True, blank=False, db_column='ballot_ref', on_delete=models.RESTRICT)
+    ballot_ref = models.ForeignKey(VoteBallot, null=False, blank=False, db_column='ballot_ref', on_delete=models.RESTRICT)
     private_secret = models.CharField(max_length=32, null=True)
     late_updated = models.DateTimeField(auto_now=True, null=True)  # missing: with time zone
     sent_notify = models.BooleanField(null=False, default=False)
