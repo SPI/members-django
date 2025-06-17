@@ -151,7 +151,7 @@ def showvote(request, ref):
     user = get_current_user(request)
     if not user.iscontrib:
         return render(request, 'contrib-only.html')
-    vote = get_object_or_404(VoteBallot, ref=ref)
+    vote = get_object_or_404(VoteElection, ref=ref)
     options = VoteOption.objects.filter(ballot_ref=ref)
     if len(options) < 2:
         messages.error(request, 'Error: vote does not have enough options to run.')
