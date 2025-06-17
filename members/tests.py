@@ -107,7 +107,7 @@ def create_vote(testcase, current=False, past=False, title="Test vote", target="
             "ballot-winners": "1"
         }
     if allow_blank:
-        data["allow_blank"] = "on"
+        data["ballot-allow_blank"] = "on"
     response = testcase.client.post(target, data=data, follow=True)
     return response
 
