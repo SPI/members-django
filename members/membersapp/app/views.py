@@ -541,6 +541,7 @@ def voteresult(request, ref):
     """Handler for viewing a specific vote result."""
     user = get_current_user(request)
     vote = get_object_or_404(VoteElection, ref=ref)
+    ballots = VoteBallot.objects.filter(election_ref=ref)
 
     if vote.owner != user:
         messages.error(request, 'You can only view results for your own votes.')
@@ -550,32 +551,31 @@ def voteresult(request, ref):
         messages.error(request, 'Vote must be finished to view results.')
         return HttpResponseRedirect("/")
 
-    membervotes = sorted(VoteVote.objects.filter(election_ref=ref),
-                         key=lambda x: x.voter_ref.name if x.voter_ref else '')
-    blank_votes_count = sum(1 for mv in membervotes if not mv.votestr.strip())
-    options = VoteOption.objects.filter(election_ref=ref)
+    for ballot in ballots:
+        membervotes = sorted(VoteVote.objects.filter(ballot_ref=ballot.ref),
+                             key=lambda x: x.voter_ref.name if x.voter_ref else '')
+        ballot.membervotes = membervotes
+        ballot.blank_votes_count = sum(1 for mv in membervotes if not mv.votestr.strip())
+        ballot.options = VoteOption.objects.filter(ballot_ref=ballot.ref)
 
-    if len(options) < 2:
-        messages.error(request, 'Votes must have at least 2 candidates to run.')
-        return HttpResponseRedirect("/")
+        if len(ballot.options) < 2:
+            messages.error(request, 'Votes must have at least 2 candidates for all ballots to run.')
+            return HttpResponseRedirect("/")
 
-    if vote.system == 0:
-        votesystem = CondorcetVS(vote, membervotes)
-    elif vote.system == 1:
-        votesystem = CondorcetVS(vote, membervotes, ignoremissing=False)
-    elif vote.system == 2:
-        votesystem = OpenSTVVS(vote, membervotes)
+        if ballot.system == 0:
+            ballot.votesystem = CondorcetVS(ballot, membervotes)
+        elif ballot.system == 1:
+            ballot.votesystem = CondorcetVS(ballot, membervotes, ignoremissing=False)
+        elif ballot.system == 2:
+            ballot.votesystem = OpenSTVVS(ballot, membervotes)
 
-    votesystem.run()
+        ballot.votesystem.run()
 
     template = loader.get_template('vote-result.html')
     context = {
         'user': user,
         'vote': vote,
-        'options': options,
-        'membervotes': membervotes,
-        'votesystem': votesystem,
-        'blank_votes_count': blank_votes_count
+        'ballots': ballots
     }
     return HttpResponse(template.render(context, request))
 

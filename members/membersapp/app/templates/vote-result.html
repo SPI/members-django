@@ -4,158 +4,166 @@
 {% block content %}
     <h1>{{ vote.title }}</h1>
 
-    <p>Total unique votes cast: {{ membervotes|length }}</p>
-    <p>Voting system: {{ votesystem.description }}</p>
+    {% for ballot in ballots %}
 
-    <h2>Candidates</h2>
-    {% for option in options %}
-        (<b>{{ option.option_character }}</b>) {{ option.description }}<br />
-    {% endfor %}
+        <h1>
+            {{ ballot.title|safe }}
+        </h1>
 
-    <h2>Voters</h2>
-    <ol>
-    {% for membervote in membervotes %}
-        <li>{{ membervote.voter_ref.name }}</li>
-    {% endfor %}
-    </ol>
+        <p>Total unique votes cast: {{ ballot.membervotes|length }}</p>
+        <p>Voting system: {{ ballot.votesystem.description }}</p>
 
-    <h2>Votes</h2>
-    <code>
-    {% for membervote in membervotes|dictsort:"resultcookie" %}
-        {{ membervote.resultcookie }} {{ membervote.votestr }}<br />
-    {% endfor %}
-    </code>
-
-    {% if blank_votes_count > 0 %}
-      Blank votes: {{ blank_votes_count }}<br />
-    {% endif %}
-
-    {% if vote.system == 0 or vote.system == 1 %}
-    {# Condorcet specific output. #}
-    <h2>Beats matrix</h2>
-    <table border="1" class="beat">
-        <tr>
-            <th></th>
-    {% for col in options %}
-            <th>{{ col.option_character }}</th>
-    {% endfor %}
-        </tr>
-    {% for row in options %}
-        <tr>
-            <th>{{ row.option_character }}</th>
-        {% for col in options %}
-            <td>
-            {% if col == row %}
-                -
-            {% else %}
-                {{ votesystem.beatmatrix|index:row.ref|index:col.ref }}
-            {% endif %}
-            </td>
+        <h2>Candidates</h2>
+        {% for option in ballot.options %}
+            (<b>{{ option.option_character }}</b>) {{ option.description }}<br />
         {% endfor %}
-        </tr>
-    {% endfor %}
-    </table>
 
-    <h2>Pairwise wins</h2>
-    <table border="1" class="pairwise">
-        <tr>
-            <th></th>
-    {% for col in options %}
-            <th>{{ col.option_character }}</th>
-    {% endfor %}
-            <th>Wins</th>
-        </tr>
-    {% for row in options %}
-        <tr>
-            <th>{{ row.option_character }}</th>
-        {% for col in options %}
-            {% if col == row %}
+        <h2>Voters</h2>
+        <ol>
+        {% for membervote in ballot.membervotes %}
+            <li>{{ membervote.voter_ref.name }}</li>
+        {% endfor %}
+        </ol>
+
+        <h2>Votes</h2>
+        <code>
+        {% for membervote in membervotes|dictsort:"resultcookie" %}
+            {{ membervote.resultcookie }} {{ membervote.votestr }}<br />
+        {% endfor %}
+        </code>
+
+        {% if ballot.blank_votes_count > 0 %}
+          Blank votes: {{ ballot.blank_votes_count }}<br />
+        {% endif %}
+
+        {% if ballot.system == 0 or ballot.system == 1 %}
+        {# Condorcet specific output. #}
+        <h2>Beats matrix</h2>
+        <table border="1" class="beat">
+            <tr>
+                <th></th>
+        {% for col in ballot.options %}
+                <th>{{ col.option_character }}</th>
+        {% endfor %}
+            </tr>
+        {% for row in ballot.options %}
+            <tr>
+                <th>{{ row.option_character }}</th>
+            {% for col in ballot.options %}
                 <td>
-                -
-            {% else %}
-                {% if votesystem.wincount|index:row.ref|index:col.ref > 0 %}
-                    <td class="win">
-                    <b>{{ votesystem.wincount|index:row.ref|index:col.ref }}</b>
+                {% if col == row %}
+                    -
                 {% else %}
-                    <td>
-                    {{ votesystem.wincount|index:row.ref|index:col.ref }}
+                    {{ ballot.votesystem.beatmatrix|index:row.ref|index:col.ref }}
                 {% endif %}
+                </td>
+            {% endfor %}
+            </tr>
+        {% endfor %}
+        </table>
+
+        <h2>Pairwise wins</h2>
+        <table border="1" class="pairwise">
+            <tr>
+                <th></th>
+        {% for col in ballot.options %}
+                <th>{{ col.option_character }}</th>
+        {% endfor %}
+                <th>Wins</th>
+            </tr>
+        {% for row in ballot.options %}
+            <tr>
+                <th>{{ row.option_character }}</th>
+            {% for col in ballot.options %}
+                {% if col == row %}
+                    <td>
+                    -
+                {% else %}
+                    {% if ballot.votesystem.wincount|index:row.ref|index:col.ref > 0 %}
+                        <td class="win">
+                        <b>{{ ballot.votesystem.wincount|index:row.ref|index:col.ref }}</b>
+                    {% else %}
+                        <td>
+                        {{ ballot.votesystem.wincount|index:row.ref|index:col.ref }}
+                    {% endif %}
+                {% endif %}
+                </td>
+            {% endfor %}
+                <td>{{ ballot.votesystem.wincount|index:row.ref|index:'wins' }}</td>
+            </tr>
+        {% endfor %}
+        </table>
+
+        {% else %}
+        {# OpenSTV specific output #}
+
+        <table class="rounds">
+            <tr>
+                <th>Round</th>
+            {% for candidate in ballot.votesystem.election.b.names %}
+                <th>{{ candidate }}</th>
+            {% endfor %}
+                <th>Exhausted</th>
+            {% if ballot.votesystem.election.threshMethod %}
+                <th>Surplus</th>
+                <th>Threshold</th>
             {% endif %}
-            </td>
-        {% endfor %}
-            <td>{{ votesystem.wincount|index:row.ref|index:'wins' }}</td>
-        </tr>
-    {% endfor %}
-    </table>
+            </tr>
 
-    {% else %}
-    {# OpenSTV specific output #}
-
-    <table class="rounds">
-        <tr>
-            <th>Round</th>
-        {% for candidate in votesystem.election.b.names %}
-            <th>{{ candidate }}</th>
-        {% endfor %}
-            <th>Exhausted</th>
-        {% if votesystem.election.threshMethod %}
-            <th>Surplus</th>
-            <th>Threshold</th>
-        {% endif %}
-        </tr>
-
-    {% for r in votesystem.election.numRounds|times %}
-        <tr>
-            <td class="round" rowspan="2">{{ r|add:"1" }}</td>
-        {% for candidate in votesystem.election.b.numCandidates|times %}
-            <td>{% displayValueDoubleIndex votesystem votesystem.election.count r candidate %}</td>
-        {% endfor %}
-            <td>{% displayValue votesystem votesystem.election.exhausted r %}</td>
-        {% if votesystem.election.threshMethod %}
-            <td>{% displayValue votesystem votesystem.election.surplus r %}</td>
-            <td>{% displayValue votesystem votesystem.election.thresh r %}</td>
-        {% endif %}
-        </tr>
-        <tr>
-            {% if votesystem.election.threshMethod %}
-            <td colspan="{{ votesystem.election.b.numCandidates|add:'3' }}" class="comment">
-            {% else %}
-            <td colspan="{{ votesystem.election.b.numCandidates|add:'1' }}" class="comment">
+        {% for r in ballot.votesystem.election.numRounds|times %}
+            <tr>
+                <td class="round" rowspan="2">{{ r|add:"1" }}</td>
+            {% for candidate in ballot.votesystem.election.b.numCandidates|times %}
+                <td>{% displayValueDoubleIndex ballot.votesystem ballot.votesystem.election.count r candidate %}</td>
+            {% endfor %}
+                <td>{% displayValue ballot.votesystem ballot.votesystem.election.exhausted r %}</td>
+            {% if ballot.votesystem.election.threshMethod %}
+                <td>{% displayValue ballot.votesystem ballot.votesystem.election.surplus r %}</td>
+                <td>{% displayValue ballot.votesystem ballot.votesystem.election.thresh r %}</td>
             {% endif %}
-                {{ votesystem.election.msg|index:r }}
-            </td>
-        </tr>
+            </tr>
+            <tr>
+                {% if ballot.votesystem.election.threshMethod %}
+                <td colspan="{{ ballot.votesystem.election.b.numCandidates|add:'3' }}" class="comment">
+                {% else %}
+                <td colspan="{{ ballot.votesystem.election.b.numCandidates|add:'1' }}" class="comment">
+                {% endif %}
+                    {{ ballot.votesystem.election.msg|index:r }}
+                </td>
+            </tr>
+        {% endfor %}
+
+        </table>
+        {% endif %}
+
+        {# All vote systems should implement the results() method. #}
+        <h2>Results</h2>
+        {% if ballot..winners == 1 %}
+        <p>This vote had a single winner.</p>
+        {% else %}
+        <p>There were {{ ballot.winners }} winners in this vote.</p>
+        {% endif %}
+
+        {% if ballot.votesystem.tie %}
+            <p>Ties exist!</p>
+        {% endif %}
+        <ol>
+        {% for winner in ballot.votesystem|results %}
+            <li>{{ winner }}</li>
+        {% endfor %}
+        </ol>
+
+        {% if ballot.system == 0 or ballot.system == 1 %}
+        <h2>Graphviz output</h2>
+        <pre>
+    digraph Results {
+        ranksep=0.25;{% for option in ballot.options %}
+        "{{ option.description }}" [ style="filled", fontname="Helvetica", fontsize=10, color="#99ff99" ];{% for beats in ballot.votesystem.wincount|index:option.ref %}{% if beats != 'wins' and ballot.votesystem.wincount|index:option.ref|index:beats > 0 %}
+        "{{ option.description }}" -&gt; "{{ beats|option_description_by_ref }}" [ label="{{ ballot.votesystem.wincount|index:option.ref|index:beats }}" ];{% endif %}{% endfor %}{% endfor %}
+    }
+        </pre>
+        {% endif %}
+
     {% endfor %}
-
-    </table>
-    {% endif %}
-
-    {# All vote systems should implement the results() method. #}
-    <h2>Results</h2>
-    {% if vote.winners == 1 %}
-    <p>This vote had a single winner.</p>
-    {% else %}
-    <p>There were {{ vote.winners }} winners in this vote.</p>
-    {% endif %}
-
-    {% if votesystem.tie %}
-        <p>Ties exist!</p>
-    {% endif %}
-    <ol>
-    {% for winner in votesystem|results %}
-        <li>{{ winner }}</li>
-    {% endfor %}
-    </ol>
-
-    {% if vote.system == 0 or vote.system == 1 %}
-    <h2>Graphviz output</h2>
-    <pre>
-digraph Results {
-    ranksep=0.25;{% for option in options %}
-    "{{ option.description }}" [ style="filled", fontname="Helvetica", fontsize=10, color="#99ff99" ];{% for beats in votesystem.wincount|index:option.ref %}{% if beats != 'wins' and votesystem.wincount|index:option.ref|index:beats > 0 %}
-    "{{ option.description }}" -&gt; "{{ beats|option_description_by_ref }}" [ label="{{ votesystem.wincount|index:option.ref|index:beats }}" ];{% endif %}{% endfor %}{% endfor %}
-}
-    </pre>
-    {% endif %}
 
 {% endblock %}

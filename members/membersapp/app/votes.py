@@ -15,13 +15,13 @@ VOTE_SYSTEMS = [(0, "Condorcet (ignore unspecified)"),
 
 class CondorcetVS(object):
     """Implementation of the Condorcet voting system"""
-    def __init__(self, vote, membervotes, ignoremissing=True):
-        self.vote = vote
+    def __init__(self, ballot, membervotes, ignoremissing=True):
+        self.ballot = ballot
         self.membervotes = membervotes
         self.ignoremissing = ignoremissing
         # Initialise our empty beat matrix
         self.beatmatrix = {}
-        options = VoteOption.objects.filter(election_ref=self.vote)
+        options = VoteOption.objects.filter(ballot_ref=self.ballot)
         for row in options:
             self.beatmatrix[row.ref] = {}
             for col in options:
@@ -39,7 +39,7 @@ class CondorcetVS(object):
 
     def run(self):
         """Run the vote"""
-        options = [x.ref for x in VoteOption.objects.filter(election_ref=self.vote)]
+        options = [x.ref for x in VoteOption.objects.filter(ballot_ref=self.ballot)]
 
         # Fill the beat matrix. bm[x][y] is the number of times x was
         # preferred over y.
@@ -85,8 +85,8 @@ class CondorcetVS(object):
 
 class OpenSTVVS(object):
     """Implementation of various STV voting systems using OpenSTV"""
-    def __init__(self, vote, membervotes, system="ScottishSTV"):
-        self.vote = vote
+    def __init__(self, ballot, membervotes, system="ScottishSTV"):
+        self.ballot = ballot
         self.membervotes = membervotes
         self.tie = False
         self.system = ScottishSTV.ScottishSTV
@@ -99,7 +99,7 @@ class OpenSTVVS(object):
 
     def run(self):
         """Run the vote using the OpenSTV backend"""
-        loader = SPIBallotLoader(self.vote, self.membervotes)
+        loader = SPIBallotLoader(self.ballot, self.membervotes)
         dirty = Ballots()
         dirty.loader = loader
         loader.loadballots(dirty)
@@ -120,18 +120,18 @@ class OpenSTVVS(object):
 class SPIBallotLoader(LoaderPlugin):
     "OpenSTV Ballot loader class for SPI Membership Website"
 
-    def __init__(self, vote, membervotes):
-        self.vote = vote
+    def __init__(self, ballot, membervotes):
+        self.ballot = ballot
         self.membervotes = membervotes
         LoaderPlugin.__init__(self)
-        self.options = VoteOption.objects.filter(election_ref=vote)
+        self.options = VoteOption.objects.filter(ballot_ref=ballot)
 
     def loadballots(self, ballots):
         "Load data from the database into an OpenSTV ballot object"
 
         ballots.numCandidates = len(self.options)
-        ballots.numSeats = self.vote.winners
-        ballots.title = self.vote.title
+        ballots.numSeats = self.ballot.winners
+        ballots.title = self.ballot.title
         # Make a textual array
         ballots.names = []
         optionmap = {}
