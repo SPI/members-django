@@ -115,7 +115,7 @@ def create_vote(testcase, current=False, past=False, title="Test vote", target="
     return response
 
 
-def edit_vote(testcase, votenb, title="Test vote", past=False):
+def edit_vote(testcase, voteid, title="Test vote", past=False):
     if past:
         period_start = (timezone.now() + datetime.timedelta(days=-1)).strftime("%Y-%m-%d")
     else:
@@ -126,7 +126,19 @@ def edit_vote(testcase, votenb, title="Test vote", past=False):
         "period_stop": (timezone.now() + datetime.timedelta(days=7)).strftime("%Y-%m-%d"),
         "vote-btn": "Edit"
     }
-    response = testcase.client.post("/vote/%d/editedit" % votenb, data=data, follow=True)
+    response = testcase.client.post("/vote/%d/editedit" % voteid, data=data, follow=True)
+    return response
+
+
+def edit_ballot(testcase, ballotid, title="Test ballot", system="1"):
+    data = {
+        "title": title,
+        "description": "Hello world edit_ballot",
+        "system": system,
+        "winners": "1",
+        "ballot-btn": "Edit"
+    }
+    response = testcase.client.post("/vote/%d/editballot" % ballotid, data=data, follow=True)
     return response
 
 
@@ -173,7 +185,7 @@ def create_vote_with_manager(testcase):
     create_vote_option2(testcase, ballot.pk)
     # relog as non-manager
     switch_back(testcase)
-    return vote
+    return vote, ballot
 
 
 def switch_to_other_member(testcase, switch_to_manager=False, switch_to_contrib=False, new_manager=False):
@@ -290,6 +302,14 @@ def delete_vote(testcase, voteid):
         "vote-btn": "Delete"
     }
     response = testcase.client.post("/vote/%s/editedit" % voteid, data=data, follow=True)
+    return response
+
+
+def delete_ballot(testcase, ballotid):
+    data = {
+        "ballot-btn": "Delete"
+    }
+    response = testcase.client.post("/vote/%s/editballot" % ballotid, data=data, follow=True)
     return response
 
 
@@ -638,7 +658,7 @@ class LoggedInViewsTest(TestCase):
         self.assertContains(response, "You are not allowed to create new votes")
 
     def test_vote_edit_nonmanager(self):
-        vote = create_vote_with_manager(self)
+        vote, ballot = create_vote_with_manager(self)
         response = edit_vote(self, vote.pk, title="Edited vote")
         self.assertRedirects(response, '/', status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=True)
         self.assertNotContains(response, "Edited vote")
@@ -736,7 +756,7 @@ class ContribUserTest(TestCase):
         self.assertContains(response, "You are not allowed to create new votes")
 
     def test_viewcurrentvote(self):
-        vote = create_vote_with_manager(self)
+        vote, ballot = create_vote_with_manager(self)
         set_vote_current(vote)
         response = self.client.get('/vote/%d' % vote.pk)
         self.assertEqual(response.status_code, 200)
@@ -745,45 +765,51 @@ class ContribUserTest(TestCase):
         self.assertNotContains(response, "Magic Voodoo")
 
     def test_viewpastvote(self):
-        vote = create_vote_with_manager(self)
+        vote, ballot = create_vote_with_manager(self)
         set_vote_past(vote)
         response = self.client.get('/vote/%d' % vote.pk)
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "The voting period ended")
 
     def test_viewfuturevote(self):
-        vote = create_vote_with_manager(self)
+        vote, ballot = create_vote_with_manager(self)
         response = self.client.get('/vote/%d' % vote.pk)
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Voting has not yet opened")
 
     def test_viewvoteedit(self):
-        vote = create_vote_with_manager(self)
+        vote, ballot = create_vote_with_manager(self)
         response = self.client.get('/vote/%d/edit' % vote.pk, follow=True)
         self.assertRedirects(response, '/', status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=True)
         self.assertContains(response, "You are not allowed to create new votes")
 
     def test_vote_edit(self):
-        vote = create_vote_with_manager(self)
+        vote, ballot = create_vote_with_manager(self)
         response = edit_vote(self, vote.pk, title="Edited vote")
         self.assertRedirects(response, '/', status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=False)
         self.assertContains(response, "You are not allowed to create new votes")
 
+    def test_ballot_edit(self):
+        vote, ballot = create_vote_with_manager(self)
+        response = edit_ballot(self, ballot.pk, title="Edited ballot")
+        self.assertRedirects(response, '/', status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=False)
+        self.assertContains(response, "You are not allowed to create new votes")
+
     def test_editoptionform(self):
-        vote = create_vote_with_manager(self)
+        vote, ballot = create_vote_with_manager(self)
         response = edit_vote_option(self, vote.pk)
         self.assertRedirects(response, '/', status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=False)
         self.assertContains(response, "You are not allowed to create new votes")
 
     def test_votevote_not_running(self):
-        vote = create_vote_with_manager(self)
+        vote, ballot = create_vote_with_manager(self)
         response = vote_vote(self, vote.pk, correct=True)
         self.assertRedirects(response, '/vote/%d' % vote.pk, status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=True)
         self.assertContains(response, "Vote is not currently running")
         self.assertEqual(VoteVote.objects.count(), 0)
 
     def test_votevote(self):
-        vote = create_vote_with_manager(self)
+        vote, ballot = create_vote_with_manager(self)
         set_vote_current(vote)
         response = vote_vote(self, vote.pk, correct=True)
         self.assertRedirects(response, '/vote/%d' % vote.pk, status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=True)
@@ -791,7 +817,7 @@ class ContribUserTest(TestCase):
 
     def test_votevote_lastactive(self):
         global member
-        vote = create_vote_with_manager(self)
+        vote, ballot = create_vote_with_manager(self)
         set_vote_current(vote)
         member.lastactive = None
         member.save()
@@ -802,7 +828,7 @@ class ContribUserTest(TestCase):
         self.assertEqual(member.lastactive, datetime.date.today())
 
     def test_votevote_incorrect(self):
-        vote = create_vote_with_manager(self)
+        vote, ballot = create_vote_with_manager(self)
         set_vote_current(vote)
         response = vote_vote(self, vote.pk, correct=False)
         self.assertRedirects(response, '/vote/%d' % vote.pk, status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=True)
@@ -1047,6 +1073,32 @@ class ManagerTest(TestCase):
         response = self.client.get('/vote/%d/edit' % vote.pk, follow=True)
         self.assertRedirects(response, '/', status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=True)
         self.assertContains(response, "Vote must not have run to be edited")
+
+    def test_ballot_edit(self):
+        create_vote(self)
+        vote = VoteElection.objects.all()[0]
+        ballot = VoteBallot.objects.all()[0]
+        response = edit_ballot(self, ballot.pk, title="Edited ballot")
+        self.assertRedirects(response, '/vote/%d/edit' % vote.pk, status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=True)
+        self.assertContains(response, "Edited ballot")
+
+    def test_ballot_edit_error(self):
+        create_vote(self)
+        vote = VoteElection.objects.all()[0]
+        ballot = VoteBallot.objects.all()[0]
+        response = edit_ballot(self, ballot.pk, title="Edited ballot", system="-1")
+        self.assertRedirects(response, '/vote/%d/edit' % vote.pk, status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=True)
+        self.assertContains(response, "Error")
+        self.assertNotContains(response, "Edited ballot")
+
+    def test_ballot_delete(self):
+        create_vote(self)
+        vote = VoteElection.objects.all()[0]
+        ballot = VoteBallot.objects.all()[0]
+        response = delete_ballot(self, ballot.pk)
+        self.assertEqual(VoteBallot.objects.count(), 0)
+        self.assertRedirects(response, '/vote/%d/edit' % vote.pk, status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=True)
+        self.assertContains(response, "Ballot deleted")
 
     def test_viewvotenotenoughoptions(self):
         vote, ballot = create_vote_manually(current=True)
