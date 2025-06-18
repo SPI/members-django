@@ -168,7 +168,7 @@ class VoteVote(models.Model):
 
     def __init__(self, *args, **kwargs):
         super(VoteVote, self).__init__(*args, **kwargs)
-        self.votes = [x.option_ref for x in VoteVoteOption.objects.filter(vote_ref=self.ref)]
+        self.votes = [x.option_ref for x in VoteVoteOption.objects.filter(vote_ref=self.ref).order_by('preference')]
 
     @property
     def votestr(self):
