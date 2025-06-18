@@ -29,6 +29,7 @@ class CondorcetVS(object):
         self.tie = False
         self.winners = [None] * len(options)
         self.wincount = {}
+        self.winners_count = [0] * len(options)
 
     @property
     def description(self):
@@ -75,12 +76,28 @@ class CondorcetVS(object):
                 self.tie = True
                 self.winners[wins] += " AND "
                 self.winners[wins] += VoteOption.object.get(ref=row).description
+                self.winners_count[wins] += 1
             else:
                 self.winners[wins] = VoteOption.object.get(ref=row).description
+                self.winners_count[wins] = 1
 
     def results(self):
         """Return an array of the vote winners"""
-        return reversed(self.winners)
+        # Confusingly, several variables with similar names here:
+        # - self.ballot.winners is the number of winners in the ballot
+        # - self.winners contains an array of pairwise wins
+        # - winners declared below contains an array of the winners names
+        winners = []
+        losers = []
+        nb_registered = 0
+        for i in range(len(self.winners) - 1, -1, -1):
+            if self.winners[i] is not None:
+                if nb_registered < self.ballot.winners:
+                    nb_registered += self.winners_count[i]
+                    winners.append(self.winners[i])
+                else:
+                    losers.append(self.winners[i])
+        return {"winners": winners, "losers": losers}
 
 
 class OpenSTVVS(object):
@@ -114,7 +131,7 @@ class OpenSTVVS(object):
         if len(winners) == 0:
             return None
         else:
-            return [self.election.b.names[c] for c in winners]
+            return {'winners': [self.election.b.names[c] for c in winners], 'losers': []}
 
 
 class SPIBallotLoader(LoaderPlugin):

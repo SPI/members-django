@@ -148,9 +148,14 @@
             <p>Ties exist!</p>
         {% endif %}
         <ol>
-        {% for winner in ballot.votesystem|results %}
-            <li>{{ winner }}</li>
-        {% endfor %}
+        {% with ballot.votesystem|results as result %}
+            {% for winner in result.winners %}
+                <li><strong>{{ winner }}</strong></li>
+            {% endfor %}
+            {% for loser in result.losers %}
+                    <li>{{ loser }}</li>
+            {% endfor %}
+        {% endwith %}
         </ol>
 
         {% if ballot.system == 0 or ballot.system == 1 %}
