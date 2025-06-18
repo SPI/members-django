@@ -208,7 +208,7 @@ def votevote(request, ref):
                         # Remove any previous vote details first
                         VoteVoteOption.objects.filter(vote_ref=membervote).delete()
                         for i, voteoption in enumerate(membervote.votes, 1):
-                            votevoteoption = VoteVoteOption(vote_ref=membervote, option_ref=voteoption)
+                            votevoteoption = VoteVoteOption(vote_ref=membervote, option_ref=voteoption, preference=i)
                             votevoteoption.save()
                         membervote.save()
                         user.lastactive = datetime.date.today()
