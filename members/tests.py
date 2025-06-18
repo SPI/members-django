@@ -115,6 +115,21 @@ def create_vote(testcase, current=False, past=False, title="Test vote", target="
     return response
 
 
+def edit_vote(testcase, votenb, title="Test vote", past=False):
+    if past:
+        period_start = (timezone.now() + datetime.timedelta(days=-1)).strftime("%Y-%m-%d")
+    else:
+        period_start = (timezone.now() + datetime.timedelta(days=1)).strftime("%Y-%m-%d"),
+    data = {
+        "title": title,
+        "period_start": period_start,
+        "period_stop": (timezone.now() + datetime.timedelta(days=7)).strftime("%Y-%m-%d"),
+        "vote-btn": "Edit"
+    }
+    response = testcase.client.post("/vote/%d/editedit" % votenb, data=data, follow=True)
+    return response
+
+
 def create_vote_manually(current=False, past=False, owner=None):
     if owner is None:
         # Can't pass global variable in the function's signature
@@ -624,7 +639,7 @@ class LoggedInViewsTest(TestCase):
 
     def test_vote_edit_nonmanager(self):
         vote = create_vote_with_manager(self)
-        response = create_vote(self, title="Edited vote", target="/vote/%d/editedit" % vote.pk)
+        response = edit_vote(self, vote.pk, title="Edited vote")
         self.assertRedirects(response, '/', status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=True)
         self.assertNotContains(response, "Edited vote")
         self.assertContains(response, "You are not allowed to create new votes")
@@ -750,7 +765,7 @@ class ContribUserTest(TestCase):
 
     def test_vote_edit(self):
         vote = create_vote_with_manager(self)
-        response = create_vote(self, title="Edited vote", target="/vote/%d/editedit" % vote.pk)
+        response = edit_vote(self, vote.pk, title="Edited vote")
         self.assertRedirects(response, '/', status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=False)
         self.assertContains(response, "You are not allowed to create new votes")
 
@@ -1006,15 +1021,14 @@ class ManagerTest(TestCase):
     def test_vote_edit(self):
         create_vote(self)
         vote = VoteElection.objects.all()[0]
-        response = create_vote(self, title="Edited vote", target="/vote/%d/editedit" % vote.pk)
-        dump_page(response)
+        response = edit_vote(self, vote.pk, title="Edited vote")
         self.assertRedirects(response, '/vote/%d/edit' % vote.pk, status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=True)
         self.assertContains(response, "Edited vote")
 
     def test_vote_edit_error(self):
         create_vote(self)
         vote = VoteElection.objects.all()[0]
-        response = create_vote(self, title="Edited vote", past=True, target="/vote/%d/editedit" % vote.pk)
+        response = edit_vote(self, vote.pk, title="Edited vote", past=True)
         self.assertRedirects(response, '/vote/%d/edit' % vote.pk, status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=True)
         self.assertContains(response, "Error")
         self.assertNotContains(response, "Edited vote")
