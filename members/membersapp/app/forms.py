@@ -64,11 +64,9 @@ class EditVoteForm(CreateVoteForm):
 
 
 class EditVoteFormBallot(CreateVoteFormBallot):
-    ref = IntegerField(required=True, widget=HiddenInput())
-
     class Meta:
         model = VoteBallot
-        fields = ['ref', 'title', 'description', 'system', 'winners', 'allow_blank']
+        fields = ['title', 'description', 'system', 'winners', 'allow_blank']
 
 
 class VoteOptionForm(ModelForm):
