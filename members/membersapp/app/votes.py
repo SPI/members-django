@@ -75,10 +75,10 @@ class CondorcetVS(object):
             if self.winners[wins]:
                 self.tie = True
                 self.winners[wins] += " AND "
-                self.winners[wins] += VoteOption.object.get(ref=row).description
+                self.winners[wins] += VoteOption.objects.get(ref=row).description
                 self.winners_count[wins] += 1
             else:
-                self.winners[wins] = VoteOption.object.get(ref=row).description
+                self.winners[wins] = VoteOption.objects.get(ref=row).description
                 self.winners_count[wins] = 1
 
     def results(self):

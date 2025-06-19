@@ -70,7 +70,7 @@ def application(request, appid):
     user = get_current_user(request)
     if not user.ismanager and not application.member == user:
         return render(request, 'manager-only.html')
-    member = Members.object.get(memid=application.member_id)
+    member = Members.objects.get(memid=application.member_id)
     memberform = MemberForm(instance=member)
     if user.ismanager:
         # Manager view of the contrib application
@@ -165,7 +165,7 @@ def showvote(request, ref):
         form = VoteVoteForm(initial={'allow_blank': ballot.allow_blank})
         ballot.form = form
         try:
-            ballot.membervote = VoteVote.object.get(voter_ref=user, ballot_ref=ballot)
+            ballot.membervote = VoteVote.objects.get(voter_ref=user, ballot_ref=ballot)
         except VoteVote.DoesNotExist:
             ballot.membervote = None
 
@@ -200,7 +200,7 @@ def votevote(request, ref):
         return HttpResponseRedirect(reverse('vote', args=[vote.ref]))
     if request.method == 'POST':
         form = VoteVoteForm(request.POST)
-        membervote, created = VoteVote.object.get_or_create(voter_ref=user, ballot_ref=ballot)
+        membervote, created = VoteVote.objects.get_or_create(voter_ref=user, ballot_ref=ballot)
         if created:
             md5 = hashlib.md5()
             md5.update(vote.title.encode('utf-8'))

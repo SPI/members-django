@@ -19,9 +19,6 @@ class Members(models.Model):
     lastactive = models.DateField(null=True)
     createvote = models.BooleanField(null=False, blank=False, default=False)
 
-    object = models.Manager()
-    objects = models.Manager()
-
     def __str__(self):
         return self.name
 
@@ -61,9 +58,6 @@ class Applications(models.Model):
     validemail = models.BooleanField(null=True)
     validemail_date = models.DateField(null=True)
 
-    object = models.Manager()
-    objects = models.Manager()
-
     def __str__(self):
         return "{0} ({1})".format(self.member, self.appdate)
 
@@ -87,9 +81,6 @@ class VoteElection(models.Model):
     period_start = models.DateTimeField(null=True, verbose_name='Start date', validators=[MinValueValidator(timezone.now)])
     period_stop = models.DateTimeField(null=True, verbose_name='End date', validators=[MinValueValidator(timezone.now)])
     owner = models.ForeignKey(Members, null=False, blank=False, db_column='owner', on_delete=models.RESTRICT)
-
-#    object = models.Manager()
-#    objects = models.Manager()
 
     def __str__(self):
         return self.title
@@ -139,9 +130,6 @@ class VoteOption(models.Model):
     sort = models.IntegerField(null=False)
     option_character = models.CharField(max_length=1, null=False)
 
-    object = models.Manager()
-    objects = models.Manager()
-
     def __str__(self):
         return self.description
 
@@ -158,9 +146,6 @@ class VoteVote(models.Model):
     late_updated = models.DateTimeField(auto_now=True, null=True)  # missing: with time zone
     sent_notify = models.BooleanField(null=False, default=False)
     votes = []
-
-    object = models.Manager()
-    objects = models.Manager()
 
     class Meta:
         unique_together = (('voter_ref', 'ballot_ref'), )
@@ -195,7 +180,7 @@ class VoteVote(models.Model):
         newvotes = []
         for char in votestr:
             try:
-                option = VoteOption.object.get(Q(option_character=char) & Q(ballot_ref=self.ballot_ref))
+                option = VoteOption.objects.get(Q(option_character=char) & Q(ballot_ref=self.ballot_ref))
             except VoteOption.DoesNotExist:
                 return "Invalid vote option " + char
             if option in newvotes:

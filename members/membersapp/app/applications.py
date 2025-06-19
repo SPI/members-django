@@ -18,7 +18,7 @@ from membersapp.account.util.propagate import send_change_to_apps
 
 def process_contrib_application(request, form, application):
     """Deals with changes to a contributing application by a manager"""
-    user = Members.object.get(pk=application.member)
+    user = Members.objects.get(pk=application.member)
 
     if form["approve"].data and not user.iscontrib:
         user.iscontrib = True

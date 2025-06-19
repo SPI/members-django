@@ -35,4 +35,4 @@ def results(votesystem):
 
 @register.filter
 def option_description_by_ref(beats):
-    return VoteOption.object.get(ref=beats).description
+    return VoteOption.objects.get(ref=beats).description

@@ -491,7 +491,7 @@ class NonLoggedInViewsTests(TestCase):
     def test_reset_password_2apps(self):
         response = register_user(self)
         user = User.objects.get(email="testregister@spi-inc.org")
-        member = Members.object.get(memid=user.pk)
+        member = Members.objects.get(memid=user.pk)
         application = Applications(member=member, contrib=True)
         application.save()
         self.assertEqual(len(Applications.objects.filter(member=member)), 2)
@@ -594,7 +594,7 @@ class LoggedInViewsTest(TestCase):
         data = {
         }
         response = self.client.post("/updateactive", data=data)
-        user = Members.object.get(pk=member)  # get updated user
+        user = Members.objects.get(pk=member)  # get updated user
         self.assertEqual(user.lastactive, datetime.date.today())
         self.assertRedirects(response, '/', status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=False)
 
@@ -608,7 +608,7 @@ class LoggedInViewsTest(TestCase):
             "sub_private": "on",
         }
         response = self.client.post("/member/edit", data=data)
-        user = Members.object.get(pk=member)  # get updated user
+        user = Members.objects.get(pk=member)  # get updated user
         self.assertEqual(user.sub_private, True)
         self.assertRedirects(response, '/', status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=False)
 
@@ -714,7 +714,7 @@ class ContribUserTest(TestCase):
         data = {
         }
         response = self.client.post("/updateactive", data=data)
-        user = Members.object.get(pk=member)  # get updated user
+        user = Members.objects.get(pk=member)  # get updated user
         self.assertEqual(user.lastactive, datetime.date.today())
         self.assertRedirects(response, '/', status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=False)
 
@@ -728,7 +728,7 @@ class ContribUserTest(TestCase):
             "sub_private": "on",
         }
         response = self.client.post("/member/edit", data=data)
-        user = Members.object.get(pk=member)  # get updated user
+        user = Members.objects.get(pk=member)  # get updated user
         self.assertEqual(user.sub_private, True)
         self.assertRedirects(response, '/', status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=False)
 
@@ -821,10 +821,10 @@ class ContribUserTest(TestCase):
         set_vote_current(vote)
         member.lastactive = None
         member.save()
-        member = Members.object.get(pk=member.memid)
+        member = Members.objects.get(pk=member.memid)
         self.assertEqual(member.lastactive, None)
         response = vote_vote(self, ballot.pk, correct=True)
-        member = Members.object.get(pk=member.memid)
+        member = Members.objects.get(pk=member.memid)
         self.assertEqual(member.lastactive, datetime.date.today())
 
     def test_votevote_incorrect(self):
@@ -874,7 +874,7 @@ class DowngradedUserTest(TestCase):
     # Clicking on the updateactive button should be enough to give user back their contrib status
     def test_updateactive_after_downgrade(self):
         response = self.client.get("/updateactive", follow=True)
-        user = Members.object.get(pk=member)  # get updated user
+        user = Members.objects.get(pk=member)  # get updated user
         self.assertEqual(user.lastactive, datetime.date.today())
         self.assertRedirects(response, '/', status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=True)
         self.assertContains(response, "spi-private subscription")
@@ -924,7 +924,7 @@ class ManagerTest(TestCase):
         data = {
         }
         response = self.client.post("/updateactive", data=data)
-        user = Members.object.get(pk=member)  # get updated user
+        user = Members.objects.get(pk=member)  # get updated user
         self.assertEqual(user.lastactive, datetime.date.today())
         self.assertRedirects(response, '/', status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=False)
 
@@ -950,7 +950,7 @@ class ManagerTest(TestCase):
             "sub_private": "on",
         }
         response = self.client.post("/member/edit", data=data)
-        user = Members.object.get(pk=member)  # get updated user
+        user = Members.objects.get(pk=member)  # get updated user
         self.assertEqual(user.sub_private, True)
         self.assertRedirects(response, '/', status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=False)
 
@@ -1393,7 +1393,7 @@ class ApplicationWorkflowTests(TestCase):
         self.client.force_login(member_contrib.memid)
         create_application_post(self)
         switch_back(self)
-        application = Applications.object.get(member=member_contrib)
+        application = Applications.objects.get(member=member_contrib)
         data = {
             "contrib": "sdfs",
             "manager": member.memid_id,

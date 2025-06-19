@@ -182,7 +182,7 @@ class ConfirmSubmitForm(forms.Form):
 class MembersdjangoSetPasswordForm(SetPasswordForm):
     def save(self, *args, commit=True, **kwargs):
         user = super().save(*args, commit=False, **kwargs)
-        member = Members.object.get(pk=user.id)
+        member = Members.objects.get(pk=user.id)
         member.ismember = True
         applications = Applications.objects.filter(member=member.pk)
         for application in applications:

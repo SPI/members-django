@@ -96,7 +96,7 @@ def profile(request):
                 user.save(update_fields=['email', ])
                 # Finally remove the old secondary address, since it can`'t be both primary and secondary at the same time
                 SecondaryEmail.objects.filter(user=user, email=user.email).delete()
-                member = Members.object.get(pk=user.id)
+                member = Members.objects.get(pk=user.id)
                 member.email = user.email
                 member.save()
                 log.info("User {} changed primary email from {} to {}".format(user.username, oldemail, user.email))
@@ -282,7 +282,7 @@ def signup(request):
                                {'uid': urlsafe_base64_encode(force_bytes(user.id)), 'token': token, 'user': user}
                                )
 
-            application = Applications.object.get(member=user.pk)
+            application = Applications.objects.get(member=user.pk)
             application.emailcheck_date = datetime.today()
             application.save()
             return HttpResponseRedirect('/account/signup/complete/')
@@ -400,7 +400,7 @@ def communityauth(request, siteid):
         'l': request.user.last_name.encode('utf-8'),
         'e': request.user.email.encode('utf-8'),
         'se': ','.join([a.email for a in SecondaryEmail.objects.filter(user=request.user, confirmed=True).order_by('email')]).encode('utf8'),
-        's': Members.object.get(pk=request.user.pk).get_status.encode('utf-8'),
+        's': Members.objects.get(pk=request.user.pk).get_status.encode('utf-8'),
     }
     if d:
         info['d'] = d.encode('utf-8')

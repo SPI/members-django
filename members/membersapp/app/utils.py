@@ -3,7 +3,7 @@ from .models import Members, Applications
 
 def get_member_by_id(memid):
     try:
-        member = Members.object.get(pk=memid)
+        member = Members.objects.get(pk=memid)
     except Members.DoesNotExist:
         member = None
     return member
@@ -20,6 +20,6 @@ def dictfetchall(cursor):
 
 def get_current_user(request):
     try:
-        return Members.object.get(pk=request.user.pk)
+        return Members.objects.get(pk=request.user.pk)
     except Members.DoesNotExist:
         return None
