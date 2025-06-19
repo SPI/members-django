@@ -424,6 +424,7 @@ def voteeditedit(request, ref):
             if form.is_valid():
                 form.instance.owner = user
                 form.save()
+                messages.success(request, "Vote edited")
             else:
                 messages.error(request, "Error while filling the form:")
                 messages.error(request, form.errors)
@@ -465,6 +466,7 @@ def voteeditballot(request, ref):
             form = EditVoteFormBallot(request.POST, instance=ballot)
             if form.is_valid():
                 form.save()
+                messages.success(request, "Ballot edited")
             else:
                 messages.error(request, "Error while filling the form:")
                 messages.error(request, form.errors)
@@ -542,6 +544,7 @@ def voteeditoption(request, ref):
                 if form.is_valid():
                     form.instance.ballot_ref = ballot
                     form.save()
+                    messages.success(request, "Option Added")
                 else:
                     messages.error(request, "Error while filling the form:")
                     messages.error(request, form.errors)
@@ -549,12 +552,14 @@ def voteeditoption(request, ref):
             form = VoteOptionForm(instance=voteoption[0], data=request.POST)
             if form.is_valid():
                 form.save()
+                messages.success(request, "Option Edited")
             else:
                 messages.error(request, "Error while filling the form:")
                 messages.error(request, form.errors)
         elif request.POST['obtn'] == "Delete":
             form = VoteOptionForm(request.POST)
             voteoption.delete()
+            messages.success(request, "Option Deleted")
     return HttpResponseRedirect(reverse('voteedit', args=(vote.pk,)))
 
 
