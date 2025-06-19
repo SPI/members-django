@@ -178,6 +178,15 @@ def showvote(request, ref):
     return HttpResponse(template.render(context, request))
 
 
+def check_remaining_ballots(vote, user):
+    remaining_ballots = 0
+    ballots = VoteBallot.objects.filter(election_ref=vote)
+    for ballot in ballots:
+        if VoteVote.objects.filter(Q(ballot_ref=ballot) & Q(voter_ref=user)).count() == 0:
+            remaining_ballots += 1
+    return remaining_ballots
+
+
 @login_required
 def votevote(request, ref):
     """Handler for registering a vote."""
@@ -213,6 +222,10 @@ def votevote(request, ref):
                         membervote.save()
                         user.lastactive = datetime.date.today()
                         user.save()
+                        messages.success(request, "Your vote was registered!")
+                        nb_remaining_ballots = check_remaining_ballots(vote, user)
+                        if nb_remaining_ballots > 0:
+                            messages.success(request, "Caution: the are %d remaining ballot(s) on this page. Don't forget to vote for them too!" % nb_remaining_ballots)
     return HttpResponseRedirect(reverse('vote', args=[vote.ref]))
 
 
