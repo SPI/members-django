@@ -15,7 +15,7 @@ from django.utils import timezone
 from django.contrib import auth
 from django.core import mail
 
-from membersapp.app.models import Members, Applications, VoteElection, VoteVote, VoteBallot
+from membersapp.app.models import Members, Applications, VoteElection, VoteVote, VoteBallot, VoteOption
 from membersapp.account.models import SecondaryEmail
 
 member = None
@@ -833,6 +833,16 @@ class ContribUserTest(TestCase):
         response = vote_vote(self, vote.pk, correct=False)
         self.assertRedirects(response, '/vote/%d' % vote.pk, status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=True)
         self.assertContains(response, "Invalid vote option Z")
+
+    def test_vote_no_ballot(self):
+        vote, ballot = create_vote_with_manager(self)
+        for option in VoteOption.objects.filter(ballot_ref=ballot):
+            option.delete()
+        ballot.delete()
+        set_vote_current(vote)
+        response = self.client.get('/vote/%d' % vote.pk, follow=True)
+        self.assertRedirects(response, '/', status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=True)
+        self.assertContains(response, "Error: election does not have any configured ballot")
 
     def test_viewvoteresult_incorrect(self):
         member = create_other_member()
