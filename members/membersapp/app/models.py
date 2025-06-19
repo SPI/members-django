@@ -121,7 +121,7 @@ class VoteBallot(models.Model):
     election_ref = models.ForeignKey(VoteElection, db_column='election_ref', on_delete=models.RESTRICT)
     title = models.CharField(max_length=256, null=False, verbose_name='Ballot title')
     description = models.TextField(null=True)
-    winners = models.IntegerField(null=False, default=1)
+    winners = models.IntegerField(null=False, default=1, validators=[MinValueValidator(1)])
     system = models.IntegerField(null=False, verbose_name='Voting system')
     allow_blank = models.BooleanField(default=True, verbose_name='Allow blank votes')
 
