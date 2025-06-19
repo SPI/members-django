@@ -450,7 +450,7 @@ class NonLoggedInViewsTests(TestCase):
 
     def tests_vote_redirect(self):
         vote, ballot = create_vote_manually(self)
-        for case in ['/votes', '/vote/create', '/vote/%d' % vote.pk, '/vote/%d/edit' % vote.pk, '/vote/%d/editedit' % vote.pk, '/vote/%d/editoption' % ballot.pk, '/vote/%d/vote' % vote.pk, '/vote/%d/result' % vote.pk]:
+        for case in ['/votes', '/vote/create', '/vote/%d' % vote.pk, '/vote/%d/edit' % vote.pk, '/vote/%d/editedit' % vote.pk, '/vote/%d/editoption' % ballot.pk, '/vote/%d/vote' % vote.pk, '/vote/%d/result' % vote.pk, '/vote/%d/editballot' % ballot.pk]:
             response = self.client.get(case)
             self.assertRedirects(response, '/account/login/?next=%s' % case, status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=False)
 
@@ -652,7 +652,7 @@ class LoggedInViewsTest(TestCase):
 
     def tests_vote_noncontrib_not_allowed_error(self):
         vote, ballot = create_vote_manually(self)
-        for case in ['/vote/%d/edit' % vote.pk, '/vote/%d/editoption' % ballot.pk]:
+        for case in ['/vote/%d/edit' % vote.pk, '/vote/%d/editoption' % ballot.pk, '/vote/%d/editballot' % ballot.pk]:
             response = self.client.get(case, follow=True)
             self.assertRedirects(response, '/', status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=True)
             self.assertContains(response, "You are not allowed to create new votes")
@@ -1057,6 +1057,16 @@ class ManagerTest(TestCase):
         self.assertRedirects(response, '/vote/%d/edit' % vote.pk, status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=False)
         self.assertContains(response, "Hello world create_ballot")
 
+    def test_ballot_create_multiple(self):
+        response = create_vote(self)
+        vote = VoteElection.objects.all()[0]
+        create_ballot(self, vote)
+        create_ballot(self, vote)
+        self.assertEqual(VoteBallot.objects.count(), 3)
+        for ballot in VoteBallot.objects.all():
+            create_vote_option(self, ballot.pk)
+        self.assertEqual(VoteOption.objects.count(), 3)
+
     def test_vote_create_norights(self):
         member.createvote = False
         member.save()
@@ -1241,7 +1251,7 @@ class ManagerTest(TestCase):
         create_vote_option(self, ballot.pk)
         create_vote_option2(self, ballot.pk)
         switch_back(self)
-        for case in ['/vote/%d/edit' % vote.pk, '/vote/%d/editedit' % vote.pk, '/vote/%d/editoption' % ballot.pk]:
+        for case in ['/vote/%d/edit' % vote.pk, '/vote/%d/editedit' % vote.pk, '/vote/%d/editoption' % ballot.pk, '/vote/%d/editballot' % ballot.pk]:
             response = self.client.get(case, follow=True)
             self.assertEqual(response.status_code, 200)
             self.assertContains(response, "You can only edit your own votes.")
@@ -1301,10 +1311,10 @@ class ManagerTest(TestCase):
         self.assertContains(response, "Hello world 2 voteoption edited")
 
     def test_votes_404(self):
-        for target in ['/vote/1337', '/vote/1337/edit', 'vote/1337/result']:
+        for target in ['/vote/1337', '/vote/1337/edit', '/vote/1337/result']:
             response = self.client.get(target)
             self.assertEqual(response.status_code, 404)
-        for target in ['/vote/1337/editedit', '/vote/1337/editoption', 'vote/1337/vote']:
+        for target in ['/vote/1337/editedit', '/vote/1337/editoption', '/vote/1337/vote', '/vote/1337/editballot']:
             response = self.client.post(target)
             self.assertEqual(response.status_code, 404)
 
