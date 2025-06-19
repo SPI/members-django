@@ -115,6 +115,18 @@ def create_vote(testcase, current=False, past=False, title="Test vote", target="
     return response
 
 
+def create_ballot(testcase, vote):
+    data = {
+        "title": "other ballot",
+        "description": "Hello world create_ballot",
+        "system": "1",
+        "winners": "1",
+        "vote-btn": "Create ballot"
+    }
+    response = testcase.client.post('/vote/%d/editedit' % vote.pk, data=data, follow=True)
+    return response
+
+
 def edit_vote(testcase, voteid, title="Test vote", past=False):
     if past:
         period_start = (timezone.now() + datetime.timedelta(days=-1)).strftime("%Y-%m-%d")
@@ -657,6 +669,12 @@ class LoggedInViewsTest(TestCase):
         self.assertRedirects(response, '/', status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=False)
         self.assertContains(response, "You are not allowed to create new votes")
 
+    def test_ballot_create(self):
+        vote, ballot = create_vote_with_manager(self)
+        response = create_ballot(self, vote)
+        self.assertRedirects(response, '/', status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=False)
+        self.assertContains(response, "You are not allowed to create new votes")
+
     def test_vote_edit_nonmanager(self):
         vote, ballot = create_vote_with_manager(self)
         response = edit_vote(self, vote.pk, title="Edited vote")
@@ -752,6 +770,12 @@ class ContribUserTest(TestCase):
 
     def test_vote_create(self):
         response = self.client.get('/vote/create', follow=True)
+        self.assertRedirects(response, '/', status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=False)
+        self.assertContains(response, "You are not allowed to create new votes")
+
+    def test_ballot_create(self):
+        vote, ballot = create_vote_with_manager(self)
+        response = create_ballot(self, vote)
         self.assertRedirects(response, '/', status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=False)
         self.assertContains(response, "You are not allowed to create new votes")
 
@@ -1017,7 +1041,7 @@ class ManagerTest(TestCase):
         self.assertContains(response, "Welcome to the election pages of Software in the Public Interest, Inc.")
         self.assertContains(response, "All Applications")
 
-    def test_votecreate(self):
+    def test_vote_create(self):
         response = create_vote(self)
         self.assertEqual(VoteElection.objects.count(), 1)
         vote = VoteElection.objects.all()[0]
@@ -1026,7 +1050,16 @@ class ManagerTest(TestCase):
         self.assertContains(response, "Your votes")
         self.assertContains(response, "Test vote")
 
-    def test_votecreate_norights(self):
+    def test_ballot_create(self):
+        response = create_vote(self)
+        self.assertEqual(VoteBallot.objects.count(), 1)
+        vote = VoteElection.objects.all()[0]
+        response = create_ballot(self, vote)
+        self.assertEqual(VoteBallot.objects.count(), 2)
+        self.assertRedirects(response, '/vote/%d/edit' % vote.pk, status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=False)
+        self.assertContains(response, "Hello world create_ballot")
+
+    def test_vote_create_norights(self):
         member.createvote = False
         member.save()
         response = create_vote(self)
@@ -1034,7 +1067,7 @@ class ManagerTest(TestCase):
         self.assertRedirects(response, '/', status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=True)
         self.assertContains(response, "You are not allowed to create new votes")
 
-    def test_votecreate_allowblank(self):
+    def test_vote_create_allowblank(self):
         create_vote(self, allow_blank=True)
         vote = VoteElection.objects.all()[0]
         ballot = VoteBallot.objects.filter(election_ref=vote)[0]
@@ -1044,7 +1077,7 @@ class ManagerTest(TestCase):
         response = self.client.get('/vote/%d' % vote.pk, follow=True)
         self.assertContains(response, "Blank votes are allowed")
 
-    def test_votecreate_notallowblank(self):
+    def test_vote_create_notallowblank(self):
         create_vote(self, allow_blank=False)
         vote = VoteElection.objects.all()[0]
         ballot = VoteBallot.objects.filter(election_ref=vote)[0]
@@ -1054,7 +1087,7 @@ class ManagerTest(TestCase):
         response = self.client.get('/vote/%d' % vote.pk, follow=True)
         self.assertContains(response, "Blank votes are not allowed")
 
-    def test_votecreate_error(self):
+    def test_vote_create_error(self):
         response = create_vote(self, past=True, title="Test form recreated")
         self.assertEqual(VoteElection.objects.count(), 0)
         self.assertEqual(response.status_code, 200)
