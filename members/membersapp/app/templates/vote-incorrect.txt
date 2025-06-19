@@ -1,0 +1,13 @@
+Dear {{ user.name }},
+
+The system detected that the vote you created to be run today is not
+configured properly.
+
+For an election to run, it must have at least one ballots, and every
+of its ballots must have at least 2 configured options.
+
+Please go to https://members.spi-inc.org/vote/{{ vote.ref }}/edit to
+correctly configure this vote.
+
+The system has increased the starting date by 3 days so that you can
+edit the vote.

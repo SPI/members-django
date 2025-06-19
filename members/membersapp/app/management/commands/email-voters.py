@@ -20,11 +20,15 @@ class Command(BaseCommand):
                             help="Just show what would happen, don't take any action",
                             action='store_const', const=True, default=False)
 
-    def send_email(self, user, vote, new, dryrun):
+    def send_email(self, user, vote, new, dryrun, incorrect=False):
         if new:
             template = loader.get_template('vote-begin.txt')
             subject = 'SPI vote open: %s' % vote.title
             print("Emailing voter %s (%s) regarding opening of vote %s" % (user.name, user.email, vote.ref))
+        elif incorrect:
+            template = loader.get_template('vote-incorrect.txt')
+            subject = "Error: vote cannot be run due to incorrect configuration : %s" % vote.title
+            print("Emailing owner %s (%s) regarding incorrect configuration of vote %s" % (user.name, user.email, vote.ref))
         else:
             template = loader.get_template('vote-mid.txt')
             subject = 'SPI vote reminder: %s' % vote.title
@@ -53,10 +57,15 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         votes = [x for x in VoteElection.objects.all() if x.is_active]
         for vote in votes:
-            now = timezone.now()
-            mid = vote.period_start + timedelta(seconds=(vote.period_stop -
-                                                         vote.period_start).total_seconds() / 2)
-            if now - timedelta(hours=24) < vote.period_start <= now:
-                self.inform_voters(vote, new=True, dryrun=options['dryrun'])
-            elif now - timedelta(hours=24) < mid <= now:
-                self.inform_voters(vote, new=False, dryrun=options['dryrun'])
+            if not vote.is_runnable:
+                vote.period_start += timedelta(days=3)
+                vote.save()
+                self.send_email(vote.owner, vote, False, options['dryrun'], True)
+            else:
+                now = timezone.now()
+                mid = vote.period_start + timedelta(seconds=(vote.period_stop -
+                                                             vote.period_start).total_seconds() / 2)
+                if now - timedelta(hours=24) < vote.period_start <= now:
+                    self.inform_voters(vote, new=True, dryrun=options['dryrun'])
+                elif now - timedelta(hours=24) < mid <= now:
+                    self.inform_voters(vote, new=False, dryrun=options['dryrun'])
