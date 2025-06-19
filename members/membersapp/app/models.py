@@ -106,6 +106,17 @@ class VoteElection(models.Model):
         now = timezone.now()
         return now < self.period_start
 
+    @property
+    def is_runnable(self):
+        ballots = VoteBallot.objects.filter(election_ref=self)
+        if len(ballots) == 0:
+            return False
+        for ballot in ballots:
+            nb_options = VoteOption.objects.filter(ballot_ref=ballot).count()
+            if nb_options < 2:
+                return False
+        return True
+
 
 class VoteBallot(models.Model):
     ref = models.AutoField(primary_key=True)

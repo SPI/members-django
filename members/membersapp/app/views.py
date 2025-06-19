@@ -480,17 +480,6 @@ def voteeditballot(request, ref):
     return HttpResponseRedirect("/")
 
 
-def is_runnable(vote):
-    ballots = VoteBallot.objects.filter(election_ref=vote)
-    if len(ballots) == 0:
-        return False
-    for ballot in ballots:
-        nb_options = VoteOption.objects.filter(ballot_ref=ballot).count()
-        if nb_options < 2:
-            return False
-    return True
-
-
 @login_required
 def voteedit(request, ref):
     """Handler for the form to edit a vote."""
@@ -531,7 +520,7 @@ def voteedit(request, ref):
         'editvoteformballots': editvoteformballots,
         'createvoteformballot': createvoteformballot,
         'vote_ref': ref,
-        'runnable': is_runnable(vote)
+        'runnable': vote.is_runnable
     }
     return HttpResponse(template.render(context, request))
 
