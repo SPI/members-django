@@ -11,149 +11,150 @@
     {% endif %}
 
     {% for ballot in ballots %}
+        <div class="ballot">
+            <h1>
+                {{ ballot.title|safe }}
+            </h1>
 
-        <h1>
-            {{ ballot.title|safe }}
-        </h1>
+            <div class="error">
+                {{ ballot.form.errors }}
+                {{ ballot.form.non_field_errors }}
+            </div>
 
-        <div class="error">
-            {{ ballot.form.errors }}
-            {{ ballot.form.non_field_errors }}
-        </div>
+            <p>
+                {{ ballot.description|safe }}
+            </p>
 
-        <p>
-            {{ ballot.description|safe }}
-        </p>
-
-        <h1>Candidates/Options</h1>
-        {% if vote.voteid == 3 %}
-            <form method="post">
-                <p><strong>2004-01-06.wta.1:</strong><br>
-                        <input type="radio" name="vote1" value="yes"> In Favor;
-                        <input type="radio" name="vote1" value="no"> Against;
-                        <input type="radio" name="vote1" value="abstain"> Abstain;
-                <p><strong>2004-01-06.wta.2:</strong><br>
-                        <input type="radio" name="vote1" value="yes"> In Favor;
-                        <input type="radio" name="vote1" value="no"> Against;
-                        <input type="radio" name="vote1" value="abstain"> Abstain;
-                <p><strong>2004-01-06.wta.3:</strong><br>
-                        <input type="radio" name="vote1" value="yes"> In Favor;
-                        <input type="radio" name="vote1" value="no"> Against;
-                        <input type="radio" name="vote1" value="abstain"> Abstain;
-            </form>
-        {% else %}
-            {% for option in ballot.options %}
-                (<b>{{ option.option_character }}</b>) {{ option.description }}<br />
-            {% endfor %}
-        {% endif %}
-
-        <br />
-        {% if ballot.allow_blank %}
-            Blank votes are allowed.
-        {% else %}
-            Blank votes are not allowed.
-        {% endif %}
-
-        <h1>Vote</h1>
-        {% if vote.is_over %}
-            <p>The voting period ended {{ vote.period_stop|date:"Y-m-d H:i:s" }}. You can no longer change
-            your vote.</p>
-        {% endif %}
-        {% if ballot.membervote %}
-            <p>Your vote is as follows:</p>
-            {% if ballot.membervote.votes %}
-                {% for vote in ballot.membervote.votes %}
-                    (<b>{{ vote.option_character }}</b>) {{ vote.description }}<br />
+            <h1>Candidates/Options</h1>
+            {% if vote.voteid == 3 %}
+                <form method="post">
+                    <p><strong>2004-01-06.wta.1:</strong><br>
+                            <input type="radio" name="vote1" value="yes"> In Favor;
+                            <input type="radio" name="vote1" value="no"> Against;
+                            <input type="radio" name="vote1" value="abstain"> Abstain;
+                    <p><strong>2004-01-06.wta.2:</strong><br>
+                            <input type="radio" name="vote1" value="yes"> In Favor;
+                            <input type="radio" name="vote1" value="no"> Against;
+                            <input type="radio" name="vote1" value="abstain"> Abstain;
+                    <p><strong>2004-01-06.wta.3:</strong><br>
+                            <input type="radio" name="vote1" value="yes"> In Favor;
+                            <input type="radio" name="vote1" value="no"> Against;
+                            <input type="radio" name="vote1" value="abstain"> Abstain;
+                </form>
+            {% else %}
+                {% for option in ballot.options %}
+                    (<b>{{ option.option_character }}</b>) {{ option.description }}<br />
                 {% endfor %}
-            {% else %}
-                (Blank vote)
-            {% endif %}
-        {% else %}
-            {% if vote.is_pending %}
-                <p>Voting has not yet opened.</p>
-            {% elif vote.is_over %}
-                <p>You did not cast a vote or the voting results were already
-                anonymized.</p>
-            {% else %}
-                <p>You have not yet cast a vote.</p>
-            {% endif %}
-        {% endif %}
-        {% if vote.is_active %}
-            <p>
-            <form method="post" action="{% url 'votevote' ballot.ref %}">
-                {% csrf_token %}
-                <strong>Vote:</strong> {{ ballot.form.vote }}
-                <input type="submit" value="Cast Vote" />
-            </form>
-            </p>
-            <p>
-                Your vote should be represented as an ordered list of
-                candidate options e.g. to vote for A over B over C specify
-                &quot;ABC&quot;
-            </p>
-
-            {% if ballot.winners == 1 %}
-            <p>This vote has a single winner.</p>
-            {% else %}
-            <p>There are {{ ballot.winners }} winners in this vote.</p>
             {% endif %}
 
-            {% if ballot.system == 2 %}
-            <blockquote>
-            <p>Votes will be counted using the "Scottish Single Transferable Vote"
-            (ScottishSTV) election method system. STV is a form of proportional
-            representation. You should vote for the candidates in order of
-            preference. If your preferred candidate has no chance of being elected
-            or has enough votes already, your vote is transferred to your second
-            choice candidate in accordance with your instructions.</p>
-
-            <p>A full description of the algorithm used is specified in
-            <a href="http://www.legislation.gov.uk/ssi/2007/42/schedule/1/part/III/crossheading/counting-of-votes/made">Rules 45-52 of
-            the Scottish Local Government Elections Order 2007 (a UK Statutory
-            Instrument)</a>. The implementation used is that provided by
-            <a href="https://github.com/Conservatory/openstv">OpenSTV</a>.</p>
-            </blockquote>
+            <br />
+            {% if ballot.allow_blank %}
+                Blank votes are allowed.
             {% else %}
-            <blockquote>
-            <p>Votes will be counted using the "Condorcet" election method system
-            which will be used to select the most <em>preferred</em> candidate.
-            Conceptually, the election will be broken into a series of pairwise
-            races between each possible paring of the candidates. If one candidate
-            beats each of the others in pairwise races, that candidate wins.
-            Otherwise, the "Cloneproof/Schwartz Sequential Dropping" method is
-            employed to choose the most preferred candidate from those remaining.
-            Some background reading on preferential voting and Condorcet is
-            <a href="http://www.electionmethods.org/">available online</a>.</p>
+                Blank votes are not allowed.
+            {% endif %}
 
-            <p>As such, you are being asked to vote your preferences by ranking the
-            candidates. Your preference will best be shown when you specify <strong>
-            all</strong> candidates, in order of preference (i.e. &quot;XYZWTUV&quot;, X being
-            the most preferred). Voting &quot;XY&quot; states that you prefer candidate X to Y.
-
-            {% if ballot.system == 0 %}
-            <em>It does not express any preference relationships for any of the
-            other candidates, meaning TUVW &amp Z are deemed to be neither more
-            nor less desirable than each other or X &amp; Y.</em>
+            <h1>Vote</h1>
+            {% if vote.is_over %}
+                <p>The voting period ended {{ vote.period_stop|date:"Y-m-d H:i:s" }}. You can no longer change
+                your vote.</p>
+            {% endif %}
+            {% if ballot.membervote %}
+                <p>Your vote is as follows:</p>
+                {% if ballot.membervote.votes %}
+                    {% for vote in ballot.membervote.votes %}
+                        (<b>{{ vote.option_character }}</b>) {{ vote.description }}<br />
+                    {% endfor %}
+                {% else %}
+                    (Blank vote)
+                {% endif %}
             {% else %}
-            <em>Unspecified candidates are ranked equally below those listed, so
-            in this example TUVW &amp; Z  will all be ranked equally below X &amp;
-            Y.</em>
+                {% if vote.is_pending %}
+                    <p>Voting has not yet opened.</p>
+                {% elif vote.is_over %}
+                    <p>You did not cast a vote or the voting results were already
+                    anonymized.</p>
+                {% else %}
+                    <p>You have not yet cast a vote.</p>
+                {% endif %}
             {% endif %}
-            </p>
-            </blockquote>
-            {% endif %}
-        {% endif %}
+            {% if vote.is_active %}
+                <p>
+                <form method="post" action="{% url 'votevote' ballot.ref %}">
+                    {% csrf_token %}
+                    <strong>Vote:</strong> {{ ballot.form.vote }}
+                    <input type="submit" value="Cast Vote" />
+                </form>
+                </p>
+                <p>
+                    Your vote should be represented as an ordered list of
+                    candidate options e.g. to vote for A over B over C specify
+                    &quot;ABC&quot;
+                </p>
 
-        {% if ballot.membervote %}
-            <h2>Magic Voodoo:</h2>
-            <p>Your vote will be kept confidential.  To make it possible for you to
-            verify that your vote was counted it will be associated with a
-            secret cookie in the result:</p>
-            <p><code>{{ ballot.membervote.resultcookie }} {{ ballot.membervote.votestr }}</code></p>
-            <p>This cookie was created by using the equivalent of:</p>
-            <code>echo &quot;{{ ballot.membervote.private_secret }} {{ user.email }}&quot; | md5sum</code><br />
-            <p><code>{{ ballot.membervote.private_secret }}</code> was generated randomly and is
-            unique to each voter.</p>
-        {% endif %}
+                {% if ballot.winners == 1 %}
+                <p>This vote has a single winner.</p>
+                {% else %}
+                <p>There are {{ ballot.winners }} winners in this vote.</p>
+                {% endif %}
+
+                {% if ballot.system == 2 %}
+                <blockquote>
+                <p>Votes will be counted using the "Scottish Single Transferable Vote"
+                (ScottishSTV) election method system. STV is a form of proportional
+                representation. You should vote for the candidates in order of
+                preference. If your preferred candidate has no chance of being elected
+                or has enough votes already, your vote is transferred to your second
+                choice candidate in accordance with your instructions.</p>
+
+                <p>A full description of the algorithm used is specified in
+                <a href="http://www.legislation.gov.uk/ssi/2007/42/schedule/1/part/III/crossheading/counting-of-votes/made">Rules 45-52 of
+                the Scottish Local Government Elections Order 2007 (a UK Statutory
+                Instrument)</a>. The implementation used is that provided by
+                <a href="https://github.com/Conservatory/openstv">OpenSTV</a>.</p>
+                </blockquote>
+                {% else %}
+                <blockquote>
+                <p>Votes will be counted using the "Condorcet" election method system
+                which will be used to select the most <em>preferred</em> candidate.
+                Conceptually, the election will be broken into a series of pairwise
+                races between each possible paring of the candidates. If one candidate
+                beats each of the others in pairwise races, that candidate wins.
+                Otherwise, the "Cloneproof/Schwartz Sequential Dropping" method is
+                employed to choose the most preferred candidate from those remaining.
+                Some background reading on preferential voting and Condorcet is
+                <a href="http://www.electionmethods.org/">available online</a>.</p>
+
+                <p>As such, you are being asked to vote your preferences by ranking the
+                candidates. Your preference will best be shown when you specify <strong>
+                all</strong> candidates, in order of preference (i.e. &quot;XYZWTUV&quot;, X being
+                the most preferred). Voting &quot;XY&quot; states that you prefer candidate X to Y.
+
+                {% if ballot.system == 0 %}
+                <em>It does not express any preference relationships for any of the
+                other candidates, meaning TUVW &amp Z are deemed to be neither more
+                nor less desirable than each other or X &amp; Y.</em>
+                {% else %}
+                <em>Unspecified candidates are ranked equally below those listed, so
+                in this example TUVW &amp; Z  will all be ranked equally below X &amp;
+                Y.</em>
+                {% endif %}
+                </p>
+                </blockquote>
+                {% endif %}
+            {% endif %}
+
+            {% if ballot.membervote %}
+                <h2>Magic Voodoo:</h2>
+                <p>Your vote will be kept confidential.  To make it possible for you to
+                verify that your vote was counted it will be associated with a
+                secret cookie in the result:</p>
+                <p><code>{{ ballot.membervote.resultcookie }} {{ ballot.membervote.votestr }}</code></p>
+                <p>This cookie was created by using the equivalent of:</p>
+                <code>echo &quot;{{ ballot.membervote.private_secret }} {{ user.email }}&quot; | md5sum</code><br />
+                <p><code>{{ ballot.membervote.private_secret }}</code> was generated randomly and is
+                unique to each voter.</p>
+            {% endif %}
+        </div>
     {% endfor %}
 {% endblock %}
