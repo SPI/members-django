@@ -277,6 +277,12 @@ td.win {
 	background: lightgreen;
 }
 
+.ballot {
+    background: lightgray;
+    margin: 5px;
+    padding: 1em;
+}
+
 /* media-query for mobile */
 
 @media(max-width:640px) {

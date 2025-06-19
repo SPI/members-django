@@ -17,46 +17,48 @@
     <h2>Edit Ballots</h2>
 
     {% for editvoteformballot in editvoteformballots %}
-      <form method="post" action="{% url 'voteeditballot' editvoteformballot.ballot_ref %}">
-        {% csrf_token %}
-        <table>
-          {{ editvoteformballot.form.as_table }}
-          <tr>
-            <td>
-              <button type="submit" name="ballot-btn" value="Edit">Edit ballot</button>
-              <button type="submit" name="ballot-btn" value="Delete">Delete ballot</button>
-            </td>
-          </tr>
-        </table>
-      </form>
+      <div class="ballot">
+        <form method="post" action="{% url 'voteeditballot' editvoteformballot.ballot_ref %}">
+          {% csrf_token %}
+          <table>
+            {{ editvoteformballot.form.as_table }}
+            <tr>
+              <td>
+                <button type="submit" name="ballot-btn" value="Edit">Edit ballot</button>
+                <button type="submit" name="ballot-btn" value="Delete">Delete ballot</button>
+              </td>
+            </tr>
+          </table>
+        </form>
 
-      <table>
-        <tr><th>Selection character</th><th>Option text</th><th></th></tr>
-        {% for of in editvoteformballot.existingvoteoptions %}
+        <table>
+          <tr><th>Selection character</th><th>Option text</th><th></th></tr>
+          {% for of in editvoteformballot.existingvoteoptions %}
+            <form method="post" action="{% url 'voteeditoption' editvoteformballot.ballot_ref %}">
+              {% csrf_token %}
+              <tr>
+                <td><span class="voteoptioncharacter">{{ of.option_character }}</span></td>
+                <td><span class="voteoptiondescription">{{ of.description }}</span></td>
+                <td>{{ of.sort.as_hidden }}</td>
+                <td>
+                  <input type="submit" name="obtn" value="Edit" />
+                  <input type="submit" name="obtn" value="Delete" />
+                </td>
+              </tr>
+            </form>
+          {% endfor %}
           <form method="post" action="{% url 'voteeditoption' editvoteformballot.ballot_ref %}">
             {% csrf_token %}
             <tr>
-              <td><span class="voteoptioncharacter">{{ of.option_character }}</span></td>
-              <td><span class="voteoptiondescription">{{ of.description }}</span></td>
-              <td>{{ of.sort.as_hidden }}</td>
-              <td>
-                <input type="submit" name="obtn" value="Edit" />
-                <input type="submit" name="obtn" value="Delete" />
-              </td>
+              <td><span class="voteoptioncharacter">{{ editvoteformballot.voteoptionform.option_character }}</span></td>
+              <td><span class="voteoptiondescription">{{ editvoteformballot.voteoptionform.description }}</span></td>
+              <td>{{ editvoteformballot.voteoptionform.sort.as_hidden }}</td>
+              <td><input type="submit" name="obtn" value="Add" /></td>
+            {# Last entry is for creating a new option #}
             </tr>
           </form>
-        {% endfor %}
-        <form method="post" action="{% url 'voteeditoption' editvoteformballot.ballot_ref %}">
-          {% csrf_token %}
-          <tr>
-            <td><span class="voteoptioncharacter">{{ editvoteformballot.voteoptionform.option_character }}</span></td>
-            <td><span class="voteoptiondescription">{{ editvoteformballot.voteoptionform.description }}</span></td>
-            <td>{{ editvoteformballot.voteoptionform.sort.as_hidden }}</td>
-            <td><input type="submit" name="obtn" value="Add" /></td>
-          {# Last entry is for creating a new option #}
-          </tr>
-        </form>
-      </table>
+        </table>
+      </div>
     {% endfor %}
 
     <h2>Add Ballot</h2>
