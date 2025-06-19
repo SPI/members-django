@@ -8,7 +8,7 @@ from django.template import loader
 from django.conf import settings
 from django.core.mail import send_mail
 
-from membersapp.app.models import VoteElection, VoteVote, Applications
+from membersapp.app.models import VoteElection, VoteBallot, VoteVote, Applications
 from membersapp.app.applications import get_applications_by_type
 
 
@@ -41,7 +41,11 @@ class Command(BaseCommand):
                 raise CommandError('Unable to send voting information email to user %s (%s) regarding vote %s.' % (user.name, user.email, vote.ref))
 
     def inform_voters(self, vote, new=False, dryrun=False):
-        voters = [x.voter_ref.memid for x in VoteVote.objects.filter(election_ref=vote)]
+        voters = set()
+        ballots = VoteBallot.objects.filter(election_ref=vote)
+        for ballot in ballots:
+            for x in VoteVote.objects.filter(ballot_ref=ballot):
+                voters.add(x.voter_ref.memid)
         for app in get_applications_by_type('cm'):
             if app.member.memid not in voters:
                 self.send_email(app.member, vote, new, dryrun)
