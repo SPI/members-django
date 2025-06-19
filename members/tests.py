@@ -1044,6 +1044,13 @@ class ManagerTest(TestCase):
         response = self.client.get('/vote/%d' % vote.pk, follow=True)
         self.assertContains(response, "Blank votes are not allowed")
 
+    def test_votecreate_error(self):
+        response = create_vote(self, past=True, title="Test form recreated")
+        self.assertEqual(VoteElection.objects.count(), 0)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Ensure this value is greater than or equal to")
+        self.assertContains(response, "Test form recreated")
+
     def test_vote_edit(self):
         create_vote(self)
         vote = VoteElection.objects.all()[0]

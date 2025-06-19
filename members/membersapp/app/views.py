@@ -343,6 +343,8 @@ def votecreate(request):
         messages.error(request, 'You are not allowed to create new votes')
         return HttpResponseRedirect("/")
 
+    template = loader.get_template('vote-create.html')
+
     if request.method == 'POST':
         user = get_current_user(request)
         form = CreateVoteForm(request.POST, prefix='election')
@@ -363,9 +365,13 @@ def votecreate(request):
                 messages.error(request, form.errors)
             if not form_ballot.is_valid():
                 messages.error(request, form_ballot.errors)
-            # Fall back to showing regular create page
+            context = {
+                'user': user,
+                'createvoteform': form,
+                'createvoteformballot': form_ballot
+            }
+            return HttpResponse(template.render(context, request))
 
-    template = loader.get_template('vote-create.html')
     createvoteform = CreateVoteForm(prefix='election')
     createvoteformballot = CreateVoteFormBallot(prefix='ballot')
     context = {
