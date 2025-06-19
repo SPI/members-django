@@ -231,24 +231,24 @@ def create_vote_option(testcase, ballotid):
     return response
 
 
-def create_vote_option2(testcase, voteid):
+def create_vote_option2(testcase, ballotid):
     data = {
         "option_character": "B",
         "description": "Hello world 2 voteoption",
         "sort": 2,
         "obtn": "Add"
     }
-    response = testcase.client.post("/vote/%s/editoption" % voteid, data=data, follow=True)
+    response = testcase.client.post("/vote/%s/editoption" % ballotid, data=data, follow=True)
     return response
 
 
-def delete_vote_option(testcase, voteid):
+def delete_vote_option(testcase, ballotid):
     data = {
         "option_character": "A",
         "sort": 1,
         "obtn": "Delete"
     }
-    response = testcase.client.post("/vote/%s/editoption" % voteid, data=data, follow=True)
+    response = testcase.client.post("/vote/%s/editoption" % ballotid, data=data, follow=True)
     return response
 
 
@@ -263,14 +263,14 @@ def edit_vote_option(testcase, ballotid):
     return response
 
 
-def edit_vote_option2(testcase, voteid):
+def edit_vote_option2(testcase, ballotid):
     data = {
         "option_character": "B",
         "description": "Hello world 2 voteoption edited",
         "sort": 2,
         "obtn": "Edit"
     }
-    response = testcase.client.post("/vote/%s/editoption" % voteid, data=data, follow=True)
+    response = testcase.client.post("/vote/%s/editoption" % ballotid, data=data, follow=True)
     return response
 
 
@@ -449,9 +449,8 @@ class NonLoggedInViewsTests(TestCase):
         self.assertEqual(Applications.objects.count(), 0)
 
     def tests_vote_redirect(self):
-        create_vote_manually(self)
-        vote = VoteElection.objects.all()[0]
-        for case in ['/votes', '/vote/create', '/vote/%d' % vote.pk, '/vote/%d/edit' % vote.pk, '/vote/%d/editedit' % vote.pk, '/vote/%d/editoption' % vote.pk, '/vote/%d/vote' % vote.pk, '/vote/%d/result' % vote.pk]:
+        vote, ballot = create_vote_manually(self)
+        for case in ['/votes', '/vote/create', '/vote/%d' % vote.pk, '/vote/%d/edit' % vote.pk, '/vote/%d/editedit' % vote.pk, '/vote/%d/editoption' % ballot.pk, '/vote/%d/vote' % vote.pk, '/vote/%d/result' % vote.pk]:
             response = self.client.get(case)
             self.assertRedirects(response, '/account/login/?next=%s' % case, status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=False)
 
@@ -652,9 +651,8 @@ class LoggedInViewsTest(TestCase):
             self.assertContains(response, error_contrib_member)
 
     def tests_vote_noncontrib_not_allowed_error(self):
-        create_vote_manually(self)
-        vote = VoteElection.objects.all()[0]
-        for case in ['/vote/%d/edit' % vote.pk, '/vote/%d/editoption' % vote.pk]:
+        vote, ballot = create_vote_manually(self)
+        for case in ['/vote/%d/edit' % vote.pk, '/vote/%d/editoption' % ballot.pk]:
             response = self.client.get(case, follow=True)
             self.assertRedirects(response, '/', status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=True)
             self.assertContains(response, "You are not allowed to create new votes")
@@ -821,7 +819,7 @@ class ContribUserTest(TestCase):
 
     def test_editoptionform(self):
         vote, ballot = create_vote_with_manager(self)
-        response = edit_vote_option(self, vote.pk)
+        response = edit_vote_option(self, ballot.pk)
         self.assertRedirects(response, '/', status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=False)
         self.assertContains(response, "You are not allowed to create new votes")
 
@@ -1243,7 +1241,7 @@ class ManagerTest(TestCase):
         create_vote_option(self, ballot.pk)
         create_vote_option2(self, ballot.pk)
         switch_back(self)
-        for case in ['/vote/%d/edit' % vote.pk, '/vote/%d/editedit' % vote.pk, '/vote/%d/editoption' % vote.pk]:
+        for case in ['/vote/%d/edit' % vote.pk, '/vote/%d/editedit' % vote.pk, '/vote/%d/editoption' % ballot.pk]:
             response = self.client.get(case, follow=True)
             self.assertEqual(response.status_code, 200)
             self.assertContains(response, "You can only edit your own votes.")
