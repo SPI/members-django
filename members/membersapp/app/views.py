@@ -225,7 +225,7 @@ def votevote(request, ref):
                         messages.success(request, "Your vote was registered!")
                         nb_remaining_ballots = check_remaining_ballots(vote, user)
                         if nb_remaining_ballots > 0:
-                            messages.success(request, "Caution: the are %d remaining ballot(s) on this page. Don't forget to vote for them too!" % nb_remaining_ballots)
+                            messages.success(request, "Caution: there are %d remaining ballot(s) on this page. Don't forget to vote for them too!" % nb_remaining_ballots)
     return HttpResponseRedirect(reverse('vote', args=[vote.ref]))
 
 
