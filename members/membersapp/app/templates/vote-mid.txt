@@ -8,7 +8,7 @@ a gentle reminder to participate in this vote.
 
 Please go to https://members.spi-inc.org/vote/{{ vote.ref }} to cast your vote.
 
-You can cast your vote until {{ vote.period_end|date:"Y-m-d H:i:s" }} UTC.
+You can cast your vote until {{ vote.period_stop|date:"Y-m-d H:i:s" }} UTC.
 
 We look forward to your participation in this vote!
 
