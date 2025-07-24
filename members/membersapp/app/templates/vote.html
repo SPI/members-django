@@ -11,7 +11,7 @@
     {% endif %}
 
     <br />
-    This election ends on {{ vote.period_stop }}.
+    This election ends on {{ vote.period_stop|date:"Y-m-d H:i:s" }} UTC.
 
     {% for ballot in ballots %}
         <div class="ballot">
