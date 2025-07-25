@@ -851,6 +851,18 @@ class ContribUserTest(TestCase):
         self.assertRedirects(response, '/vote/%d' % vote.pk, status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=True)
         self.assertContains(response, "Invalid vote option &#x27;Z&#x27;")
 
+    def test_votevote_error_then_correct(self):
+        vote, ballot = create_vote_with_manager(self)
+        set_vote_current(vote)
+        response = vote_vote(self, ballot.pk, votestr="Zlkdsjf")
+        self.assertRedirects(response, '/vote/%d' % vote.pk, status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=True)
+        self.assertContains(response, "Invalid vote option")
+        response = vote_vote(self, ballot.pk, votestr="AB")
+        self.assertRedirects(response, '/vote/%d' % vote.pk, status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=True)
+        dump_page(response)
+        self.assertNotContains(response, "Invalid vote option")
+        self.assertContains(response, "Your vote was registered!")
+
     def test_votevote_whitespaces(self):
         vote, ballot = create_vote_with_manager(self)
         set_vote_current(vote)
