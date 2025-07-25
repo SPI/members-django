@@ -193,7 +193,7 @@ class VoteVote(models.Model):
             try:
                 option = VoteOption.objects.get(Q(option_character=char) & Q(ballot_ref=self.ballot_ref))
             except VoteOption.DoesNotExist:
-                return "Invalid vote option " + char
+                return "Invalid vote option '" + char + "'"
             if option in newvotes:
                 return "Can't vote for " + char + " more than once."
             newvotes.append(option)
