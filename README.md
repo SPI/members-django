@@ -80,6 +80,12 @@ python -m django --version  # Should be 4.2
 pip install psycopg2-binary requests pycryptodomex
 ```
 
+Install OpenSTV submodule:
+``` bash
+git submodule update --init
+pip install ./membersapp/app/OpenSTV/
+```
+
 Create database:
 ```bash
 sudo -u postgres psql -c 'create role <username>' ; sudo -u postgres psql -c 'create database membersdjango'
