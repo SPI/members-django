@@ -854,7 +854,8 @@ class ContribUserTest(TestCase):
         set_vote_current(vote)
         response = vote_vote(self, ballot.pk, correct=False)
         self.assertRedirects(response, '/vote/%d' % vote.pk, status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=True)
-        self.assertContains(response, "Invalid vote option 'Z'")
+        dump_page(response)
+        self.assertContains(response, "Invalid vote option &#x27;Z&#x27;")
 
     def test_vote_no_ballot(self):
         vote, ballot = create_vote_with_manager(self)
@@ -1366,7 +1367,7 @@ class ManagerTest(TestCase):
         set_vote_current(vote)
         response = vote_vote(self, ballot.pk, correct=False)
         self.assertRedirects(response, '/vote/%d' % vote.pk, status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=True)
-        self.assertContains(response, "Invalid vote option 'Z'")
+        self.assertContains(response, "Invalid vote option &#x27;Z&#x27;")
 
     def test_viewvoteresult_no_option(self):
         create_vote_manually(past=True)
