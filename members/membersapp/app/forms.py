@@ -1,6 +1,8 @@
 import datetime
 
+from django.core.exceptions import ValidationError
 from django.forms import Form, CharField, IntegerField, ModelForm, DateInput, ChoiceField, HiddenInput
+from django.db.models import Q
 
 from .models import Members, Applications, VoteElection, VoteBallot, VoteOption
 from .votes import VOTE_SYSTEMS
@@ -87,11 +89,28 @@ class VoteOptionForm(ModelForm):
                 self.fields['option_character'].initial = str(nextchar)
 
 
+def vote_string_validator_factory(ballot_ref):
+    def vote_string_validator(votestr):
+        seen = set()
+        for char in votestr:
+            try:
+                option = VoteOption.objects.get(Q(option_character=char), Q(ballot_ref=ballot_ref))
+            except VoteOption.DoesNotExist:
+                raise ValidationError(f"Invalid vote option '{char}'")
+            if char in seen:
+                raise ValidationError(f"Can't vote for '{char}' more than once.")
+            seen.add(char)
+    return vote_string_validator
+
+
 class VoteVoteForm(Form):
     vote = CharField(required=False)
 
     def __init__(self, *args, **kwargs):
+        self.ballot_ref = kwargs.pop('ballot_ref', None)
         super(VoteVoteForm, self).__init__(*args, **kwargs)
         initial = kwargs.get('initial')
         if initial is not None and initial['allow_blank'] is not None:
             self.fields['vote'].required = not initial['allow_blank']
+
+        self.fields['vote'].validators.append(vote_string_validator_factory(self.ballot_ref))

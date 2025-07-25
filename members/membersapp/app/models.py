@@ -190,15 +190,10 @@ class VoteVote(models.Model):
 
         newvotes = []
         for char in votestr:
-            try:
-                option = VoteOption.objects.get(Q(option_character=char) & Q(ballot_ref=self.ballot_ref))
-            except VoteOption.DoesNotExist:
-                return "Invalid vote option '" + char + "'"
-            if option in newvotes:
-                return "Can't vote for " + char + " more than once."
+            # Input is validated in forms.py
+            option = VoteOption.objects.get(Q(option_character=char) & Q(ballot_ref=self.ballot_ref))
             newvotes.append(option)
         self.votes = newvotes
-        return None
 
 
 class VoteVoteOption(models.Model):

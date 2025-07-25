@@ -199,34 +199,36 @@ def votevote(request, ref):
         messages.error(request, 'Vote is not currently running.')
         return HttpResponseRedirect(reverse('vote', args=[vote.ref]))
     if request.method == 'POST':
-        form = VoteVoteForm(request.POST)
-        membervote, created = VoteVote.objects.get_or_create(voter_ref=user, ballot_ref=ballot)
-        if created:
-            md5 = hashlib.md5()
-            md5.update(vote.title.encode('utf-8'))
-            md5.update(user.email.encode('utf-8'))
-            md5.update(uuid.uuid1().hex.encode('utf-8'))
-            membervote.private_secret = md5.hexdigest()
-            membervote.save()
+        form = VoteVoteForm(request.POST, ballot_ref=ballot)
         if form.is_valid():
-            if vote.is_active and membervote:
+            if vote.is_active:
+                membervote, created = VoteVote.objects.get_or_create(voter_ref=user, ballot_ref=ballot)
+                if created:
+                    md5 = hashlib.md5()
+                    md5.update(vote.title.encode('utf-8'))
+                    md5.update(user.email.encode('utf-8'))
+                    md5.update(uuid.uuid1().hex.encode('utf-8'))
+                    membervote.private_secret = md5.hexdigest()
+                    membervote.save()
                 if request.POST['vote'] != membervote.votestr:
-                    res = membervote.set_vote(request.POST['vote'])
-                    if res is not None:
-                        messages.error(request, res)
-                    else:
-                        # Remove any previous vote details first
-                        VoteVoteOption.objects.filter(vote_ref=membervote).delete()
-                        for i, voteoption in enumerate(membervote.votes, 1):
-                            votevoteoption = VoteVoteOption(vote_ref=membervote, option_ref=voteoption, preference=i)
-                            votevoteoption.save()
-                        membervote.save()
-                        user.lastactive = datetime.date.today()
-                        user.save()
-                        messages.success(request, "Your vote was registered!")
-                        nb_remaining_ballots = check_remaining_ballots(vote, user)
-                        if nb_remaining_ballots > 0:
-                            messages.success(request, "Caution: there are %d remaining ballot(s) on this page. Don't forget to vote for them too!" % nb_remaining_ballots)
+                    membervote.set_vote(request.POST['vote'])
+                    # Remove any previous vote details first
+                    VoteVoteOption.objects.filter(vote_ref=membervote).delete()
+                    for i, voteoption in enumerate(membervote.votes, 1):
+                        votevoteoption = VoteVoteOption(vote_ref=membervote, option_ref=voteoption, preference=i)
+                        votevoteoption.save()
+                    membervote.save()
+                    user.lastactive = datetime.date.today()
+                    user.save()
+                    messages.success(request, "Your vote was registered!")
+                    nb_remaining_ballots = check_remaining_ballots(vote, user)
+                    if nb_remaining_ballots > 0:
+                        messages.success(request, "Caution: there are %d remaining ballot(s) on this page. Don't forget to vote for them too!" % nb_remaining_ballots)
+            else:
+                messages.error(request, "Vote is no longer active.")
+        else:
+            messages.error(request, "Error while filling the form:")
+            messages.error(request, form.errors)
     return HttpResponseRedirect(reverse('vote', args=[vote.ref]))
 
 
