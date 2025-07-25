@@ -75,9 +75,7 @@ Install venv:
 CC=clang pyenv install 3.11.2
 virtualenv -p ~/.pyenv/versions/3.11.2/bin/python3 venv
 source ./venv/bin/activate
-pip install django==4.2
-python -m django --version  # Should be 4.2
-pip install psycopg2-binary requests pycryptodomex
+pip install -r members/requirements.txt
 ```
 
 Install OpenSTV submodule:
