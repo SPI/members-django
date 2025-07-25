@@ -274,15 +274,10 @@ def edit_vote_option2(testcase, ballotid):
     return response
 
 
-def vote_vote(testcase, ballotid, correct=True):
-    if correct:
-        data = {
-            "vote": "BA"
-        }
-    else:
-        data = {
-            "vote": "ABZ"
-        }
+def vote_vote(testcase, ballotid, votestr="BA"):
+    data = {
+        "vote": votestr
+    }
     response = testcase.client.post("/vote/%s/vote" % ballotid, data=data, follow=True)
     return response
 
@@ -825,7 +820,7 @@ class ContribUserTest(TestCase):
 
     def test_votevote_not_running(self):
         vote, ballot = create_vote_with_manager(self)
-        response = vote_vote(self, ballot.pk, correct=True)
+        response = vote_vote(self, ballot.pk)
         self.assertRedirects(response, '/vote/%d' % vote.pk, status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=True)
         self.assertContains(response, "Vote is not currently running")
         self.assertEqual(VoteVote.objects.count(), 0)
@@ -833,7 +828,7 @@ class ContribUserTest(TestCase):
     def test_votevote(self):
         vote, ballot = create_vote_with_manager(self)
         set_vote_current(vote)
-        response = vote_vote(self, ballot.pk, correct=True)
+        response = vote_vote(self, ballot.pk)
         self.assertRedirects(response, '/vote/%d' % vote.pk, status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=True)
         self.assertContains(response, "Your vote is as follows:")
 
@@ -845,17 +840,28 @@ class ContribUserTest(TestCase):
         member.save()
         member = Members.objects.get(pk=member.memid)
         self.assertEqual(member.lastactive, None)
-        response = vote_vote(self, ballot.pk, correct=True)
+        response = vote_vote(self, ballot.pk)
         member = Members.objects.get(pk=member.memid)
         self.assertEqual(member.lastactive, datetime.date.today())
 
     def test_votevote_incorrect(self):
         vote, ballot = create_vote_with_manager(self)
         set_vote_current(vote)
-        response = vote_vote(self, ballot.pk, correct=False)
+        response = vote_vote(self, ballot.pk, votestr="ABZ")
+        self.assertRedirects(response, '/vote/%d' % vote.pk, status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=True)
+        self.assertContains(response, "Invalid vote option &#x27;Z&#x27;")
+
+    def test_votevote_whitespaces(self):
+        vote, ballot = create_vote_with_manager(self)
+        set_vote_current(vote)
+        response = vote_vote(self, ballot.pk, votestr=" ")
+        self.assertRedirects(response, '/vote/%d' % vote.pk, status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=True)
+        self.assertNotContains(response, "Invalid vote option")
+        response = vote_vote(self, ballot.pk, votestr=" AB ")
         self.assertRedirects(response, '/vote/%d' % vote.pk, status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=True)
         dump_page(response)
-        self.assertContains(response, "Invalid vote option &#x27;Z&#x27;")
+        self.assertNotContains(response, "Invalid vote option")
+        self.assertContains(response, "Your vote was registered!")
 
     def test_vote_no_ballot(self):
         vote, ballot = create_vote_with_manager(self)
@@ -1342,7 +1348,7 @@ class ManagerTest(TestCase):
         create_vote_option(self, ballot.pk)
         create_vote_option2(self, ballot.pk)
         set_vote_current(vote)
-        response = vote_vote(self, ballot.pk, correct=True)
+        response = vote_vote(self, ballot.pk)
         self.assertRedirects(response, '/vote/%d' % vote.pk, status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=True)
         self.assertContains(response, "Your vote is as follows:")
         # Multiple votes
@@ -1353,7 +1359,7 @@ class ManagerTest(TestCase):
         create_vote_option(self, ballot2.pk)
         create_vote_option2(self, ballot2.pk)
         set_vote_current(vote2)
-        response = vote_vote(self, ballot2.pk, correct=True)
+        response = vote_vote(self, ballot2.pk)
         self.assertRedirects(response, '/vote/%d' % vote2.pk, status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=True)
         self.assertContains(response, "Your vote is as follows:")
 
@@ -1365,9 +1371,25 @@ class ManagerTest(TestCase):
         create_vote_option(self, ballot.pk)
         create_vote_option2(self, ballot.pk)
         set_vote_current(vote)
-        response = vote_vote(self, ballot.pk, correct=False)
+        response = vote_vote(self, ballot.pk, votestr="ABZ")
         self.assertRedirects(response, '/vote/%d' % vote.pk, status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=True)
         self.assertContains(response, "Invalid vote option &#x27;Z&#x27;")
+
+    def test_votevote_whitespaces(self):
+        create_vote(self)
+        vote = VoteElection.objects.all()[0]
+        ballot = VoteBallot.objects.filter(election_ref=vote)[0]
+        # We can't add vote on current test
+        create_vote_option(self, ballot.pk)
+        create_vote_option2(self, ballot.pk)
+        set_vote_current(vote)
+        response = vote_vote(self, ballot.pk, votestr=" ")
+        self.assertRedirects(response, '/vote/%d' % vote.pk, status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=True)
+        self.assertNotContains(response, "Invalid vote option")
+        response = vote_vote(self, ballot.pk, votestr=" AB ")
+        self.assertRedirects(response, '/vote/%d' % vote.pk, status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=True)
+        self.assertNotContains(response, "Invalid vote option")
+        self.assertContains(response, "Your vote was registered!")
 
     def test_viewvoteresult_no_option(self):
         create_vote_manually(past=True)
@@ -1383,7 +1405,7 @@ class ManagerTest(TestCase):
         response = create_vote_option(self, ballot.pk)
         response = create_vote_option2(self, ballot.pk)
         set_vote_current(vote)
-        response = vote_vote(self, ballot.pk, correct=True)
+        response = vote_vote(self, ballot.pk)
         response = vote_vote_other_member(self, vote.pk)
         set_vote_past(vote)
         response = self.client.get('/vote/%d/result' % vote.pk)
@@ -1396,7 +1418,7 @@ class ManagerTest(TestCase):
         response = create_vote_option(self, ballot.pk)
         response = create_vote_option2(self, ballot.pk)
         set_vote_current(vote)
-        response = vote_vote(self, ballot.pk, correct=True)
+        response = vote_vote(self, ballot.pk)
         response = vote_vote_other_member(self, ballot.pk)
         set_vote_past(vote)
         response = self.client.get('/vote/%d/result' % vote.pk)
@@ -1409,7 +1431,7 @@ class ManagerTest(TestCase):
         response = create_vote_option(self, ballot.pk)
         response = create_vote_option2(self, ballot.pk)
         set_vote_current(vote)
-        response = vote_vote(self, ballot.pk, correct=True)
+        response = vote_vote(self, ballot.pk)
         response = vote_vote_other_member(self, ballot.pk)
         set_vote_past(vote)
         response = self.client.get('/vote/%d/result' % vote.pk)

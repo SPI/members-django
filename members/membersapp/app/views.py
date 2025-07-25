@@ -203,6 +203,7 @@ def votevote(request, ref):
         if form.is_valid():
             if vote.is_active:
                 membervote, created = VoteVote.objects.get_or_create(voter_ref=user, ballot_ref=ballot)
+                votestr = request.POST['vote'].strip()
                 if created:
                     md5 = hashlib.md5()
                     md5.update(vote.title.encode('utf-8'))
@@ -210,8 +211,8 @@ def votevote(request, ref):
                     md5.update(uuid.uuid1().hex.encode('utf-8'))
                     membervote.private_secret = md5.hexdigest()
                     membervote.save()
-                if request.POST['vote'] != membervote.votestr:
-                    membervote.set_vote(request.POST['vote'])
+                if  votestr != membervote.votestr:
+                    membervote.set_vote(votestr)
                     # Remove any previous vote details first
                     VoteVoteOption.objects.filter(vote_ref=membervote).delete()
                     for i, voteoption in enumerate(membervote.votes, 1):
