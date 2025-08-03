@@ -26,8 +26,8 @@ class CommunityAuthSiteAdminForm(forms.ModelForm):
         except Exception:
             raise forms.ValidationError("Crypto key must be base64 encoded")
 
-        if (len(x) != 16 and len(x) != 24 and len(x) != 32):
-            raise forms.ValidationError("Crypto key must be 16, 24 or 32 bytes before being base64-encoded")
+        if (len(x) != 16 and len(x) != 24 and len(x) != 32 and len(x) != 64):
+            raise forms.ValidationError("Crypto key must be 16, 24, 32 or 64 bytes before being base64-encoded")
         return self.cleaned_data['cryptkey']
 
     def clean(self):
@@ -47,7 +47,7 @@ class CommunityAuthSiteAdminForm(forms.ModelForm):
 
 @admin.register(CommunityAuthSite)
 class CommunityAuthSiteAdmin(admin.ModelAdmin):
-    list_display = ('name', 'cooloff_hours', 'push_changes', 'push_ssh', 'org')
+    list_display = ('name', 'cooloff_hours', 'push_changes', 'push_ssh', 'version', 'org')
     form = CommunityAuthSiteAdminForm
 
 
@@ -130,12 +130,24 @@ class PGUserAdmin(UserAdmin):
             fs[1][1]['fields'] = list(fs[1][1]['fields']) + ['extraemail', ]
         return fs
 
+    def has_view_permission(self, request, obj=None):
+        """
+        We have a special check for view permissions here based on if the user
+        has access to modifying contributors. This allows us to allow the
+        editor to return a list of usernames from the dropdown. If this is not
+        the autocomplete / user editor workflow, then we proceed as normal.
+        """
+        if request.path == '/admin/autocomplete/' and request.GET.get('app_label') == 'contributors' and request.GET.get('model_name') == 'contributor' and request.user.has_perm("contributors.change_contributor"):
+            return True
+        return super().has_view_permission(request, obj)
+
     @property
     def search_fields(self):
         sf = list(super().search_fields)
         return sf + ['secondaryemail__email', ]
 
 
+admin.site.register(CommunityAuthSite, CommunityAuthSiteAdmin)
 admin.site.register(CommunityAuthOrg)
 admin.site.unregister(User)  # have to unregister default User Admin...
 admin.site.register(User, PGUserAdmin)  # ...in order to add overrides
