@@ -16,7 +16,7 @@ class Command(BaseCommand):
         leaf_nodes = [node for node in graph.leaf_nodes() if node[0] == app_label]
 
         if not leaf_nodes:
-            self.stdout.write(self.style.WARNING(f"No leaf nodes found for app '{app_label}'.")) 
+            self.stdout.write(self.style.WARNING(f"No leaf nodes found for app '{app_label}'."))
             all_leaves = graph.leaf_nodes()
             self.stdout.write(f"All leaf nodes in the graph: {all_leaves}")
             return
