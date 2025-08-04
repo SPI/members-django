@@ -147,7 +147,6 @@ class PGUserAdmin(UserAdmin):
         return sf + ['secondaryemail__email', ]
 
 
-admin.site.register(CommunityAuthSite, CommunityAuthSiteAdmin)
 admin.site.register(CommunityAuthOrg)
 admin.site.unregister(User)  # have to unregister default User Admin...
 admin.site.register(User, PGUserAdmin)  # ...in order to add overrides
