@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('account', '0008_cooloff_message'),
+        ('account', '0009_auto_20230124_1335'),
     ]
 
     operations = [
