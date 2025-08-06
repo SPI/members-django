@@ -1,0 +1,2 @@
+Otherwise, git subtree split will fail.
+See sysadmin_notes/documentation/upstream_synchronization.md
