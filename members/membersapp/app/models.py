@@ -126,7 +126,7 @@ class VoteBallot(models.Model):
     winners = models.IntegerField(null=False, default=1, validators=[MinValueValidator(1)])
     system = models.IntegerField(null=False, verbose_name='Voting system')
     allow_blank = models.BooleanField(default=True, verbose_name='Allow blank votes')
-    quorum = models.FloatField(null=True, validators=[
+    quorum = models.FloatField(null=True, default=0.35, validators=[
         MinValueValidator(0.0),
         MaxValueValidator(1.0)
     ])
