@@ -138,7 +138,7 @@
 
         {# All vote systems should implement the results() method. #}
         <h2>Results</h2>
-        {% if ballot..winners == 1 %}
+        {% if ballot.winners == 1 %}
         <p>This vote had a single winner.</p>
         {% else %}
         <p>There were {{ ballot.winners }} winners in this vote.</p>
