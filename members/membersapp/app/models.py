@@ -4,7 +4,7 @@ from django.utils import timezone
 from django.db import models
 from django.contrib.auth.models import User
 from django.db.models.functions import Now
-from django.core.validators import MinValueValidator
+from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db.models import Q
 
 
@@ -126,6 +126,10 @@ class VoteBallot(models.Model):
     winners = models.IntegerField(null=False, default=1, validators=[MinValueValidator(1)])
     system = models.IntegerField(null=False, verbose_name='Voting system')
     allow_blank = models.BooleanField(default=True, verbose_name='Allow blank votes')
+    quorum = models.FloatField(null=True, validators=[
+        MinValueValidator(0.0),
+        MaxValueValidator(1.0)
+    ])
 
     class Meta:
         db_table = 'vote_ballot'
