@@ -9,7 +9,7 @@
             {% if vote.owner == user and not vote.is_active and not vote.is_over %}
         <li><a href="/vote/{{ vote.ref }}/edit">{{ vote.title }}</a> (ends {{ vote.period_stop|date:"Y-m-d H:i:s" }} UTC)</li>
             {% elif vote.is_over %}
-        <li><a href="/vote/{{ vote.ref }}">{{ vote.title }}</a> (ended {{ vote.period_stop|date:"Y-m-d H:i:s" }} UTC)</li>
+        <li><a href="/vote/{{ vote.ref }}">{{ vote.title }}</a> (ended {{ vote.period_stop|date:"Y-m-d H:i:s" }} UTC) <a href="/vote/{{ vote.ref }}/result">Full results</a></li>
             {% else %}
         <li><a href="/vote/{{ vote.ref }}">{{ vote.title }}</a> (ends {{ vote.period_stop|date:"Y-m-d H:i:s" }} UTC)</li>
             {% endif %}
