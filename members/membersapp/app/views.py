@@ -574,6 +574,7 @@ def voteresult(request, ref):
     user = get_current_user(request)
     vote = get_object_or_404(VoteElection, ref=ref)
     ballots = VoteBallot.objects.filter(election_ref=ref)
+    nb_contrib = Members.objects.filter(iscontrib=True).count()
 
     if vote.owner != user:
         messages.error(request, 'You can only view results for your own votes.')
@@ -589,6 +590,7 @@ def voteresult(request, ref):
         ballot.membervotes = membervotes
         ballot.blank_votes_count = sum(1 for mv in membervotes if not mv.votestr.strip())
         ballot.options = VoteOption.objects.filter(ballot_ref=ballot.ref)
+        ballot.passed_quorum = len(ballot.membervotes) / nb_contrib >= ballot.quorum
 
         if len(ballot.options) < 2:
             messages.error(request, 'Votes must have at least 2 candidates for all ballots to run.')

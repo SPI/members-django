@@ -138,6 +138,9 @@
 
         {# All vote systems should implement the results() method. #}
         <h2>Results</h2>
+        {% if not ballot.passed_quorum %}
+        Quorum not reached for this vote.
+        {% else %}
         {% if ballot.winners == 1 %}
         <p>This vote had a single winner.</p>
         {% else %}
@@ -167,6 +170,7 @@
         "{{ option.description }}" -&gt; "{{ beats|option_description_by_ref }}" [ label="{{ ballot.votesystem.wincount|index:option.ref|index:beats }}" ];{% endif %}{% endfor %}{% endfor %}
     }
         </pre>
+        {% endif %}
         {% endif %}
 
     {% endfor %}
