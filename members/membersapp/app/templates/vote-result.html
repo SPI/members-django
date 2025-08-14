@@ -13,6 +13,8 @@
         <p>Total unique votes cast: {{ ballot.membervotes|length }}</p>
         <p>Voting system: {{ ballot.votesystem.description }}</p>
 
+        <p>Quorum: {{ ballot.quorum_percent }}% of contributing members</p>
+
         <h2>Candidates</h2>
         {% for option in ballot.options %}
             (<b>{{ option.option_character }}</b>) {{ option.description }}<br />

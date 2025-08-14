@@ -56,6 +56,7 @@
             {% else %}
                 Blank votes are not allowed.
             {% endif %}
+            <p>Quorum: {{ ballot.quorum_percent }}% of contributing members</p>
 
             <h1>Vote</h1>
             {% if vote.is_over %}
