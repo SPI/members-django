@@ -577,10 +577,6 @@ def voteresult(request, ref):
     ballots = VoteBallot.objects.filter(election_ref=ref)
     nb_contrib = Members.objects.filter(iscontrib=True).count()
 
-    if vote.owner != user:
-        messages.error(request, 'You can only view results for your own votes.')
-        return HttpResponseRedirect("/")
-
     if not vote.is_over:
         messages.error(request, 'Vote must be finished to view results.')
         return HttpResponseRedirect("/")

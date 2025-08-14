@@ -680,14 +680,6 @@ class LoggedInViewsTest(TestCase):
         self.assertNotContains(response, "Edited vote")
         self.assertContains(response, "You are not allowed to create new votes")
 
-    def test_viewvoteresult_incorrect(self):
-        member = create_other_member()
-        create_vote_manually(past=True, owner=member)
-        vote = VoteElection.objects.all()[0]
-        response = self.client.get('/vote/%d/result' % vote.pk, follow=True)
-        self.assertRedirects(response, '/', status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=True)
-        self.assertContains(response, "You can only view results for your own votes.")
-
     # Only managers should get vote creation rights, so we'll leave the rest of
     # voting results tests here
 
@@ -887,14 +879,6 @@ class ContribUserTest(TestCase):
         response = self.client.get('/vote/%d' % vote.pk, follow=True)
         self.assertRedirects(response, '/', status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=True)
         self.assertContains(response, "Error: election does not have any configured ballot")
-
-    def test_viewvoteresult_incorrect(self):
-        member = create_other_member()
-        create_vote_manually(past=True, owner=member)
-        vote = VoteElection.objects.all()[0]
-        response = self.client.get('/vote/%d/result' % vote.pk, follow=True)
-        self.assertRedirects(response, '/', status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=True)
-        self.assertContains(response, "You can only view results for your own votes.")
 
     # Only managers should get vote creation rights, so we'll leave the rest of
     # voting results tests here
@@ -1339,14 +1323,6 @@ class ManagerTest(TestCase):
         for target in ['/vote/1337/editedit', '/vote/1337/editoption', '/vote/1337/vote', '/vote/1337/editballot']:
             response = self.client.post(target)
             self.assertEqual(response.status_code, 404)
-
-    def test_viewvoteresult_incorrect(self):
-        member = create_other_member()
-        create_vote_manually(past=True, owner=member)
-        vote = VoteElection.objects.all()[0]
-        response = self.client.get('/vote/%d/result' % vote.pk, follow=True)
-        self.assertRedirects(response, '/', status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=True)
-        self.assertContains(response, "You can only view results for your own votes.")
 
     def test_viewvoteresult_unfinished(self):
         create_vote(self)
