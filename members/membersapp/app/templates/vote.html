@@ -5,13 +5,17 @@
     <h1>{{ vote.title }}</h1>
 
     {% if ballots|length > 1 %}
-      There are <b>{{ ballots|length }}</b> ballots in this election. Please make sure you don't miss one by reading the whole page!
+      There are <b>{{ ballots|length }}</b> ballots in this election.     {% if not vote.is_over %}Please make sure you don't miss one by reading the whole page!{% endif %}
     {% else %}
       There is one ballot in this election.
     {% endif %}
 
     <br />
+    {% if vote.is_over %}
+    This election ended on {{ vote.period_stop|date:"Y-m-d H:i:s" }} UTC. <a href="/vote/{{ vote.ref }}/result">See full results</a>
+    {% else %}
     This election ends on {{ vote.period_stop|date:"Y-m-d H:i:s" }} UTC.
+    {% endif %}
 
     {% for ballot in ballots %}
         <div class="ballot">
@@ -56,6 +60,7 @@
             {% else %}
                 Blank votes are not allowed.
             {% endif %}
+            <p>Quorum: {{ ballot.quorum_percent }}% of contributing members</p>
 
             <h1>Vote</h1>
             {% if vote.is_over %}

@@ -164,6 +164,7 @@ def showvote(request, ref):
             return HttpResponseRedirect("/")
         form = VoteVoteForm(initial={'allow_blank': ballot.allow_blank})
         ballot.form = form
+        ballot.quorum_percent = int(ballot.quorum * 100)
         try:
             ballot.membervote = VoteVote.objects.get(voter_ref=user, ballot_ref=ballot)
         except VoteVote.DoesNotExist:
@@ -574,10 +575,7 @@ def voteresult(request, ref):
     user = get_current_user(request)
     vote = get_object_or_404(VoteElection, ref=ref)
     ballots = VoteBallot.objects.filter(election_ref=ref)
-
-    if vote.owner != user:
-        messages.error(request, 'You can only view results for your own votes.')
-        return HttpResponseRedirect("/")
+    nb_contrib = Members.objects.filter(iscontrib=True).count()
 
     if not vote.is_over:
         messages.error(request, 'Vote must be finished to view results.')
@@ -589,6 +587,8 @@ def voteresult(request, ref):
         ballot.membervotes = membervotes
         ballot.blank_votes_count = sum(1 for mv in membervotes if not mv.votestr.strip())
         ballot.options = VoteOption.objects.filter(ballot_ref=ballot.ref)
+        ballot.passed_quorum = len(ballot.membervotes) / nb_contrib >= ballot.quorum
+        ballot.quorum_percent = int(ballot.quorum * 100)
 
         if len(ballot.options) < 2:
             messages.error(request, 'Votes must have at least 2 candidates for all ballots to run.')

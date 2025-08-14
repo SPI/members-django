@@ -85,6 +85,7 @@ def create_vote(testcase, current=False, past=False, title="Test vote", target="
             "ballot-description": "Hello world create_vote",
             "ballot-system": system,
             "ballot-winners": "1",
+            "ballot-quorum": "0.35",
             "vote-btn": "Edit"
         }
     elif past:
@@ -96,6 +97,7 @@ def create_vote(testcase, current=False, past=False, title="Test vote", target="
             "ballot-description": "Hello world create_vote",
             "ballot-system": system,
             "ballot-winners": "1",
+            "ballot-quorum": "0.35",
             "vote-btn": "Edit"
         }
     else:
@@ -107,6 +109,7 @@ def create_vote(testcase, current=False, past=False, title="Test vote", target="
             "ballot-description": "Hello world create_vote",
             "ballot-system": system,
             "ballot-winners": "1",
+            "ballot-quorum": "0.35",
             "vote-btn": "Edit"
         }
     if allow_blank:
@@ -121,6 +124,7 @@ def create_ballot(testcase, vote):
         "description": "Hello world create_ballot",
         "system": "1",
         "winners": "1",
+        "quorum": "0.35",
         "vote-btn": "Create ballot"
     }
     response = testcase.client.post('/vote/%d/editedit' % vote.pk, data=data, follow=True)
@@ -148,6 +152,7 @@ def edit_ballot(testcase, ballotid, title="Test ballot", system="1"):
         "description": "Hello world edit_ballot",
         "system": system,
         "winners": "1",
+        "quorum": "0.35",
         "ballot-btn": "Edit"
     }
     response = testcase.client.post("/vote/%d/editballot" % ballotid, data=data, follow=True)
@@ -675,14 +680,6 @@ class LoggedInViewsTest(TestCase):
         self.assertNotContains(response, "Edited vote")
         self.assertContains(response, "You are not allowed to create new votes")
 
-    def test_viewvoteresult_incorrect(self):
-        member = create_other_member()
-        create_vote_manually(past=True, owner=member)
-        vote = VoteElection.objects.all()[0]
-        response = self.client.get('/vote/%d/result' % vote.pk, follow=True)
-        self.assertRedirects(response, '/', status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=True)
-        self.assertContains(response, "You can only view results for your own votes.")
-
     # Only managers should get vote creation rights, so we'll leave the rest of
     # voting results tests here
 
@@ -882,14 +879,6 @@ class ContribUserTest(TestCase):
         response = self.client.get('/vote/%d' % vote.pk, follow=True)
         self.assertRedirects(response, '/', status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=True)
         self.assertContains(response, "Error: election does not have any configured ballot")
-
-    def test_viewvoteresult_incorrect(self):
-        member = create_other_member()
-        create_vote_manually(past=True, owner=member)
-        vote = VoteElection.objects.all()[0]
-        response = self.client.get('/vote/%d/result' % vote.pk, follow=True)
-        self.assertRedirects(response, '/', status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=True)
-        self.assertContains(response, "You can only view results for your own votes.")
 
     # Only managers should get vote creation rights, so we'll leave the rest of
     # voting results tests here
@@ -1334,14 +1323,6 @@ class ManagerTest(TestCase):
         for target in ['/vote/1337/editedit', '/vote/1337/editoption', '/vote/1337/vote', '/vote/1337/editballot']:
             response = self.client.post(target)
             self.assertEqual(response.status_code, 404)
-
-    def test_viewvoteresult_incorrect(self):
-        member = create_other_member()
-        create_vote_manually(past=True, owner=member)
-        vote = VoteElection.objects.all()[0]
-        response = self.client.get('/vote/%d/result' % vote.pk, follow=True)
-        self.assertRedirects(response, '/', status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=True)
-        self.assertContains(response, "You can only view results for your own votes.")
 
     def test_viewvoteresult_unfinished(self):
         create_vote(self)

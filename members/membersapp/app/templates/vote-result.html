@@ -13,6 +13,8 @@
         <p>Total unique votes cast: {{ ballot.membervotes|length }}</p>
         <p>Voting system: {{ ballot.votesystem.description }}</p>
 
+        <p>Quorum: {{ ballot.quorum_percent }}% of contributing members</p>
+
         <h2>Candidates</h2>
         {% for option in ballot.options %}
             (<b>{{ option.option_character }}</b>) {{ option.description }}<br />
@@ -138,35 +140,39 @@
 
         {# All vote systems should implement the results() method. #}
         <h2>Results</h2>
-        {% if ballot..winners == 1 %}
-        <p>This vote had a single winner.</p>
+        {% if not ballot.passed_quorum %}
+            Quorum not reached for this vote.
         {% else %}
-        <p>There were {{ ballot.winners }} winners in this vote.</p>
-        {% endif %}
+            {% if ballot.winners == 1 %}
+            <p>This vote had a single winner.</p>
+            {% else %}
+            <p>There were {{ ballot.winners }} winners in this vote.</p>
+            {% endif %}
 
-        {% if ballot.votesystem.tie %}
-            <p>Ties exist!</p>
-        {% endif %}
-        <ol>
-        {% with ballot.votesystem|results as result %}
-            {% for winner in result.winners %}
-                <li><strong>{{ winner }}</strong></li>
-            {% endfor %}
-            {% for loser in result.losers %}
-                    <li>{{ loser }}</li>
-            {% endfor %}
-        {% endwith %}
-        </ol>
+            {% if ballot.votesystem.tie %}
+                <p>Ties exist!</p>
+            {% endif %}
+            <ol>
+            {% with ballot.votesystem|results as result %}
+                {% for winner in result.winners %}
+                    <li><strong>{{ winner }}</strong></li>
+                {% endfor %}
+                {% for loser in result.losers %}
+                        <li>{{ loser }}</li>
+                {% endfor %}
+            {% endwith %}
+            </ol>
 
-        {% if ballot.system == 0 or ballot.system == 1 %}
-        <h2>Graphviz output</h2>
-        <pre>
-    digraph Results {
-        ranksep=0.25;{% for option in ballot.options %}
-        "{{ option.description }}" [ style="filled", fontname="Helvetica", fontsize=10, color="#99ff99" ];{% for beats in ballot.votesystem.wincount|index:option.ref %}{% if beats != 'wins' and ballot.votesystem.wincount|index:option.ref|index:beats > 0 %}
-        "{{ option.description }}" -&gt; "{{ beats|option_description_by_ref }}" [ label="{{ ballot.votesystem.wincount|index:option.ref|index:beats }}" ];{% endif %}{% endfor %}{% endfor %}
-    }
-        </pre>
+            {% if ballot.system == 0 or ballot.system == 1 %}
+            <h2>Graphviz output</h2>
+            <pre>
+        digraph Results {
+            ranksep=0.25;{% for option in ballot.options %}
+            "{{ option.description }}" [ style="filled", fontname="Helvetica", fontsize=10, color="#99ff99" ];{% for beats in ballot.votesystem.wincount|index:option.ref %}{% if beats != 'wins' and ballot.votesystem.wincount|index:option.ref|index:beats > 0 %}
+            "{{ option.description }}" -&gt; "{{ beats|option_description_by_ref }}" [ label="{{ ballot.votesystem.wincount|index:option.ref|index:beats }}" ];{% endif %}{% endfor %}{% endfor %}
+        }
+            </pre>
+            {% endif %}
         {% endif %}
 
     {% endfor %}
