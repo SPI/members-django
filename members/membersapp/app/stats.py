@@ -43,8 +43,9 @@ def get_stats():
 
     # An elected NCM director becomes contrib automatically, which
     # means that all contrib members won't necessarily have an
-    # application. Hence, count contrib members directly instead of
-    # using applications
+    # application. Besides, somes members have several contrib
+    # apps. Hence, count contrib members directly instead of using
+    # applications
     stats['cm'] = Members.objects.filter(iscontrib=True).count()
 
     return stats
