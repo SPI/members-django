@@ -587,8 +587,9 @@ def voteresult(request, ref):
         ballot.membervotes = membervotes
         ballot.blank_votes_count = sum(1 for mv in membervotes if not mv.votestr.strip())
         ballot.options = VoteOption.objects.filter(ballot_ref=ballot.ref)
-        ballot.passed_quorum = len(ballot.membervotes) / nb_contrib >= ballot.quorum
-        ballot.quorum_percent = int(ballot.quorum * 100)
+        if ballot.quorum is not None:
+            ballot.passed_quorum = len(ballot.membervotes) / nb_contrib >= ballot.quorum
+            ballot.quorum_percent = int(ballot.quorum * 100)
 
         if len(ballot.options) < 2:
             messages.error(request, 'Votes must have at least 2 candidates for all ballots to run.')

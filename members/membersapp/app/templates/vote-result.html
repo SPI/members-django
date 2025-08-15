@@ -13,8 +13,9 @@
         <p>Total unique votes cast: {{ ballot.membervotes|length }}</p>
         <p>Voting system: {{ ballot.votesystem.description }}</p>
 
-        <p>Quorum: {{ ballot.quorum_percent }}% of contributing members</p>
-
+        {% if ballot.quorum_percent is not none %}
+            <p>Quorum: {{ ballot.quorum_percent }}% of contributing members</p>
+        {% endif %}
         <h2>Candidates</h2>
         {% for option in ballot.options %}
             (<b>{{ option.option_character }}</b>) {{ option.description }}<br />
@@ -140,7 +141,7 @@
 
         {# All vote systems should implement the results() method. #}
         <h2>Results</h2>
-        {% if not ballot.passed_quorum %}
+        {% if ballot.passed_qorum is not none and not ballot.passed_quorum %}
             Quorum not reached for this vote.
         {% else %}
             {% if ballot.winners == 1 %}
