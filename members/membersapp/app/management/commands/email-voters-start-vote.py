@@ -8,12 +8,12 @@ from django.template import loader
 from django.conf import settings
 from django.core.mail import send_mail
 
-from membersapp.app.models import VoteElection, VoteBallot, VoteVote, Applications
+from membersapp.app.models import VoteElection, VoteBallot, VoteVote, Applications, Members
 from membersapp.app.applications import get_applications_by_type
 
 
 class Command(BaseCommand):
-    help = 'Email contributing members about open votes'
+    help = 'Email contributing members about open votes + populate data for quorum'
 
     def add_arguments(self, parser):
         parser.add_argument('--dry-run', dest='dryrun',
@@ -66,6 +66,13 @@ class Command(BaseCommand):
                 mid = vote.period_start + timedelta(seconds=(vote.period_stop -
                                                              vote.period_start).total_seconds() / 2)
                 if now - timedelta(hours=24) < vote.period_start <= now:
-                    self.inform_voters(vote, new=True, dryrun=options['dryrun'])
+                    if vote.nb_contrib is not None:
+                        print("Error: vote was already started. Not emailing voters to avoid double email.")
+                    else:
+                        self.inform_voters(vote, new=True, dryrun=options['dryrun'])
+                        if not options['dryrun']:
+                            vote.nb_contrib = Members.objects.filter(iscontrib=True).count()
+                            vote.save()
+                            print("Number of contributing members at start of vote: %s" % vote.nb_contrib)
                 elif now - timedelta(hours=24) < mid <= now:
                     self.inform_voters(vote, new=False, dryrun=options['dryrun'])

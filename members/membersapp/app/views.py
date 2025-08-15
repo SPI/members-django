@@ -575,7 +575,6 @@ def voteresult(request, ref):
     user = get_current_user(request)
     vote = get_object_or_404(VoteElection, ref=ref)
     ballots = VoteBallot.objects.filter(election_ref=ref)
-    nb_contrib = Members.objects.filter(iscontrib=True).count()
 
     if not vote.is_over:
         messages.error(request, 'Vote must be finished to view results.')
@@ -588,7 +587,7 @@ def voteresult(request, ref):
         ballot.blank_votes_count = sum(1 for mv in membervotes if not mv.votestr.strip())
         ballot.options = VoteOption.objects.filter(ballot_ref=ballot.ref)
         if ballot.quorum is not None:
-            ballot.passed_quorum = len(ballot.membervotes) / nb_contrib >= ballot.quorum
+            ballot.passed_quorum = len(ballot.membervotes) / vote.nb_contrib >= ballot.quorum
             ballot.quorum_percent = int(ballot.quorum * 100)
 
         if len(ballot.options) < 2:

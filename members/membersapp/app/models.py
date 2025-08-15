@@ -81,6 +81,7 @@ class VoteElection(models.Model):
     period_start = models.DateTimeField(null=True, verbose_name='Start date', validators=[MinValueValidator(timezone.now)])
     period_stop = models.DateTimeField(null=True, verbose_name='End date', validators=[MinValueValidator(timezone.now)])
     owner = models.ForeignKey(Members, null=False, blank=False, db_column='owner', on_delete=models.RESTRICT)
+    nb_contrib = models.IntegerField(null=True, verbose_name='Number of contributing members on vote start (for quorum calculation)')
 
     def __str__(self):
         return self.title
