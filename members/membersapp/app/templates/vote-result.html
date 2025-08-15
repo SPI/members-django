@@ -4,13 +4,16 @@
 {% block content %}
     <h1>{{ vote.title }}</h1>
 
+    {% if vote.nb_contrib %}
+        <p>Contributing members at beginning of election: {{ vote.nb_contrib }}</p>
+    {% endif %}
     {% for ballot in ballots %}
 
         <h1>
             {{ ballot.title|safe }}
         </h1>
 
-        <p>Total unique votes cast: {{ ballot.membervotes|length }}</p>
+        <p>Total unique votes cast: {{ ballot.membervotes|length }}{% if vote.nb_contrib %}, which is {{ ballot.vote_percent }}% of all possible votes{% endif %}  </p>
         <p>Voting system: {{ ballot.votesystem.description }}</p>
 
         {% if ballot.quorum_percent is not none %}

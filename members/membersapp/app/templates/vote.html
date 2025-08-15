@@ -17,6 +17,11 @@
     This election ends on {{ vote.period_stop|date:"Y-m-d H:i:s" }} UTC.
     {% endif %}
 
+    {% if vote.nb_contrib %}
+    <br />
+    Contributing members at beginning of election: {{ vote.nb_contrib }}
+    {% endif %}
+
     {% for ballot in ballots %}
         <div class="ballot">
             <h1>
