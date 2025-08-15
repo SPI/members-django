@@ -164,7 +164,8 @@ def showvote(request, ref):
             return HttpResponseRedirect("/")
         form = VoteVoteForm(initial={'allow_blank': ballot.allow_blank})
         ballot.form = form
-        ballot.quorum_percent = int(ballot.quorum * 100)
+        if ballot.quorum is not None:
+            ballot.quorum_percent = int(ballot.quorum * 100)
         try:
             ballot.membervote = VoteVote.objects.get(voter_ref=user, ballot_ref=ballot)
         except VoteVote.DoesNotExist:
