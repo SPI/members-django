@@ -28,11 +28,13 @@
         </h1>
 
         <p>Total unique votes cast: {{ ballot.membervotes|length }}{% if vote.nb_contrib %}, which is {{ ballot.vote_percent }}% of all possible votes{% endif %}  </p>
-        <p>Voting system: {{ ballot.votesystem.description }}</p>
 
         {% if ballot.quorum_percent is not none %}
             <p>Quorum: {{ ballot.quorum_percent }}% of contributing members</p>
         {% endif %}
+
+        <p>Voting system: {{ ballot.votesystem.description }}</p>
+
         <h2>Candidates</h2>
         {% for option in ballot.options %}
             (<b>{{ option.option_character }}</b>) {{ option.description }}<br />
