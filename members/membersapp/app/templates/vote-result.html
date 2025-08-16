@@ -4,6 +4,20 @@
 {% block content %}
     <h1>{{ vote.title }}</h1>
 
+    {% if not vote.public_results %}
+        These results are currently not public.
+    {% endif %}
+
+    {% if vote.user_can_make_public %}
+        <form method="post" action="{% url 'votepublicedit' vote.ref %}">
+        {% csrf_token %}
+        <table>
+            {{ publicvoteform.as_table }}
+        </table>
+        <input type="submit" name="vote-btn" value="Send" />
+        </form>
+    {% endif %}
+
     {% if vote.nb_contrib %}
         <p>Contributing members at beginning of election: {{ vote.nb_contrib }}</p>
     {% endif %}

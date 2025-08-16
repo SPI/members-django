@@ -159,6 +159,15 @@ def edit_ballot(testcase, ballotid, title="Test ballot", system="1"):
     return response
 
 
+def edit_votepublic(testcase, voteid):
+    data = {
+        "public_results": "on",
+        "vote-btn": "Send"
+    }
+    response = testcase.client.post("/vote/%d/votepublicedit" % voteid, data=data, follow=True)
+    return response
+
+
 def create_vote_manually(current=False, past=False, owner=None):
     if owner is None:
         # Can't pass global variable in the function's signature
@@ -709,6 +718,8 @@ class LoggedInViewsTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertNotContains(response, "Results for this vote are not public. Only vote creator and managers can see it.")
         self.assertContains(response, "Voting system")
+        # Making sure the form does not appear
+        self.assertNotContains(response, "Public results")
 
     # Only managers should get vote creation rights, so we'll leave the rest of
     # voting results tests here
@@ -844,6 +855,12 @@ class ContribUserTest(TestCase):
         response = edit_vote_option(self, ballot.pk)
         self.assertRedirects(response, '/', status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=False)
         self.assertContains(response, "You are not allowed to create new votes")
+
+    def test_votepublic_edit(self):
+        vote, ballot = create_vote_with_manager(self)
+        response = edit_votepublic(self, vote.pk)
+        self.assertRedirects(response, '/', status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=False)
+        self.assertContains(response, "You are not allowed to modify this setting.")
 
     def test_votevote_not_running(self):
         vote, ballot = create_vote_with_manager(self)
@@ -1213,6 +1230,12 @@ class ManagerTest(TestCase):
         self.assertRedirects(response, '/vote/%d/edit' % vote.pk, status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=True)
         self.assertContains(response, "Ballot deleted")
 
+    def test_votepublic_edit(self):
+        vote, ballot = create_vote_manually(self)
+        response = edit_votepublic(self, vote.pk)
+        self.assertRedirects(response, '/', status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=False)
+        self.assertContains(response, "Changes saved")
+
     def test_viewvotenotenoughoptions(self):
         vote, ballot = create_vote_manually(current=True)
         response = self.client.get('/vote/%d' % vote.pk, follow=True)
@@ -1388,6 +1411,7 @@ class ManagerTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertNotContains(response, "Results for this vote are not public. Only vote creator and managers can see it.")
         self.assertContains(response, "Voting system")
+        self.assertContains(response, "Public results")
 
     def test_votevote(self):
         create_vote(self)

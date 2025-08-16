@@ -41,6 +41,7 @@ urlpatterns = [
     path('vote/<int:ref>/editoption', views.voteeditoption, name='voteeditoption'),
     path('vote/<int:ref>/vote', views.votevote, name='votevote'),
     path('vote/<int:ref>/result', views.voteresult, name='voteresult'),
+    path('vote/<int:ref>/votepublicedit', views.votepublicedit, name='votepublicedit'),
     path('privatesubs', views.privatesubs, name='privatesubs'),
 
     path('account/', include('membersapp.account.urls')),

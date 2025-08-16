@@ -461,6 +461,26 @@ def voteeditedit(request, ref):
 
 
 @login_required
+def votepublicedit(request, ref):
+    """Handler for editing a vote."""
+    user = get_current_user(request)
+    vote = get_object_or_404(VoteElection, ref=ref)
+
+    if vote.owner != user and not user.ismanager:
+        messages.error(request, "You are not allowed to modify this setting.")
+        return HttpResponseRedirect(reverse('voteresult', args=(ref,)))
+
+    if request.method == 'POST':
+        form = PublicVoteForm(request.POST, instance=vote)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Changes saved")
+        return HttpResponseRedirect(reverse('voteresult', args=(ref,)))
+
+    return HttpResponseRedirect(reverse('voteresult', args=(ref,)))
+
+
+@login_required
 def voteeditballot(request, ref):
     """Handler for editing a ballot."""
     user = get_current_user(request)
@@ -613,11 +633,15 @@ def voteresult(request, ref):
 
         ballot.votesystem.run()
 
+    publicvoteform = PublicVoteForm(instance=vote)
+    vote.user_can_make_public = vote.owner == user or user.ismanager
+
     template = loader.get_template('vote-result.html')
     context = {
         'user': user,
         'vote': vote,
-        'ballots': ballots
+        'ballots': ballots,
+        'publicvoteform': publicvoteform
     }
     return HttpResponse(template.render(context, request))
 

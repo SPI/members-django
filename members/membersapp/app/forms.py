@@ -71,6 +71,12 @@ class EditVoteFormBallot(CreateVoteFormBallot):
         fields = ['title', 'description', 'system', 'winners', 'allow_blank', 'quorum']
 
 
+class PublicVoteForm(CreateVoteForm):
+    class Meta:
+        model = VoteElection
+        fields = ['public_results']
+
+
 class VoteOptionForm(ModelForm):
     class Meta:
         model = VoteOption
