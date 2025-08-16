@@ -283,7 +283,7 @@ td.win {
     padding: 1em;
 }
 
-.alert .alert-danger {
+.alert, .alert-danger {
     color: red;
 }
 
