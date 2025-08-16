@@ -191,6 +191,17 @@ def create_vote_manually(current=False, past=False, owner=None):
         ballot.save()
     return vote, ballot
 
+def add_options(ballot):
+    optionA = VoteOption(ballot_ref=ballot,
+                         description="A",
+                         sort=1,
+                         option_character="A")
+    optionA.save()
+    optionB = VoteOption(ballot_ref=ballot,
+                         description="B",
+                         sort=2,
+                         option_character="B")
+    optionB.save()
 
 def create_vote_with_manager(testcase):
     switch_to_other_member(testcase, switch_to_manager=True)
@@ -680,6 +691,25 @@ class LoggedInViewsTest(TestCase):
         self.assertNotContains(response, "Edited vote")
         self.assertContains(response, "You are not allowed to create new votes")
 
+    def test_viewvoteresult_incorrect(self):
+        member = create_other_member()
+        vote, ballot = create_vote_manually(past=True, owner=member)
+        add_options(ballot)
+        response = self.client.get('/vote/%d/result' % vote.pk, follow=True)
+        self.assertRedirects(response, '/', status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=True)
+        self.assertContains(response, "Results for this vote are not public. Only vote creator and managers can see it.")
+
+    def test_viewvoteresult_public(self):
+        member = create_other_member()
+        vote, ballot = create_vote_manually(past=True, owner=member)
+        add_options(ballot)
+        vote.public_results = True
+        vote.save()
+        response = self.client.get('/vote/%d/result' % vote.pk, follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, "Results for this vote are not public. Only vote creator and managers can see it.")
+        self.assertContains(response, "Voting system")
+
     # Only managers should get vote creation rights, so we'll leave the rest of
     # voting results tests here
 
@@ -879,6 +909,25 @@ class ContribUserTest(TestCase):
         response = self.client.get('/vote/%d' % vote.pk, follow=True)
         self.assertRedirects(response, '/', status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=True)
         self.assertContains(response, "Error: election does not have any configured ballot")
+
+    def test_viewvoteresult_incorrect(self):
+        member = create_other_member()
+        vote, ballot = create_vote_manually(past=True, owner=member)
+        add_options(ballot)
+        response = self.client.get('/vote/%d/result' % vote.pk, follow=True)
+        self.assertRedirects(response, '/', status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=True)
+        self.assertContains(response, "Results for this vote are not public. Only vote creator and managers can see it.")
+
+    def test_viewvoteresult_public(self):
+        member = create_other_member()
+        vote, ballot = create_vote_manually(past=True, owner=member)
+        add_options(ballot)
+        vote.public_results = True
+        vote.save()
+        response = self.client.get('/vote/%d/result' % vote.pk, follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, "Results for this vote are not public. Only vote creator and managers can see it.")
+        self.assertContains(response, "Voting system")
 
     # Only managers should get vote creation rights, so we'll leave the rest of
     # voting results tests here
@@ -1330,6 +1379,15 @@ class ManagerTest(TestCase):
         response = self.client.get('/vote/%d/result' % vote.pk, follow=True)
         self.assertRedirects(response, '/', status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=True)
         self.assertContains(response, "Vote must be finished to view results.")
+
+    def test_viewvoteresult_manager(self):
+        member = create_other_member()
+        vote, ballot = create_vote_manually(past=True, owner=member)
+        add_options(ballot)
+        response = self.client.get('/vote/%d/result' % vote.pk, follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, "Results for this vote are not public. Only vote creator and managers can see it.")
+        self.assertContains(response, "Voting system")
 
     def test_votevote(self):
         create_vote(self)

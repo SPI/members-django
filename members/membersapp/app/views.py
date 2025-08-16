@@ -581,6 +581,10 @@ def voteresult(request, ref):
         messages.error(request, 'Vote must be finished to view results.')
         return HttpResponseRedirect("/")
 
+    if vote.owner != user and not user.ismanager and not vote.public_results:
+        messages.error(request, 'Results for this vote are not public. Only vote creator and managers can see it.')
+        return HttpResponseRedirect("/")
+
     for ballot in ballots:
         membervotes = sorted(VoteVote.objects.filter(ballot_ref=ballot.ref),
                              key=lambda x: x.voter_ref.name if x.voter_ref else '')
