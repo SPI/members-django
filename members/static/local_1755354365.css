@@ -283,6 +283,10 @@ td.win {
     padding: 1em;
 }
 
+.alert .alert-danger {
+    color: red;
+}
+
 /* media-query for mobile */
 
 @media(max-width:640px) {
