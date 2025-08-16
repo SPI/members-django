@@ -138,6 +138,8 @@ def showvotes(request):
         return render(request, 'contrib-only.html')
     template = loader.get_template('votes.html')
     votes = VoteElection.objects.order_by('-period_start')
+    for vote in votes:
+        vote.user_can_view_results = vote.can_user_view_results(user)
     context = {
         'user': user,
         'votes': votes,
@@ -156,6 +158,7 @@ def showvote(request, ref):
     if len(ballots) == 0:
         messages.error(request, 'Error: election does not have any configured ballot.')
         return HttpResponseRedirect("/")
+    vote.user_can_view_results = vote.can_user_view_results(user)
     for ballot in ballots:
         options = VoteOption.objects.filter(ballot_ref=ballot)
         ballot.options = options
@@ -581,7 +584,7 @@ def voteresult(request, ref):
         messages.error(request, 'Vote must be finished to view results.')
         return HttpResponseRedirect("/")
 
-    if vote.owner != user and not user.ismanager and not vote.public_results:
+    if not vote.can_user_view_results(user):
         messages.error(request, 'Results for this vote are not public. Only vote creator and managers can see it.')
         return HttpResponseRedirect("/")
 

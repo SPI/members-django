@@ -119,6 +119,9 @@ class VoteElection(models.Model):
                 return False
         return True
 
+    def can_user_view_results(self, user):
+        return self.owner == user or user.ismanager or self.public_results
+
 
 class VoteBallot(models.Model):
     ref = models.AutoField(primary_key=True)

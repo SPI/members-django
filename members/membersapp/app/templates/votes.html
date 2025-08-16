@@ -10,7 +10,7 @@
         <li><a href="/vote/{{ vote.ref }}/edit">{{ vote.title }}</a> (ends {{ vote.period_stop|date:"Y-m-d H:i:s" }} UTC)</li>
             {% elif vote.is_over %}
         <li><a href="/vote/{{ vote.ref }}">{{ vote.title }}</a> (ended {{ vote.period_stop|date:"Y-m-d H:i:s" }} UTC)
-          {% if vote.public_results %}
+          {% if vote.user_can_view_results %}
               <a href="/vote/{{ vote.ref }}/result">Full results</a></li>
           {% endif %}
             {% else %}
