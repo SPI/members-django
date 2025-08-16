@@ -160,7 +160,7 @@
 
         {# All vote systems should implement the results() method. #}
         <h2>Results</h2>
-        {% if ballot.passed_qorum is not none and not ballot.passed_quorum %}
+        {% if ballot.passed_quorum is not none and not ballot.passed_quorum %}
             Quorum not reached for this vote.
         {% else %}
             {% if ballot.winners == 1 %}
