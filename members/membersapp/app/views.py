@@ -610,7 +610,7 @@ def voteresult(request, ref):
 
     for ballot in ballots:
         membervotes = sorted(VoteVote.objects.filter(ballot_ref=ballot.ref),
-                             key=lambda x: x.voter_ref.name if x.voter_ref else '')
+                             key=lambda x: x.voter_ref.name.lower() if x.voter_ref else '')
         ballot.membervotes = membervotes
         ballot.blank_votes_count = sum(1 for mv in membervotes if not mv.votestr.strip())
         ballot.options = VoteOption.objects.filter(ballot_ref=ballot.ref)
