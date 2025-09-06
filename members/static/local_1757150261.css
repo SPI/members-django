@@ -287,6 +287,21 @@ td.win {
     color: red;
 }
 
+table.rounds {
+    border-collapse: collapse;
+}
+
+table.rounds th, table.rounds td {
+	border: 1px solid black;
+	padding: 5px;
+}
+
+table.rounds th {
+	background: gray;
+	color: white;
+	text-align: center;
+}
+
 /* media-query for mobile */
 
 @media(max-width:640px) {
