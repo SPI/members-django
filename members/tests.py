@@ -200,6 +200,7 @@ def create_vote_manually(current=False, past=False, owner=None):
         ballot.save()
     return vote, ballot
 
+
 def add_options(ballot):
     optionA = VoteOption(ballot_ref=ballot,
                          description="A",
@@ -211,6 +212,7 @@ def add_options(ballot):
                          sort=2,
                          option_character="B")
     optionB.save()
+
 
 def create_vote_with_manager(testcase):
     switch_to_other_member(testcase, switch_to_manager=True)
