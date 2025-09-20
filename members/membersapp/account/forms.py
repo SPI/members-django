@@ -191,7 +191,7 @@ class MembersdjangoSetPasswordForm(SetPasswordForm):
         applications = Applications.objects.filter(member=member.pk)
         for application in applications:
             application.validemail = True
-            application .validemail_date = datetime.today()
+            application.validemail_date = datetime.today()
         if commit:
             user.save()
             member.save()
