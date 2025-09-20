@@ -648,7 +648,6 @@ def voteresult(request, ref):
 
 def privatesubs(request):
     """Return the list of -private subscriber addressess"""
-    user = get_current_user(request)
     if request.META.get('REMOTE_ADDR') not in settings.LIST_HOSTS:
         messages.error(request, 'This page is not reachable from your IP address.')
         return HttpResponseRedirect("/")
