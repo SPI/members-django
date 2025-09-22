@@ -1,6 +1,7 @@
 import datetime
 import hashlib
 import uuid
+import json
 
 from django.contrib.auth.models import User
 from django.http import HttpResponse, HttpResponseRedirect, HttpResponseNotFound
@@ -652,9 +653,8 @@ def privatesubs(request):
         messages.error(request, 'This page is not reachable from your IP address.')
         return HttpResponseRedirect("/")
 
-    emails = sorted([x.email for x in Members.objects.filter(Q(sub_private=True) & Q(iscontrib=True))])
-    emaillist = '\n'.join(emails)
-    return HttpResponse(emaillist.lower(), content_type='text/plain')
+    users = User.objects.filter(members__iscontrib=True).values("username", "members__email", "first_name", "last_name", "members__sub_private")
+    return HttpResponse(json.dumps(list(users)), content_type="application/json")
 
 
 class MemberEditView(LoginRequiredMixin, UpdateView):
