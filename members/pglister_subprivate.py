@@ -11,7 +11,7 @@ from django.conf import settings
 from django.core.mail import send_mail
 from django.contrib.auth.models import User
 
-from pglister.lists.models import SubscriberAddress, List, ListSubscription
+from pglister.lists.models import SubscriberAddress, List, ListSubscription, Subscriber
 from lib.baselib.misc import generate_random_token
 
 
@@ -63,6 +63,13 @@ class Command(BaseCommand):
                     new_user.save()
             try:
                 subscriber = SubscriberAddress.objects.get(email=user["members__email"])
+                if subscriber.subscriber_id is None:
+                    sub = Subscriber.objects.filter(user__email=subscriber.email).first()
+                    if sub is not None:
+                        print("Linking subscriber address %s to user %s" % (subscriber.email, sub.pk))
+                        if not options['dryrun']:
+                            subscriber.subscriber = sub
+                            subscriber.save()
             except SubscriberAddress.DoesNotExist:
                 print("Subscriber %s does not exist, creating them" % user["members__email"])
                 subscriber = SubscriberAddress(email=user["members__email"], confirmed=True, blocked=False, token=generate_random_token())
