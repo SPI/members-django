@@ -64,11 +64,17 @@ class Command(BaseCommand):
             try:
                 subscriber = SubscriberAddress.objects.get(email=user["members__email"])
                 if subscriber.subscriber_id is None:
-                    sub = Subscriber.objects.filter(user__email=subscriber.email).first()
-                    if sub is not None:
-                        print("Linking subscriber address %s to user %s" % (subscriber.email, sub.pk))
+                    linked_user = User.objects.filter(email=subscriber.email).first()
+                    if linked_user is not None:
+                        try:
+                            user_sub = linked_user.subscriber
+                        except User.subscriber.RelatedObjectDoesNotExist:
+                            print("Subscriber for user %s doesn't exist, creating it" % linked_user.email)
+                            user_sub = Subscriber(user=linked_user)
+                            user_sub.save()
+                        print("Linking subscriber address %s to user %s" % (subscriber.email, user_sub.pk))
                         if not options['dryrun']:
-                            subscriber.subscriber = sub
+                            subscriber.subscriber = user_sub
                             subscriber.save()
             except SubscriberAddress.DoesNotExist:
                 print("Subscriber %s does not exist, creating them" % user["members__email"])
