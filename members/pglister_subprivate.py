@@ -3,11 +3,13 @@
 import urllib.request
 import ssl
 import sys
+import json
 
 from django.core.management.base import BaseCommand, CommandError
 from django.template import loader
 from django.conf import settings
 from django.core.mail import send_mail
+from django.contrib.auth.models import User
 
 from pglister.lists.models import SubscriberAddress, List, ListSubscription
 from lib.baselib.misc import generate_random_token
@@ -30,6 +32,11 @@ class Command(BaseCommand):
                             action='store_const', const=True, default=False)
 
     def handle(self, *args, **options):
+        try:
+            spiprivate = List.objects.get(name='spi-private')
+        except List.DoesNotExist:
+            print("Error: spi-private does not exist. Please create it in pglister's admin interface", file=sys.stderr)
+            sys.exit(1)
         url = '%s/privatesubs' % options['url']
         r = urllib.request.Request(url, headers={'Host': options['hostname']})
         ctx = ssl.create_default_context()
@@ -37,13 +44,10 @@ class Command(BaseCommand):
         ctx.verify_mode = ssl.CERT_NONE
         response = urllib.request.urlopen(r, context=ctx)
         data = response.read()
-        addresses = data.decode('utf-8').split('\n')
-        try:
-            spiprivate = List.objects.get(name='spi-private')
-        except List.DoesNotExist:
-            print("Error: spi-private does not exist. Please create it in pglister's admin interface", file=sys.stderr)
-            sys.exit(1)
+        text_data = data.decode()
+        users = json.loads(text_data)
         previous_subcriptions = ListSubscription.objects.filter(list=spiprivate)
+        addresses = [x["members__email"] for x in users]
         for subscription in previous_subcriptions:
             if str(subscription.subscriber) not in addresses:
                 print("%s no longer subscribed, removing subscription" % subscription.subscriber)
@@ -51,22 +55,30 @@ class Command(BaseCommand):
                     subscription.delete()
             elif options['verbose']:
                 print("%s remains subscribed" % subscription.subscriber)
-        for address in addresses:
-            if len(address.strip()) == 0:
-                # Trailing space, ignore
-                continue
+        for user in users:
+            if not User.objects.filter(username=user["username"]).exists():
+                print("User %s does not exist, creating them" % user["username"])
+                new_user = User(username=user["username"], first_name=user["first_name"], last_name=user["last_name"], email=user["members__email"])
+                if not options['dryrun']:
+                    new_user.save()
             try:
-                subscriber = SubscriberAddress.objects.get(email=address)
+                subscriber = SubscriberAddress.objects.get(email=user["members__email"])
             except SubscriberAddress.DoesNotExist:
-                print("Subscriber %s does not exist, creating them" % address)
-                subscriber = SubscriberAddress(email=address, confirmed=True, blocked=False, token=generate_random_token())
+                print("Subscriber %s does not exist, creating them" % user["members__email"])
+                subscriber = SubscriberAddress(email=user["members__email"], confirmed=True, blocked=False, token=generate_random_token())
                 if not options['dryrun']:
                     subscriber.save()
             if ListSubscription.objects.filter(list=spiprivate, subscriber=subscriber).exists():
+                ls = ListSubscription.objects.get(list=spiprivate, subscriber=subscriber)
+                if not (ls.nomail != user["members__sub_private"]):
+                    print("Changing subscriber %s subscription to %s" % (user["members__email"], user["members__sub_private"]))
+                    if not options['dryrun']:
+                        ls.nomail = not user["members__sub_private"]
+                        ls.save()
                 if options['verbose']:
-                    print("%s already subscribed to spi-private" % address)
+                    print("%s already subscribed to spi-private" % user["members__email"])
                 continue
-            print("Subscribing %s to spi-private" % address)
+            print("Subscribing %s to spi-private" % user["members__email"])
             if not options['dryrun']:
-                subscription = ListSubscription(list=spiprivate, subscriber=subscriber)
+                subscription = ListSubscription(list=spiprivate, subscriber=subscriber, nomail=not user["members__sub_private"])
                 subscription.save()
