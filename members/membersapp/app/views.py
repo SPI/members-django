@@ -2,6 +2,11 @@ import datetime
 import hashlib
 import uuid
 import json
+import base64
+import time
+from Cryptodome.Cipher import AES
+from Cryptodome.Hash import SHA
+from Cryptodome import Random
 
 from django.contrib.auth.models import User
 from django.http import HttpResponse, HttpResponseRedirect, HttpResponseNotFound
@@ -654,7 +659,22 @@ def privatesubs(request):
         return HttpResponseRedirect("/")
 
     users = User.objects.filter(members__iscontrib=True).values("username", "members__email", "first_name", "last_name", "members__sub_private")
-    return HttpResponse(json.dumps(list(users)), content_type="application/json")
+    key = settings.SUBPRIVATE_KEY
+
+    s = json.dumps({
+        "t": int(time.time()),
+        "d": list(users),
+    })
+    iv = Random.new().read(16)
+    encryptor = AES.new(SHA.new(key.encode('ascii')).digest()[:16], AES.MODE_CBC, iv)
+    cipher = encryptor.encrypt(s.encode('ascii') + b' ' * (16 - (len(s) % 16)))  # pad to 16 bytes
+
+    response = {
+        "iv": base64.urlsafe_b64encode(iv).decode(),
+        "data": base64.urlsafe_b64encode(cipher).decode(),
+    }
+
+    return HttpResponse(json.dumps(response), content_type="application/json")
 
 
 class MemberEditView(LoginRequiredMixin, UpdateView):

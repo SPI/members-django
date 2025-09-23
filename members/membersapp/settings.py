@@ -183,6 +183,8 @@ EMAIL_PORT = '25'
 # IPs that will get access to the -private subs list
 LIST_HOSTS = ['127.0.0.1', '::1']
 
+SUBPRIVATE_KEY = 'django-insecure-l_+ya#^z)@&o^%k*z$)-z!=dh$es_9i!w!+=z8-wg4nub@e!#g'
+
 try:
     from .local_settings import *
 except ImportError:
