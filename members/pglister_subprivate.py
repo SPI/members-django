@@ -4,6 +4,9 @@ import urllib.request
 import ssl
 import sys
 import json
+import base64
+from Cryptodome.Cipher import AES
+from Cryptodome.Hash import SHA
 
 from django.core.management.base import BaseCommand, CommandError
 from django.template import loader
@@ -44,8 +47,17 @@ class Command(BaseCommand):
         ctx.verify_mode = ssl.CERT_NONE
         response = urllib.request.urlopen(r, context=ctx)
         data = response.read()
-        text_data = data.decode()
-        users = json.loads(text_data)
+        encrypted_payload = json.loads(data.decode())
+
+        iv = base64.urlsafe_b64decode(encrypted_payload["iv"])
+        encrypted = base64.urlsafe_b64decode(encrypted_payload["data"])
+        key = SHA.new(settings.SUBPRIVATE_KEY.encode('ascii')).digest()[:16]
+        cipher = AES.new(key, AES.MODE_CBC, iv)
+        decrypted = cipher.decrypt(encrypted)
+        plaintext = decrypted.rstrip(b' ')
+        text_data = json.loads(plaintext.decode("utf-8"))
+
+        users = text_data["d"]
         previous_subcriptions = ListSubscription.objects.filter(list=spiprivate)
         addresses = [x["members__email"] for x in users]
         for subscription in previous_subcriptions:
