@@ -101,7 +101,7 @@ def updateactive(request):
     user.lastactive = datetime.date.today()
     if user.downgraded_user:
         user.iscontrib = True
-        messages.success(request, 'Retrieved contributing member status!')
+        messages.success(request, 'Retrieved contributing member status! Please wait for 5 to 15 minutes for changes to propagate to mailing list sites')
     user.save()
     messages.success(request, '"Last active" date set to current date')
     send_change_to_apps(User.objects.get(pk=user.pk), status=True)
