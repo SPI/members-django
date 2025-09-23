@@ -486,9 +486,10 @@ class NonLoggedInViewsTests(TestCase):
         member_private.save()
         member_noprivate.save()
         response = self.client.get('/privatesubs')
+        dump_page(response)
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "isprivate")
-        self.assertNotContains(response, "noprivate")
+        self.assertContains(response, '{"username": "isprivate", "members__email": "isprivate@spi-inc.org", "first_name": "", "last_name": "", "members__sub_private": true}')
+        self.assertNotContains(response, '{"username": "noprivate", "members__email": "noprivate@spi-inc.org", "first_name": "", "last_name": "", "members__sub_private": true}')
 
     @override_settings(NOCAPTCHA=True)
     def test_register(self):
