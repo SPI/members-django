@@ -18,6 +18,7 @@ from django.contrib.auth.models import User
 from django.utils import timezone
 from django.contrib import auth
 from django.core import mail
+from django.conf import settings
 
 from membersapp.app.models import Members, Applications, VoteElection, VoteVote, VoteBallot, VoteOption
 from membersapp.account.models import SecondaryEmail
@@ -481,7 +482,6 @@ class NonLoggedInViewsTests(TestCase):
             self.assertRedirects(response, '/account/login/?next=%s' % case, status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=False)
 
     def test_privatesubs(self):
-        SUBPRIVATE_KEY = 'django-insecure-l_+ya#^z)@&o^%k*z$)-z!=dh$es_9i!w!+=z8-wg4nub@e!#g'
         user1 = User(username="isprivate", email="isprivate@spi-inc.org")
         user2 = User(username="noprivate", email='noprivate@spi-inc.org')
         member_private = Members(memid=user1, name="isprivate", email='isprivate@spi-inc.org', sub_private=True, iscontrib=True)
@@ -494,7 +494,7 @@ class NonLoggedInViewsTests(TestCase):
         encrypted_payload = response.json()
         iv = base64.urlsafe_b64decode(encrypted_payload["iv"])
         encrypted = base64.urlsafe_b64decode(encrypted_payload["data"])
-        key = SHA.new(SUBPRIVATE_KEY.encode('ascii')).digest()[:16]
+        key = SHA.new(settings.SUBPRIVATE_KEY.encode('ascii')).digest()[:16]
         cipher = AES.new(key, AES.MODE_CBC, iv)
         decrypted = cipher.decrypt(encrypted)
         plaintext = decrypted.rstrip(b' ')
