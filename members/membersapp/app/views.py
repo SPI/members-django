@@ -1,5 +1,5 @@
 import datetime
-import hashlib
+import secrets
 import uuid
 import json
 import base64
@@ -216,11 +216,7 @@ def votevote(request, ref):
                 membervote, created = VoteVote.objects.get_or_create(voter_ref=user, ballot_ref=ballot)
                 votestr = request.POST['vote'].strip()
                 if created:
-                    md5 = hashlib.md5()
-                    md5.update(vote.title.encode('utf-8'))
-                    md5.update(user.email.encode('utf-8'))
-                    md5.update(uuid.uuid1().hex.encode('utf-8'))
-                    membervote.private_secret = md5.hexdigest()
+                    membervote.private_secret = secrets.token_hex(16)
                     membervote.save()
                 if votestr != membervote.votestr:
                     membervote.set_vote(votestr)
