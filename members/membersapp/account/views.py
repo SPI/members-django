@@ -152,7 +152,20 @@ def confirm_add_email(request, tokenhash):
     addr.confirmed = True
     addr.token = ''
     addr.save()
+
     send_change_to_apps(request.user)
+
+    send_template_mail(
+        settings.ACCOUNTS_NOREPLY_FROM,
+        request.user.email,
+        'An email address was added to your SPI account',
+        'email_added_email.txt',
+        {
+            'user': request.user,
+            'new_email': addr.email
+        },
+    )
+
     return HttpResponseRedirect('/account/profile/')
 
 

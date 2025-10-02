@@ -1,0 +1,5 @@
+Somebody, probably you, added the following email address to
+the SPI community account {{user.username}}: {{new_email}}.
+
+If you are not the origin of this action, please contact SPI webmaster:
+webmaster@spi-inc.org.
