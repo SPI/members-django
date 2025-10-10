@@ -244,9 +244,7 @@ def reset_complete(request):
     return authviews.PasswordResetCompleteView.as_view(template_name='password_reset_complete.html')(request)
 
 
-@script_sources('https://www.google.com/recaptcha/')
-@script_sources('https://www.gstatic.com/recaptcha/')
-@frame_sources('https://www.google.com/')
+@script_sources('https://js.hcaptcha.com/1/')
 def signup(request):
     if request.user.is_authenticated:
         return HttpSimpleResponse(request, "Account error", "You must log out before you can sign up for a new account")

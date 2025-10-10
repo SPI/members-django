@@ -18,12 +18,12 @@ class ReCaptchaWidget(forms.widgets.Widget):
         if settings.NOCAPTCHA:
             return 'Captcha disabled on this system'
         log.info("Generated captcha")
-        return mark_safe('<div class="g-recaptcha" data-sitekey="{0}"></div>'.format(settings.RECAPTCHA_SITE_KEY))
+        return mark_safe('<div class="h-captcha" data-sitekey="{0}"></div>'.format(settings.RECAPTCHA_SITE_KEY))
 
     def value_from_datadict(self, data, files, name):
         if settings.NOCAPTCHA:
             return None
-        return data.get('g-recaptcha-response', None)
+        return data.get('h-captcha-response', None)
 
 
 class ReCaptchaField(forms.CharField):
@@ -49,7 +49,7 @@ class ReCaptchaField(forms.CharField):
         }
         try:
             r = requests.post(
-                "https://www.google.com/recaptcha/api/siteverify", param,
+                "https://api.hcaptcha.com/siteverify", param,
                 headers={
                     'Content-type': 'application/x-www-form-urlencoded',
                 },
