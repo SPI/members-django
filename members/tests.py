@@ -466,6 +466,10 @@ class NonLoggedInViewsTests(TestCase):
         response = self.client.get(f'/updateactive/wrongtoken/', follow=True)
         self.assertRedirects(response, '/', status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=True)
         self.assertContains(response, "Invalid or expired link")
+        # another one
+        response = self.client.get(f'/updateactive/toto/', follow=True)
+        self.assertRedirects(response, '/', status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=True)
+        self.assertContains(response, "Invalid or expired link")
 
     def test_member(self):
         response = self.client.get('/member/1')

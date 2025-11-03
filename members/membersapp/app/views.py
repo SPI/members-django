@@ -119,7 +119,7 @@ def updateactive_token(request, token):
     try:
         raw_token = base64.urlsafe_b64decode(token.encode()).decode()
         data = signing.loads(raw_token, max_age=60 * 60 * 24 * 365)  # valid for 1 year
-    except (signing.BadSignature, binascii.Error):
+    except (signing.BadSignature, binascii.Error, UnicodeDecodeError):
         messages.error(request, "Invalid or expired link.")
         return HttpResponseRedirect("/")
     try:
