@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-from datetime import datetime, timezone
+import datetime
 from dateutil.relativedelta import relativedelta
 
 from django.core.management.base import BaseCommand, CommandError
@@ -10,6 +10,7 @@ from django.core.mail import send_mail
 from django.db.models import Q, Max
 from django.contrib.auth.models import User
 from django.core import signing
+from django.utils import timezone
 
 from membersapp.app.models import Members, VoteElection
 from membersapp.account.util.propagate import send_change_to_apps
@@ -25,7 +26,7 @@ class Command(BaseCommand):
 
     def get_case(self):
         last_vote = VoteElection.objects.aggregate(Max('period_start'))['period_start__max']
-        if (datetime.now(timezone.utc) - relativedelta(years=1) > last_vote):
+        if (datetime.datetime.now(datetime.timezone.utc) - relativedelta(years=1) > last_vote):
             print("No vote happened in a year. Last vote was on " + str(last_vote))
             self.vote_case = NO_VOTE
         else:
@@ -41,9 +42,9 @@ class Command(BaseCommand):
 
     def get_concerned_members(self):
         if self.vote_case == VOTE:
-            max_date = VoteElection.objects.aggregate(Max('period_start'))['period_start__max']
+            max_date = VoteElection.objects.filter(period_start__lt=timezone.now()).aggregate(Max('period_start'))['period_start__max']
         else:
-            max_date = datetime.now(timezone.utc) - relativedelta(years=1)
+            max_date = datetime.datetime.now(datetime.timezone.utc) - relativedelta(years=1)
         concerned_members = Members.objects.filter(Q(iscontrib=True) & Q(lastactive__lt=max_date))
         return concerned_members
 
