@@ -18,6 +18,7 @@ from django.contrib.auth.models import User
 from django.utils import timezone
 from django.contrib import auth
 from django.core import mail
+from django.core.management import call_command
 from django.conf import settings
 
 from membersapp.app.models import Members, Applications, VoteElection, VoteVote, VoteBallot, VoteOption
@@ -443,6 +444,18 @@ class NonLoggedInViewsTests(TestCase):
         }
         response = self.client.post("/updateactive", data=data)
         self.assertRedirects(response, '/account/login/?next=/updateactive', status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=False)
+
+    def test_updateactive_token(self):
+        user = Members.objects.filter(ismanager=False)[0]
+        user.lastactive = timezone.now() - datetime.timedelta(days=365 * 2)
+        user.iscontrib = True
+        user.save()
+        call_command('cleanup-contrib', '--quiet', 'ping')
+        matches = re.search('/updateactive/(.*?)/\n', mail.outbox[0].body)
+        token = matches.group(1)
+        response = self.client.get(f'/updateactive/{token}/', follow=True)
+        self.assertRedirects(response, '/', status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=True)
+        self.assertContains(response, "Activity for member")
 
     def test_member(self):
         response = self.client.get('/member/1')
