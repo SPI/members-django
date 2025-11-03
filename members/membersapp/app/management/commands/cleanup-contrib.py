@@ -25,13 +25,15 @@ class Command(BaseCommand):
     help = 'Deal with sending notifications to or cleaning up inactive SPI contributing members'
     vote_case = None
 
-    def get_case(self):
+    def get_case(self, quiet=False):
         last_vote = VoteElection.objects.aggregate(Max('period_start'))['period_start__max']
         if last_vote is None or (datetime.datetime.now(datetime.timezone.utc) - relativedelta(years=1) > last_vote):
-            print("No vote happened in a year. Last vote was on " + str(last_vote))
+            if not quiet:
+                print("No vote happened in a year. Last vote was on " + str(last_vote))
             self.vote_case = NO_VOTE
         else:
-            print("A vote happened within a year, on " + str(last_vote))
+            if not quiet:
+                print("A vote happened within a year, on " + str(last_vote))
             self.vote_case = VOTE
 
     def add_arguments(self, parser):
@@ -39,6 +41,9 @@ class Command(BaseCommand):
                             help="Clean or only ping inactive members.")
         parser.add_argument('--dry-run', dest='dryrun',
                             help="Just show what would happen, don't take any action",
+                            action='store_const', const=True, default=False)
+        parser.add_argument('-q', '--quiet', dest='quiet',
+                            help="Do not write anything to standard output.",
                             action='store_const', const=True, default=False)
 
     def get_concerned_members(self):
@@ -49,12 +54,13 @@ class Command(BaseCommand):
         concerned_members = Members.objects.filter(Q(iscontrib=True) & Q(lastactive__lt=max_date))
         return concerned_members
 
-    def clean_contrib(self, dryrun):
+    def clean_contrib(self, dryrun, quiet=False):
         downgradable_members = self.get_concerned_members()
-        if dryrun and len(downgradable_members) > 0:
+        if dryrun and len(downgradable_members) > 0 and not quiet:
             print("***** Dry run *****")
         for member in downgradable_members:
-            print("Downgrading %s to non-contributing" % member.name)
+            if not quiet:
+                print("Downgrading %s to non-contributing" % member.name)
             if dryrun is False:
                 member.iscontrib = False
                 member.save()
@@ -65,16 +71,17 @@ class Command(BaseCommand):
         b64_token = base64.urlsafe_b64encode(token.encode()).decode()
         return b64_token
 
-    def send_ping(self, dryrun):
+    def send_ping(self, dryrun, quiet=False):
         pingable_members = self.get_concerned_members()
         if self.vote_case == VOTE:
             template = loader.get_template('activity-ping-email.txt')
         else:
             template = loader.get_template('activity-ping-email-novote.txt')
-        if dryrun and len(pingable_members) > 0:
+        if dryrun and len(pingable_members) > 0 and not quiet:
             print("***** Dry run *****")
         for member in pingable_members:
-            print("Sending ping to %s" % member.name)
+            if not quiet:
+                print("Sending ping to %s" % member.name)
             context = {
                 'name': member.name,
                 'update_id': self.generate_update_id(member)
@@ -84,8 +91,8 @@ class Command(BaseCommand):
                 send_mail('SPI activity ping for %s' % member.name, msg, 'SPI Membership Committee <membership@spi-inc.org>', [member.email], fail_silently=False)
 
     def handle(self, *args, **options):
-        self.get_case()
+        self.get_case(options['quiet'])
         if options['action'] == 'clean':
-            self. clean_contrib(options['dryrun'])
+            self. clean_contrib(options['dryrun'], options['quiet'])
         elif options['action'] == 'ping':
-            self. send_ping(options['dryrun'])
+            self. send_ping(options['dryrun'], options['quiet'])
