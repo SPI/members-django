@@ -302,6 +302,10 @@ table.rounds th {
 	text-align: center;
 }
 
+.flashes {
+    margin-top: 35px;
+}
+
 /* media-query for mobile */
 
 @media(max-width:640px) {
