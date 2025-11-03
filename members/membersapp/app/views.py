@@ -126,7 +126,7 @@ def updateactive_token(request, token):
         messages.error(request, "Error: your member account does not seem to exist.")
         return HttpResponseRedirect("/")
     update_member_activity(request, user)
-    messages.success(request, f"Activity for member {user.name} has been registered successfully. You can now log in.")
+    messages.success(request, f"Activity for member {user.name} has been registered successfully.")
     return HttpResponseRedirect("/")
 
 
