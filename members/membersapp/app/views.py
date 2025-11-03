@@ -119,7 +119,8 @@ def updateactive_token(request, token):
         raw_token = base64.urlsafe_b64decode(token.encode()).decode()
         data = signing.loads(raw_token, max_age=60 * 60 * 24 * 365)  # valid for 1 year
     except signing.BadSignature:
-        return HttpResponseBadRequest("Invalid or expired link.")
+        messages.error(request, "Invalid or expired link.")
+        return HttpResponseRedirect("/")
     try:
         user = Members.objects.get(pk=data['user_id'])
     except Members.DoesNotExist:
