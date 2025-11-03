@@ -3,6 +3,7 @@ import secrets
 import uuid
 import json
 import base64
+import binascii
 import time
 from Cryptodome.Cipher import AES
 from Cryptodome.Hash import SHA
@@ -118,7 +119,7 @@ def updateactive_token(request, token):
     try:
         raw_token = base64.urlsafe_b64decode(token.encode()).decode()
         data = signing.loads(raw_token, max_age=60 * 60 * 24 * 365)  # valid for 1 year
-    except signing.BadSignature:
+    except (signing.BadSignature, binascii.Error):
         messages.error(request, "Invalid or expired link.")
         return HttpResponseRedirect("/")
     try:
