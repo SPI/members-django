@@ -27,7 +27,7 @@ class Command(BaseCommand):
 
     def get_case(self):
         last_vote = VoteElection.objects.aggregate(Max('period_start'))['period_start__max']
-        if (datetime.datetime.now(datetime.timezone.utc) - relativedelta(years=1) > last_vote):
+        if last_vote is None or (datetime.datetime.now(datetime.timezone.utc) - relativedelta(years=1) > last_vote):
             print("No vote happened in a year. Last vote was on " + str(last_vote))
             self.vote_case = NO_VOTE
         else:
