@@ -20,6 +20,7 @@ from django.contrib import messages
 from django.urls import reverse
 from django.utils import timezone
 from django.core.mail import send_mail
+from django.core import signing
 
 from membersapp.app.stats import get_stats
 from membersapp.app.applications import *
@@ -94,10 +95,7 @@ def application(request, appid):
     return HttpResponse(template.render(context, request))
 
 
-@login_required
-def updateactive(request):
-    """Update a users most recently active date and redirect to main page"""
-    user = get_current_user(request)
+def update_member_activity(request, user):
     user.lastactive = datetime.date.today()
     if user.downgraded_user:
         user.iscontrib = True
@@ -105,6 +103,29 @@ def updateactive(request):
     user.save()
     messages.success(request, '"Last active" date set to current date')
     send_change_to_apps(User.objects.get(pk=user.pk), status=True)
+
+
+@login_required
+def updateactive(request):
+    """Update a users most recently active date and redirect to main page"""
+    user = get_current_user(request)
+    update_member_activity(request, user)
+    return HttpResponseRedirect("/")
+
+
+def updateactive_token(request):
+    """Update a users most recently active date without requiring login, using a unique token"""
+    try:
+        data = signing.loads(token, max_age=60 * 60 * 24 * 365)  # valid for 1 year
+    except signing.BadSignature:
+        return HttpResponseBadRequest("Invalid or expired link.")
+    try:
+        user = Members.objects.get(pk=data['user_id'])
+    except Members.DoesNotExist:
+        messages.error(request, "Error: your member account does not seem to exist.")
+        return HttpResponseRedirect("/")
+    update_member_activity(request, user)
+    messages.success(request, f"Activity for member {user.name} has been registered successfully. You can now log in.")
     return HttpResponseRedirect("/")
 
 

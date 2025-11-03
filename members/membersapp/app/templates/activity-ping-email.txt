@@ -10,7 +10,7 @@ consider yourself an active contributing SPI member and wish to retain
 this status please let us know by updating your activity using the
 following link within the next 4 weeks:
 
-https://members.spi-inc.org/updateactive
+https://members.spi-inc.org/updateactive/{{ update_id }}/
 
 If you are not currently active as an SPI contributing member you need
 take no action; your status will be downgraded to that of a

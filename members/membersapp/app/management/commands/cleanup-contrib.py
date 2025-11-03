@@ -9,6 +9,7 @@ from django.conf import settings
 from django.core.mail import send_mail
 from django.db.models import Q, Max
 from django.contrib.auth.models import User
+from django.core import signing
 
 from membersapp.app.models import Members, VoteElection
 from membersapp.account.util.propagate import send_change_to_apps
@@ -57,6 +58,10 @@ class Command(BaseCommand):
                 member.save()
                 send_change_to_apps(User.objects.get(pk=member.pk), status=True)
 
+    def generate_update_id(self, member):
+        token = signing.dumps({'user_id': member.pk})
+        return token
+
     def send_ping(self, dryrun):
         pingable_members = self.get_concerned_members()
         if self.vote_case == VOTE:
@@ -68,7 +73,8 @@ class Command(BaseCommand):
         for member in pingable_members:
             print("Sending ping to %s" % member.name)
             context = {
-                'name': member.name
+                'name': member.name,
+                'update_id': self.generate_update_id(member)
             }
             msg = template.render(context)
             if not dryrun:
