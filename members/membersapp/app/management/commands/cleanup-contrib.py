@@ -2,6 +2,7 @@
 
 import datetime
 from dateutil.relativedelta import relativedelta
+import base64
 
 from django.core.management.base import BaseCommand, CommandError
 from django.template import loader
@@ -61,7 +62,8 @@ class Command(BaseCommand):
 
     def generate_update_id(self, member):
         token = signing.dumps({'user_id': member.pk})
-        return token
+        b64_token = base64.urlsafe_b64encode(token.encode()).decode()
+        return b64_token
 
     def send_ping(self, dryrun):
         pingable_members = self.get_concerned_members()

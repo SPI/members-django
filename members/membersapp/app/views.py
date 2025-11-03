@@ -113,10 +113,11 @@ def updateactive(request):
     return HttpResponseRedirect("/")
 
 
-def updateactive_token(request):
+def updateactive_token(request, token):
     """Update a users most recently active date without requiring login, using a unique token"""
     try:
-        data = signing.loads(token, max_age=60 * 60 * 24 * 365)  # valid for 1 year
+        raw_token = base64.urlsafe_b64decode(token.encode()).decode()
+        data = signing.loads(raw_token, max_age=60 * 60 * 24 * 365)  # valid for 1 year
     except signing.BadSignature:
         return HttpResponseBadRequest("Invalid or expired link.")
     try:
