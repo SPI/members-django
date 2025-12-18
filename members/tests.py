@@ -399,7 +399,7 @@ def manual_login(testcase, password="test_password"):
 
 
 def manual_logout(testcase):
-    response = testcase.client.get('/account/logout/', follow=True)
+    response = testcase.client.post('/account/logout/', follow=True)
     return response
 
 
@@ -591,8 +591,10 @@ class LoggedInViewsTest(TestCase):
     def test_logout(self):
         user = auth.get_user(self.client)
         assert user.is_authenticated
-        response = self.client.get('/account/logout', follow=True)
-        self.assertRedirects(response, '/', status_code=301, target_status_code=200, msg_prefix='', fetch_redirect_response=False)
+        response = manual_logout(self)
+        # self.assertRedirects(response, '/', status_code=301, target_status_code=200, msg_prefix='', fetch_redirect_response=True)
+        user = auth.get_user(self.client)
+        assert not user.is_authenticated
         self.assertContains(response, "Welcome to the membership pages")
 
     def test_index_loggedin(self):
@@ -1664,8 +1666,11 @@ class AccountTest(TestCase):
     def test_logout(self):
         user = register_user_manually_with_validation(self)
         manual_login(self)
+        assert user.is_authenticated
         response = manual_logout(self)
         self.assertRedirects(response, '/', status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=True)
+        user = auth.get_user(self.client)
+        assert not user.is_authenticated
         self.assertContains(response, "Welcome to the membership pages of Software in the Public Interest")
 
     @override_settings(NOCAPTCHA=True)

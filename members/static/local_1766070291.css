@@ -210,8 +210,19 @@ div.recentchanges {
 	transition: 0.3s;
 }
 
+.sidebar form {
+    display: inline;
+}
 
-.sidebar a {
+.sidebar button {
+    background:none;
+    border:none;
+    margin:0;
+    cursor:pointer;
+    font: inherit;
+}
+
+.sidebar a, .sidebar button {
 	text-decoration: none;
 	color: #0e49b6;
 	padding: 0.5em;
@@ -219,7 +230,7 @@ div.recentchanges {
 	transition: 0.3s;
 }
 
-.sidebar a:hover {
+.sidebar a:hover, .sidebar button:hover {
 	color: #4dba33;
 	transition: 0.3s;
 }
