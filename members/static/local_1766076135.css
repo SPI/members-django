@@ -72,7 +72,7 @@ body {
 #content {
 	color: #555;
 	line-height: 1.5em;
-	padding: 1em;
+	padding: 2em 1em 1em 1em;
 	max-width: 1000px;
 	margin: 0 auto;
 }
