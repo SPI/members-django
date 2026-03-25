@@ -16,12 +16,12 @@
 
 {% block extrahead %}
 {{ block.super }}
-<link rel="stylesheet" type="text/css" href="/media/css/markdown_preview.css" />
+<link rel="stylesheet" type="text/css" href="/static/css/markdown_preview.css" />
 {%endblock%}
 
 {%block extrascript%}
-<script type="text/javascript" src="/media/js/markdown_preview.js"></script>
-<script type="text/javascript" src="/media/js/forms.js"></script>
+<script type="text/javascript" src="/static/js/markdown_preview.js"></script>
+<script type="text/javascript" src="/static/js/forms.js"></script>
 {%if recaptcha%}
 <script type="text/javascript" src="https://js.hcaptcha.com/1/api.js" async defer></script>
 {%endif%}
