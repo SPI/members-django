@@ -15,6 +15,7 @@ from django.db import transaction, connection
 from django.db.models import Q, Prefetch
 from django.shortcuts import render
 from django.utils import timezone
+from django.utils.safestring import mark_safe
 from django.contrib import messages
 
 import base64
@@ -170,10 +171,7 @@ def confirm_add_email(request, tokenhash):
 
 
 def login(request):
-    return authviews.LoginView.as_view(template_name='login.html',
-                                       authentication_form=PgwebAuthenticationForm,
-                                       extra_context={
-                                       })(request)
+    return WarningLoginView.as_view()(request)
 
 
 def logout(request):
@@ -587,3 +585,16 @@ def communityauth_subscribe(request, siteid):
         })
 
     return HttpResponse(status=201)
+
+
+class WarningLoginView(authviews.LoginView):
+    template_name = "login.html"
+    authentication_form = PgwebAuthenticationForm
+
+    def form_invalid(self, form):
+        # This is called on any failed login
+        messages.warning(
+            self.request,
+            mark_safe('If you did not log in since March 2023, your password needs to be reset using the <a href="/account/reset">password reset form</a> due to the drop of the old password encryption scheme.')
+        )
+        return super().form_invalid(form)

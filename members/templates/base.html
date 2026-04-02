@@ -39,7 +39,12 @@
 <li><a href="/vote/create">Create Vote</a></li>
 {% endif %}
 <li><a href="{{ CHANGEPASSWD_URL }}">Change Password</a></li>
-<li><a href="{{ LOGOUT_URL }}">Logout</a></li>
+<li>
+  <form action="{{ LOGOUT_URL }}" method="post">
+    {% csrf_token %}
+    <button type="submit">Logout</button>
+  </form>
+</li>
     {% if user.ismanager %}
         <hr />
         <li><a href="/applications/all">All Applications</a></li>
