@@ -8,7 +8,7 @@ from django.template import loader
 from django.conf import settings
 from django.core.mail import send_mail
 
-from membersapp.app.models import VoteElection, VoteBallot, VoteVote, Applications, Members
+from membersapp.app.models import VoteElection, VoteBallot, VoteVote, VoteUniqueLink, Applications, Members
 from membersapp.app.applications import get_applications_by_type
 
 
@@ -20,10 +20,30 @@ class Command(BaseCommand):
                             help="Just show what would happen, don't take any action",
                             action='store_const', const=True, default=False)
 
+    def get_unique_link(self, user, vote):
+        # will raise an exception if none exists
+        try:
+            link = VoteUniqueLink.objects.get(voter_ref=user.pk, vote_ref=vote.pk).unique_link
+        except VoteUniqueLink.DoesNotExist:
+            return None
+        return link
+
+    def generate_unique_link(self, vote, user):
+        existing_link = self.get_unique_link(user, vote)
+        print(f"existing link: {existing_link}")
+        if existing_link is None:
+            vote_unique_link = VoteUniqueLink(vote_ref=vote, voter_ref=user)
+            unique_link = vote_unique_link.unique_link
+            vote_unique_link.save()
+        else:
+            unique_link = existing_link
+        return unique_link
+
     def send_email(self, user, vote, new, dryrun, incorrect=False):
         if new:
             template = loader.get_template('vote-begin.txt')
             subject = 'SPI vote open: %s' % vote.title
+            unique_vote_link = self.generate_unique_link(vote, user)
             print("Emailing voter %s (%s) regarding opening of vote %s" % (user.name, user.email, vote.ref))
         elif incorrect:
             template = loader.get_template('vote-incorrect.txt')
@@ -32,10 +52,12 @@ class Command(BaseCommand):
         else:
             template = loader.get_template('vote-mid.txt')
             subject = 'SPI vote reminder: %s' % vote.title
+            unique_vote_link = self.get_unique_link(user, vote)
             print("Emailing voter %s (%s) regarding reminder for vote %s" % (user.name, user.email, vote.ref))
         context = {
             'user': user,
-            'vote': vote
+            'vote': vote,
+            'unique_vote_link': unique_vote_link,
         }
         msg = template.render(context)
         if not dryrun:

@@ -1,4 +1,5 @@
 import hashlib
+import secrets
 
 from django.utils import timezone
 from django.db import models
@@ -213,3 +214,13 @@ class VoteVoteOption(models.Model):
     class Meta:
         unique_together = (('vote_ref', 'option_ref'), )
         db_table = 'vote_voteoption'
+
+
+def generate_token():
+    return secrets.token_urlsafe(32)
+
+
+class VoteUniqueLink(models.Model):
+    vote_ref = models.ForeignKey(VoteElection, null=False, blank=False, db_column='vote_ref', on_delete=models.RESTRICT)
+    voter_ref = models.ForeignKey(Members, null=False, blank=False, db_column='voter_ref', on_delete=models.RESTRICT)
+    unique_link = models.CharField(max_length=64, default=generate_token)

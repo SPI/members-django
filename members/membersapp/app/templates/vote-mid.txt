@@ -6,7 +6,7 @@ As a contributing member of SPI, you're now eligible to cast your vote.
 Since half of the voting period is over already, we wanted to send you
 a gentle reminder to participate in this vote.
 
-Please go to https://members.spi-inc.org/vote/{{ vote.ref }} to cast your vote.
+Please go to https://members.spi-inc.org/vote/{{ unique_vote_link }}/{{ vote.ref }} to cast your vote.
 
 You can cast your vote until {{ vote.period_stop|date:"Y-m-d H:i:s" }} UTC.
 
