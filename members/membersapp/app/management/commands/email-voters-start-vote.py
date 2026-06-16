@@ -72,9 +72,9 @@ class Command(BaseCommand):
         for ballot in ballots:
             for x in VoteVote.objects.filter(ballot_ref=ballot):
                 voters.add(x.voter_ref.memid)
-        for app in get_applications_by_type('cm'):
-            if app.member.memid not in voters:
-                self.send_email(app.member, vote, new, dryrun)
+        for contrib_member in Members.objects.filter(iscontrib=True):
+            if contrib_member.memid not in voters:
+                self.send_email(contrib_member, vote, new, dryrun)
 
     def handle(self, *args, **options):
         votes = [x for x in VoteElection.objects.all() if x.is_active]
