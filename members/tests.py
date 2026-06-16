@@ -994,6 +994,12 @@ class ContribUserTest(TestCase):
     # Only managers should get vote creation rights, so we'll leave the rest of
     # voting results tests here
 
+    def test_vote_email_notification(self):
+        vote, ballot = create_vote_with_manager(self)
+        set_vote_current(vote)
+        call_command('email-voters-start-vote')
+        self.assertEqual(len(mail.outbox), 1)
+
 
 # When a contributing user gets downgraded to non-contributing
 class DowngradedUserTest(TestCase):
