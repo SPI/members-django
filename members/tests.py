@@ -326,7 +326,7 @@ def vote_vote_other_member(testcase, ballotid):
 
 
 def set_vote_current(vote):
-    vote.period_start = timezone.now() + datetime.timedelta(days=-1)
+    vote.period_start = timezone.now() + datetime.timedelta(hours=-23)
     vote.period_stop = timezone.now() + datetime.timedelta(days=7)
     vote.save()
 
