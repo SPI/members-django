@@ -65,7 +65,6 @@ class Command(BaseCommand):
             'unique_vote_link': unique_vote_link,
         }
         msg = template.render(context)
-        # print(msg)
         if not dryrun:
             try:
                 send_mail(subject, msg, 'SPI Membership Committee <membership@spi-inc.org>', [user.email], fail_silently=False)
