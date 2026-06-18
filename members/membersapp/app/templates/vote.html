@@ -99,7 +99,7 @@
             {% if vote.is_active %}
                 {% if unique_link and ballot.membervote.votes %}
                     <p>
-                      You already voted using the unique link. Please log in to change your vote.
+                      You already voted using the unique link. Please <a href="{{ LOGIN_URL }}">log in</a> to change your vote.
                     </p>
                 {% else %}
                     <p>
