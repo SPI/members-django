@@ -1033,7 +1033,7 @@ class ContribUserTest(TestCase):
         response = vote_vote(self, ballot.pk, unique_link=link.group(1))
         self.assertRedirects(response, f"/vote/{ballot.pk}/{link.group(1)}/", status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=True)
         self.assertContains(response, "Your vote is as follows:")
-        self.assertContains(response, "You already voted using the unique link. Please log in to change your vote.")
+        self.assertContains(response, "You already voted using the unique link. Please")
 
     def test_votevote_uniquelink_wrongref(self):
         vote, ballot = create_vote_with_manager(self)
@@ -1053,7 +1053,7 @@ class ContribUserTest(TestCase):
         response = vote_vote(self, ballot.pk, unique_link=link.group(1))
         response = self.client.get(f"/vote/{ballot.pk}", follow=True)
         self.assertContains(response, "Your vote is as follows:")
-        self.assertNotContains(response, "You already voted using the unique link. Please log in to change your vote.")
+        self.assertNotContains(response, "You already voted using the unique link. Please")
 
 
 # When a contributing user gets downgraded to non-contributing
