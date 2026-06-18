@@ -97,13 +97,19 @@
                 {% endif %}
             {% endif %}
             {% if vote.is_active %}
-                <p>
-                <form method="post" action="{% url 'votevote' ballot.ref %}">
-                    {% csrf_token %}
-                    <strong>Vote:</strong> {{ ballot.form.vote }}
-                    <input type="submit" value="Cast Vote" />
-                </form>
-                </p>
+                {% if unique_link and ballot.membervote.votes %}
+                    <p>
+                      You already voted using the unique link. Please log in to change your vote.
+                    </p>
+                {% else %}
+                    <p>
+                    <form method="post" action="{% url 'votevote' ballot.ref %}{% if unique_link %}/{{ unique_link }}/{% endif %}">
+                        {% csrf_token %}
+                        <strong>Vote:</strong> {{ ballot.form.vote }}
+                        <input type="submit" value="Cast Vote" />
+                    </form>
+                    </p>
+                {% endif %}
                 <p>
                     Your vote should be represented as an ordered list of
                     candidate options e.g. to vote for A over B over C specify

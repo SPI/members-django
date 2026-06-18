@@ -43,6 +43,8 @@ urlpatterns = [
     path('vote/<int:ref>/vote', views.votevote, name='votevote'),
     path('vote/<int:ref>/result', views.voteresult, name='voteresult'),
     path('vote/<int:ref>/votepublicedit', views.votepublicedit, name='votepublicedit'),
+    path('vote/<int:ref>/<str:token>/', views.voteuniquelink, name='voteuniquelink'),
+    path('vote/<int:ref>/vote/<str:token>/', views.votevoteuniquelink, name='votevoteuniquelink'),
     path('privatesubs', views.privatesubs, name='privatesubs'),
 
     path('account/', include('membersapp.account.urls')),

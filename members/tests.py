@@ -307,11 +307,15 @@ def edit_vote_option2(testcase, ballotid):
     return response
 
 
-def vote_vote(testcase, ballotid, votestr="BA"):
+def vote_vote(testcase, ballotid, votestr="BA", unique_link=None):
     data = {
         "vote": votestr
     }
-    response = testcase.client.post("/vote/%s/vote" % ballotid, data=data, follow=True)
+    if unique_link is not None:
+        link = f"/vote/{ballotid}/vote/{unique_link}/"
+    else:
+        link = "/vote/%s/vote" % ballotid
+    response = testcase.client.post(link, data=data, follow=True)
     return response
 
 
@@ -997,8 +1001,59 @@ class ContribUserTest(TestCase):
     def test_vote_email_notification(self):
         vote, ballot = create_vote_with_manager(self)
         set_vote_current(vote)
-        call_command('email-voters-start-vote')
+        call_command('email-voters-start-vote', '--quiet')
         self.assertEqual(len(mail.outbox), 1)
+
+    def test_showvote_uniquelink(self):
+        vote, ballot = create_vote_with_manager(self)
+        set_vote_current(vote)
+        call_command('email-voters-start-vote', '--quiet')
+        link = re.search(r'/vote/\d+/(.*)/', mail.outbox[0].body)
+        manual_logout(self)
+        response = self.client.get(link.group(0).strip(), follow=True)
+        self.assertContains(response, "This election ends on")
+
+    def test_showvote_wrongref(self):
+        vote, ballot = create_vote_with_manager(self)
+        set_vote_current(vote)
+        call_command('email-voters-start-vote', '--quiet')
+        link = re.search(r'/vote/\d+/(.*)/', mail.outbox[0].body)
+        manual_logout(self)
+        response = self.client.get(f"/vote/5987786875/{link.group(1)}/"
+                                   .strip(), follow=True)
+        self.assertRedirects(response, '/', status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=False)
+        self.assertContains(response, "Unknown link")
+
+    def test_votevote_uniquelink(self):
+        vote, ballot = create_vote_with_manager(self)
+        set_vote_current(vote)
+        call_command('email-voters-start-vote', '--quiet')
+        link = re.search(r'/vote/\d+/(.*)/', mail.outbox[0].body)
+        manual_logout(self)
+        response = vote_vote(self, ballot.pk, unique_link=link.group(1))
+        self.assertRedirects(response, f"/vote/{ballot.pk}/{link.group(1)}/", status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=True)
+        self.assertContains(response, "Your vote is as follows:")
+        self.assertContains(response, "You already voted using the unique link. Please log in to change your vote.")
+
+    def test_votevote_uniquelink_wrongref(self):
+        vote, ballot = create_vote_with_manager(self)
+        set_vote_current(vote)
+        call_command('email-voters-start-vote', '--quiet')
+        link = re.search(r'/vote/\d+/(.*)/', mail.outbox[0].body)
+        manual_logout(self)
+        response = vote_vote(self, 48768939, unique_link=link.group(1))
+        self.assertRedirects(response, '/', status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=False)
+        self.assertContains(response, "Unknown link")
+
+    def test_votevote_uniquelink_back_to_regular_view(self):
+        vote, ballot = create_vote_with_manager(self)
+        set_vote_current(vote)
+        call_command('email-voters-start-vote', '--quiet')
+        link = re.search(r'/vote/\d+/(.*)/', mail.outbox[0].body)
+        response = vote_vote(self, ballot.pk, unique_link=link.group(1))
+        response = self.client.get(f"/vote/{ballot.pk}", follow=True)
+        self.assertContains(response, "Your vote is as follows:")
+        self.assertNotContains(response, "You already voted using the unique link. Please log in to change your vote.")
 
 
 # When a contributing user gets downgraded to non-contributing

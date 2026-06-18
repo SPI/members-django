@@ -32,6 +32,7 @@ class Command(BaseCommand):
         return link
 
     def generate_unique_link(self, vote, user):
+        unique_vote_link = ""
         existing_link = self.get_unique_link(user, vote)
         if existing_link is None:
             vote_unique_link = VoteUniqueLink(vote_ref=vote, voter_ref=user)

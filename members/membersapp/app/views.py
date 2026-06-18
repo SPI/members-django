@@ -25,7 +25,7 @@ from django.core import signing
 
 from membersapp.app.stats import get_stats
 from membersapp.app.applications import *
-from .models import Members, Applications, VoteElection, VoteBallot, VoteOption, VoteVote, VoteVoteOption
+from .models import Members, Applications, VoteElection, VoteBallot, VoteOption, VoteVote, VoteVoteOption, VoteUniqueLink
 from .forms import *
 from .votes import *
 from membersapp.account.util.propagate import send_change_to_apps
@@ -183,6 +183,10 @@ def showvote(request, ref):
     user = get_current_user(request)
     if not user.iscontrib:
         return render(request, 'contrib-only.html')
+    return showvote_core(request, ref, user)
+
+
+def showvote_core(request, ref, user, unique_link=None):
     vote = get_object_or_404(VoteElection, ref=ref)
     ballots = VoteBallot.objects.filter(election_ref=ref)
     if len(ballots) == 0:
@@ -208,7 +212,8 @@ def showvote(request, ref):
     context = {
         'user': user,
         'vote': vote,
-        'ballots': ballots
+        'ballots': ballots,
+        'unique_link': unique_link
     }
     return HttpResponse(template.render(context, request))
 
@@ -230,6 +235,10 @@ def votevote(request, ref):
     vote = VoteElection.objects.get(ref=ballot.election_ref.pk)
     if not user.iscontrib:
         return render(request, 'contrib-only.html')
+    return votevote_core(request, vote, ballot, user)
+
+
+def votevote_core(request, vote, ballot, user, token=None):
     if not vote.is_active:
         messages.error(request, 'Vote is not currently running.')
         return HttpResponseRedirect(reverse('vote', args=[vote.ref]))
@@ -261,7 +270,10 @@ def votevote(request, ref):
         else:
             messages.error(request, "Error while filling the form:")
             messages.error(request, form.errors)
-    return HttpResponseRedirect(reverse('vote', args=[vote.ref]))
+    if token is None:
+        return HttpResponseRedirect(reverse('vote', args=[vote.ref]))
+    else:
+        return HttpResponseRedirect(reverse('voteuniquelink', args=[vote.ref, token]))
 
 
 @login_required
@@ -504,6 +516,38 @@ def votepublicedit(request, ref):
         return HttpResponseRedirect(reverse('voteresult', args=(ref,)))
 
     return HttpResponseRedirect(reverse('voteresult', args=(ref,)))
+
+
+def voteuniquelink(request, ref, token):
+    """Vote with a unique link sent by email, without login"""
+    vote_unique_links = VoteUniqueLink.objects.filter(vote_ref=ref, unique_link=token)
+    if len(vote_unique_links) == 0:
+        messages.error(request, "Unknown link")
+        return HttpResponseRedirect("/")
+    elif len(vote_unique_links) > 1:
+        messages.error(request, "Error: more than one link")
+        return HttpResponseRedirect("/")
+    user = vote_unique_links[0].voter_ref
+    return showvote_core(request, ref, user, unique_link=token)
+
+
+def votevoteuniquelink(request, ref, token):
+    """Submit vote with a unique link sent by email, without login"""
+    try:
+        ballot = VoteBallot.objects.get(ref=ref)
+    except VoteBallot.DoesNotExist:
+        # Wrong ballot ID
+        messages.error(request, "Unknown link")
+        return HttpResponseRedirect("/")
+    vote_unique_links = VoteUniqueLink.objects.filter(vote_ref=ballot.election_ref, unique_link=token)
+    if len(vote_unique_links) == 0:
+        messages.error(request, "Unknown link")
+        return HttpResponseRedirect("/")
+    elif len(vote_unique_links) > 1:
+        messages.error(request, "Error: more than one link")
+        return HttpResponseRedirect("/")
+    user = vote_unique_links[0].voter_ref
+    return votevote_core(request, ballot.election_ref, ballot, user, token=token)
 
 
 @login_required
