@@ -2,6 +2,10 @@
 {% block title %}Vote - {{ vote.title }}{% endblock %}
 {% block content %}
 
+{% if unique_link %}
+  <p>Voting with unique link as {{ user.name }} ({{ user.email }}).</p>
+{% endif %}
+
     <h1>{{ vote.title }}</h1>
 
     {% if ballots|length > 1 %}
