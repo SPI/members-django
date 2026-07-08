@@ -185,6 +185,8 @@ LIST_HOSTS = ['127.0.0.1', '::1']
 
 SUBPRIVATE_KEY = 'django-insecure-l_+ya#^z)@&o^%k*z$)-z!=dh$es_9i!w!+=z8-wg4nub@e!#g'
 
+FRONTEND_SERVERS = []
+
 try:
     from .local_settings import *
 except ImportError:
