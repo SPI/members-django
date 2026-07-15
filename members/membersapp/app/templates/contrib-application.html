@@ -2,6 +2,8 @@
 {% block title %}Contributing Member Application{% endblock %}
 {% block content %}
     <h1>SPI Contributing Member Application</h1>
+    <p>Caution: this form is exclusively for individuals seeking contributing membership. Projects seeking association should refer to <a href="https://www.spi-inc.org/projects/associated-project-howto/">this document</a>.</p>
+
     <form method="post" action="{% url 'contribapplication' %}">
     {% csrf_token %}
     <table>
