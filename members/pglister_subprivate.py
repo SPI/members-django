@@ -5,6 +5,7 @@ import ssl
 import sys
 import json
 import base64
+import subprocess
 from Cryptodome.Cipher import AES
 from Cryptodome.Hash import SHA
 
@@ -60,11 +61,13 @@ class Command(BaseCommand):
         users = text_data["d"]
         previous_subcriptions = ListSubscription.objects.filter(list=spiprivate)
         addresses = [x["members__email"] for x in users]
+        change = False
         for subscription in previous_subcriptions:
             if str(subscription.subscriber) not in addresses:
                 print("%s no longer subscribed, removing subscription" % subscription.subscriber)
                 if not options['dryrun']:
                     subscription.delete()
+                    change = True
             elif options['verbose']:
                 print("%s remains subscribed" % subscription.subscriber)
         for user in users:
@@ -73,6 +76,7 @@ class Command(BaseCommand):
                 new_user = User(username=user["username"], first_name=user["first_name"], last_name=user["last_name"], email=user["members__email"])
                 if not options['dryrun']:
                     new_user.save()
+                    change = True
             try:
                 subscriber = SubscriberAddress.objects.get(email=user["members__email"])
                 if subscriber.subscriber_id is None:
@@ -93,6 +97,7 @@ class Command(BaseCommand):
                 subscriber = SubscriberAddress(email=user["members__email"], confirmed=True, blocked=False, token=generate_random_token())
                 if not options['dryrun']:
                     subscriber.save()
+                    change = True
             if ListSubscription.objects.filter(list=spiprivate, subscriber=subscriber).exists():
                 ls = ListSubscription.objects.get(list=spiprivate, subscriber=subscriber)
                 if not (ls.nomail != user["members__sub_private"]):
@@ -100,6 +105,7 @@ class Command(BaseCommand):
                     if not options['dryrun']:
                         ls.nomail = not user["members__sub_private"]
                         ls.save()
+                        change = True
                 if options['verbose']:
                     print("%s already subscribed to spi-private" % user["members__email"])
                 continue
@@ -107,3 +113,13 @@ class Command(BaseCommand):
             if not options['dryrun']:
                 subscription = ListSubscription(list=spiprivate, subscriber=subscriber, nomail=not user["members__sub_private"])
                 subscription.save()
+                change = True
+
+        if change:
+            print("Calling pglister_sync for pgarchives-private")
+            result = subprocess.run(
+                [settings.PGARCHIVES_PRIVATE_PYTHON_PATH, settings.PGARCHIVES_PRIVATE_PGLISTER_SYNC_PATH],
+                capture_output=True
+            )
+
+            print(result.stdout)
