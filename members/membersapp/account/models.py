@@ -1,5 +1,10 @@
 from django.db import models
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Group
+
+
+# The value we store in user.password for oauth logins. This is
+# a value that must not match any hashers.
+OAUTH_PASSWORD_STORE = 'oauth_signin_account_no_password'
 
 
 class CommunityAuthOrg(models.Model):
@@ -18,7 +23,7 @@ class CommunityAuthSite(models.Model):
     apiurl = models.URLField(max_length=200, null=False, blank=True)
     cryptkey = models.CharField(max_length=100, null=False, blank=False,
                                 help_text="Use tools/communityauth/generate_cryptkey.py to create a key")
-    version = models.IntegerField(choices=((2, 2), (3, 3)), default=2)
+    version = models.IntegerField(choices=((2, "v2 - DEPRECATED"), (3, "v3 - recommended"), (4, "v4 - ChaCha20_Poly1305 compatibility")), default=2)
     comment = models.TextField(null=False, blank=True)
     org = models.ForeignKey(CommunityAuthOrg, null=False, blank=False, on_delete=models.CASCADE)
     cooloff_hours = models.PositiveIntegerField(null=False, blank=False, default=0,
@@ -29,6 +34,8 @@ class CommunityAuthSite(models.Model):
                                        help_text="Supports receiving http POSTs with changes to accounts")
     push_ssh = models.BooleanField(null=False, blank=False, default=False,
                                    help_text="Wants to receive SSH keys in push changes")
+    require_groups = models.ManyToManyField(Group, blank=True,
+                                            help_text="Require membership in at least one of the specified groups in order to log in")
 
     def __str__(self):
         return self.name

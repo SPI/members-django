@@ -12,12 +12,20 @@ from membersapp.account.util.widgets import TemplateRenderWidget
 from membersapp.account.util.db import exec_to_dict
 
 from .models import CommunityAuthSite, CommunityAuthOrg, SecondaryEmail
+from .models import OAUTH_PASSWORD_STORE
 
 
 class CommunityAuthSiteAdminForm(forms.ModelForm):
     class Meta:
         model = CommunityAuthSite
         exclude = ()
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.fields['org'].widget.can_add_related = False
+        self.fields['org'].widget.can_change_related = False
+        self.fields['require_groups'].widget.can_add_related = False
 
     def clean_cryptkey(self):
         x = None
@@ -32,6 +40,20 @@ class CommunityAuthSiteAdminForm(forms.ModelForm):
 
     def clean(self):
         d = super().clean()
+
+        if 'cryptkey' in self.cleaned_data:
+            key = base64.b64decode(self.cleaned_data['cryptkey'])
+            if self.cleaned_data['version'] == 2:
+                keylen = 32
+            elif self.cleaned_data['version'] == 3:
+                keylen = 64
+            elif self.cleaned_data['version'] == 4:
+                keylen = 32
+            else:
+                self.add_error('version', 'Unknown version')
+                keylen = 0
+            if len(key) != keylen:
+                self.add_error('cryptkey', 'For version {}, crypto keys muyst be {} bytes'.format(self.cleaned_data['version'], keylen))
 
         if d.get('push_changes', False) and not d.get('apiurl', ''):
             self.add_error('push_changes', 'API url must be specified to enable push changes!')
@@ -48,6 +70,7 @@ class CommunityAuthSiteAdminForm(forms.ModelForm):
 @admin.register(CommunityAuthSite)
 class CommunityAuthSiteAdmin(admin.ModelAdmin):
     list_display = ('name', 'cooloff_hours', 'push_changes', 'push_ssh', 'version', 'org')
+    filter_horizontal = ('require_groups', )
     form = CommunityAuthSiteAdminForm
 
 
