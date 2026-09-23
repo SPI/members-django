@@ -24,7 +24,7 @@
     {% for ballot in ballots %}
 
         <h1>
-            {{ ballot.title|safe }}
+            {{ ballot.title }}
         </h1>
 
         <p>Total unique votes cast: {{ ballot.membervotes|length }}{% if vote.nb_contrib %}, which is {{ ballot.vote_percent }}% of all possible votes{% endif %}  </p>

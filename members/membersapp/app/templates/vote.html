@@ -32,7 +32,7 @@
     {% for ballot in ballots %}
         <div class="ballot">
             <h1>
-                {{ ballot.title|safe }}
+                {{ ballot.title }}
             </h1>
 
             <div class="error">
@@ -41,7 +41,7 @@
             </div>
 
             <p>
-                {{ ballot.description|safe }}
+                {{ ballot.description }}
             </p>
 
             <h1>Candidates/Options</h1>
