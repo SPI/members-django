@@ -124,10 +124,10 @@ def create_vote(testcase, current=False, past=False, title="Test vote", target="
     return response
 
 
-def create_ballot(testcase, vote):
+def create_ballot(testcase, vote, title="other ballot", description="Hello world create_ballot"):
     data = {
-        "title": "other ballot",
-        "description": "Hello world create_ballot",
+        "title": title,
+        "description": description,
         "system": "1",
         "winners": "1",
         "quorum": "0.35",
@@ -1234,6 +1234,24 @@ class ManagerTest(TestCase):
         self.assertEqual(VoteBallot.objects.count(), 2)
         self.assertRedirects(response, '/vote/%d/edit' % vote.pk, status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=False)
         self.assertContains(response, "Hello world create_ballot")
+
+    def test_ballot_create_no_stored_xss(self):
+        response = create_vote(self)
+        self.assertEqual(VoteBallot.objects.count(), 1)
+        vote = VoteElection.objects.all()[0]
+        response = create_ballot(self, vote, title='" <script>alert("xss")</script>', description='" <script>alert("xss")</script>')
+        self.assertEqual(VoteBallot.objects.count(), 2)
+        self.assertRedirects(response, '/vote/%d/edit' % vote.pk, status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=False)
+        self.assertContains(response, "&lt;script&gt;")
+        self.assertNotContains(response, "<script>")
+        for ballot in VoteBallot.objects.filter(election_ref=vote):
+            create_vote_option(self, ballot.pk)
+            create_vote_option2(self, ballot.pk)
+        set_vote_current(vote)
+        response = self.client.get('/vote/%d' % vote.pk)
+        dump_page(response)
+        self.assertContains(response, "&lt;script&gt;")
+        self.assertNotContains(response, "<script>")
 
     def test_ballot_create_multiple(self):
         response = create_vote(self)
