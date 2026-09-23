@@ -1291,6 +1291,20 @@ class ManagerTest(TestCase):
         response = self.client.get('/vote/%d' % vote.pk, follow=True)
         self.assertContains(response, "Blank votes are not allowed")
 
+    def test_vote_notallowblank_vote(self):
+        create_vote(self, allow_blank=False)
+        vote = VoteElection.objects.all()[0]
+        ballot = VoteBallot.objects.filter(election_ref=vote)[0]
+        create_vote_option(self, ballot.pk)
+        create_vote_option2(self, ballot.pk)
+        set_vote_current(vote)
+        response = self.client.get('/vote/%d' % vote.pk, follow=True)
+        for votestr in ("", " "):
+            response = vote_vote(self, ballot.pk, votestr=votestr)
+            self.assertRedirects(response, '/vote/%d' % vote.pk, status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=True)
+            self.assertContains(response, "Error while filling the form:")
+            self.assertEqual(VoteVote.objects.count(), 0)
+
     def test_vote_create_error(self):
         response = create_vote(self, past=True, title="Test form recreated")
         self.assertEqual(VoteElection.objects.count(), 0)

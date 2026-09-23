@@ -244,7 +244,11 @@ def votevote_core(request, vote, ballot, user, token=None):
         return HttpResponseRedirect(reverse('vote', args=[vote.ref]))
     if request.method == 'POST':
         form = VoteVoteForm(request.POST, ballot_ref=ballot)
-        if form.is_valid():
+        form_valid = form.is_valid()
+        if form_valid and not ballot.allow_blank and not form.cleaned_data['vote'].strip():
+            form.add_error('vote', 'Blank votes are not allowed.')
+            form_valid = False
+        if form_valid:
             if vote.is_active:
                 membervote, created = VoteVote.objects.get_or_create(voter_ref=user, ballot_ref=ballot)
                 votestr = request.POST['vote'].strip()
