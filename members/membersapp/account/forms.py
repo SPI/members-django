@@ -1,4 +1,5 @@
 from django import forms
+from django.core.validators import ValidationError
 from django.contrib.auth.forms import AuthenticationForm, SetPasswordForm
 
 import re

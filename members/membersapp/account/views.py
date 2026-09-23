@@ -17,10 +17,12 @@ from django.shortcuts import render
 from django.utils import timezone
 from django.utils.safestring import mark_safe
 from django.contrib import messages
+from django.db.backends.postgresql.psycopg_any import DateTimeTZRange
 
 import base64
 import urllib.parse
 from Cryptodome.Cipher import AES
+from Cryptodome.Cipher import ChaCha20_Poly1305
 from Cryptodome import Random
 import time
 import json
@@ -36,6 +38,7 @@ from membersapp.app.utils import get_current_user
 from membersapp.app.models import Members, Applications
 
 from .models import CommunityAuthSite, CommunityAuthConsent, SecondaryEmail
+from .models import OAUTH_PASSWORD_STORE
 from .forms import PgwebAuthenticationForm, ConfirmSubmitForm
 from .forms import CommunityAuthConsentForm
 from .forms import SignupForm
@@ -190,6 +193,8 @@ def resetpwd(request):
     # recover. So implement our own, since it's quite the trivial feature.
     if request.method == "POST":
         try:
+            if 'email' not in request.POST:
+                return HttpResponse("Email must be specified", status=400)
             u = User.objects.get(email__iexact=request.POST['email'])
         except User.DoesNotExist:
             log.info("Attempting to reset password of {0}, user not found".format(request.POST['email']))
@@ -372,11 +377,16 @@ def communityauth(request, siteid):
             },
         )(request)
 
-    # When we reach this point, the user *has* already been authenticated.
-    # The request variable "su" *may* contain a suburl and should in that
-    # case be passed along to the site we're authenticating for. And of
-    # course, we fill a structure with information about the user.
+    # At this point, the user has been authenticated.
 
+    # If this site is group-restricted, verify it
+    if site.require_groups.exists() and not site.require_groups.filter(id__in=request.user.groups.all()).exists():
+        return render_pgweb(request, 'account', 'account/communityauth_nogroup.html', {
+            'site': site,
+        })
+
+    # Make sure we have some data to fill in before we redirect, so downstream consumers
+    # don't need to verify that.
     if request.user.first_name == '' or request.user.last_name == '' or request.user.email == '':
         return render(request, 'communityauth_noinfo.html', {
         })
@@ -420,11 +430,14 @@ def communityauth(request, siteid):
     # the first block more random..
     s = "t=%s&%s" % (int(time.time()), urllib.parse.urlencode(info))
 
-    if site.version == 3:
-        # v3 = authenticated encryption
+    if site.version in (3, 4):
+        # v3 = authenticated encryption, v4 = authenticated encryption with XChaCha20-Poly1305
         r = Random.new()
-        nonce = r.read(16)
-        encryptor = AES.new(base64.b64decode(site.cryptkey), AES.MODE_SIV, nonce=nonce)
+        nonce = r.read(16 if site.version == 3 else 24)
+        if site.version == 3:
+            encryptor = AES.new(base64.b64decode(site.cryptkey), AES.MODE_SIV, nonce=nonce)
+        else:
+            encryptor = ChaCha20_Poly1305.new(key=base64.b64decode(site.cryptkey), nonce=nonce)
         cipher, tag = encryptor.encrypt_and_digest(s.encode('ascii'))
         redirparams = {
             'd': base64.urlsafe_b64encode(cipher),
@@ -484,11 +497,14 @@ def communityauth_consent(request, siteid):
 
 
 def _encrypt_site_response(site, s, version):
-    if version == 3:
-        # Use authenticated encryption
+    if version in (3, 4):
+        # Use authenticated encryption (v3 = SIV, v4 = ChaCha20_Poly1305
         r = Random.new()
-        nonce = r.read(16)
-        encryptor = AES.new(base64.b64decode(site.cryptkey), AES.MODE_SIV, nonce=nonce)
+        nonce = r.read(16 if site.version == 3 else 24)
+        if site.version == 3:
+            encryptor = AES.new(base64.b64decode(site.cryptkey), AES.MODE_SIV, nonce=nonce)
+        else:
+            encryptor = ChaCha20_Poly1305.new(key=base64.b64decode(site.cryptkey), nonce=nonce)
         cipher, tag = encryptor.encrypt_and_digest(s.encode('ascii'))
 
         return "&".join((
