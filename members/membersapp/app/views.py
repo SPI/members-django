@@ -248,32 +248,32 @@ def votevote_core(request, vote, ballot, user, token=None):
         if form_valid and not ballot.allow_blank and not form.cleaned_data['vote'].strip():
             form.add_error('vote', 'Blank votes are not allowed.')
             form_valid = False
-        if form_valid:
-            if vote.is_active:
-                membervote, created = VoteVote.objects.get_or_create(voter_ref=user, ballot_ref=ballot)
-                votestr = request.POST['vote'].strip()
-                if created:
-                    membervote.private_secret = secrets.token_hex(16)
-                    membervote.save()
-                if votestr != membervote.votestr:
-                    membervote.set_vote(votestr)
-                    # Remove any previous vote details first
-                    VoteVoteOption.objects.filter(vote_ref=membervote).delete()
-                    for i, voteoption in enumerate(membervote.votes, 1):
-                        votevoteoption = VoteVoteOption(vote_ref=membervote, option_ref=voteoption, preference=i)
-                        votevoteoption.save()
-                    membervote.save()
-                    user.lastactive = datetime.date.today()
-                    user.save()
-                    messages.success(request, "Your vote was registered!")
-                    nb_remaining_ballots = check_remaining_ballots(vote, user)
-                    if nb_remaining_ballots > 0:
-                        messages.success(request, "Caution: there are %d remaining ballot(s) on this page. Don't forget to vote for them too!" % nb_remaining_ballots)
-            else:
-                messages.error(request, "Vote is no longer active.")
-        else:
+        if form_valid and not vote.is_active:
+            messages.error(request, "Vote is no longer active.")
+            form_valid = False
+        if not form_valid:
             messages.error(request, "Error while filling the form:")
             messages.error(request, form.errors)
+        else:
+            membervote, created = VoteVote.objects.get_or_create(voter_ref=user, ballot_ref=ballot)
+            votestr = request.POST['vote'].strip()
+            if created:
+                membervote.private_secret = secrets.token_hex(16)
+                membervote.save()
+            if votestr != membervote.votestr:
+                membervote.set_vote(votestr)
+                # Remove any previous vote details first
+                VoteVoteOption.objects.filter(vote_ref=membervote).delete()
+                for i, voteoption in enumerate(membervote.votes, 1):
+                    votevoteoption = VoteVoteOption(vote_ref=membervote, option_ref=voteoption, preference=i)
+                    votevoteoption.save()
+                membervote.save()
+                user.lastactive = datetime.date.today()
+                user.save()
+                messages.success(request, "Your vote was registered!")
+                nb_remaining_ballots = check_remaining_ballots(vote, user)
+                if nb_remaining_ballots > 0:
+                    messages.success(request, "Caution: there are %d remaining ballot(s) on this page. Don't forget to vote for them too!" % nb_remaining_ballots)
     if token is None:
         return HttpResponseRedirect(reverse('vote', args=[vote.ref]))
     else:
