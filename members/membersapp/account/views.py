@@ -187,21 +187,22 @@ def changepwd(request):
                                                 success_url='/account/changepwd/done/')(request)
 
 
+@script_sources('https://js.hcaptcha.com/1/')
 def resetpwd(request):
     # Basic django password reset feature is completely broken. For example, it does not support
     # resetting passwords for users with "old hashes", which means they have no way to ever
     # recover. So implement our own, since it's quite the trivial feature.
     if request.method == "POST":
-        try:
-            if 'email' not in request.POST:
-                return HttpResponse("Email must be specified", status=400)
-            u = User.objects.get(email__iexact=request.POST['email'])
-        except User.DoesNotExist:
-            log.info("Attempting to reset password of {0}, user not found".format(request.POST['email']))
-            return HttpResponseRedirect('/account/reset/done/')
-
-        form = PgwebPasswordResetForm(data=request.POST)
+        form = PgwebPasswordResetForm(data=request.POST, remoteip=get_client_ip(request))
         if form.is_valid():
+            try:
+                if 'email' not in request.POST:
+                    return HttpResponse("Email must be specified", status=400)
+                u = User.objects.get(email__iexact=request.POST['email'])
+            except User.DoesNotExist:
+                log.info("Attempting to reset password of {0}, user not found".format(request.POST['email']))
+                return HttpResponseRedirect('/account/reset/done/')
+
             log.info("Initiating password set from {0} for {1}".format(get_client_ip(request), form.cleaned_data['email']))
             token = default_token_generator.make_token(u)
             send_template_mail(
@@ -217,10 +218,11 @@ def resetpwd(request):
             )
             return HttpResponseRedirect('/account/reset/done/')
     else:
-        form = PgwebPasswordResetForm()
+        form = PgwebPasswordResetForm(remoteip=get_client_ip(request))
 
     return render(request, 'password_reset.html', {
         'form': form,
+        'recaptcha': True,
     })
 
 

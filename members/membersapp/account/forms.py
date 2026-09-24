@@ -174,6 +174,11 @@ class AddEmailForm(forms.Form):
 
 class PgwebPasswordResetForm(forms.Form):
     email = forms.EmailField()
+    captcha = ReCaptchaField()
+
+    def __init__(self, remoteip, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['captcha'].set_ip(remoteip)
 
 
 class ConfirmSubmitForm(forms.Form):
